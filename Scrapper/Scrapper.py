@@ -19,7 +19,7 @@ def controllo_tratta(OC,DC,DD,A):
     except ResponseError as error:
          raise error
 
-while true:
+while True:
     # json_string = '{ "currencyCode": "ZAR", "originDestinations": [ { "id": "1", "originLocationCode": "JNB", ' \
     #           '"destinationLocationCode": "CPT", "departureDateTimeRange": { "date": "2022-07-01", "time": "00:00:00" ' \
     #           '} }, { "id": "2", "originLocationCode": "CPT", "destinationLocationCode": "JNB", ' \
