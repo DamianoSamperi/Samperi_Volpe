@@ -11,11 +11,13 @@ trattegestite = 1 #numero di tratte da cercare, potremmo inserirlo insieme al fi
 def inviotratta(data):
     print(response)
 
-def controllo_tratta(OC,DC,DD,A):
+def controllo_tratta(user_id,OC,DC,DD,A):
     try:
         controllo = amadeus.shopping.flight_offers_search.get(originLocationCode=OC, destinationLocationCode=DC, departureDate=DD, adults=A) #se devo mandare un json con i parametri devo usare il post method
         data=f"{OC} {DC} {DD} {A}"
-        Controller_tratte.scrivi_file(data)
+        #Controller_tratte.scrivi_file(data) su file
+        #data=[user_id, OC, DC, DD, A]
+        #COntroller_tratte.scrivi_database(data) su database
     except ResponseError as error:
          raise error
 

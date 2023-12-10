@@ -1,4 +1,4 @@
-
+#questo se vogliamo utilizzare un file
 def leggi_file():
     tratte = []
     with open("tratte.txt", 'r') as file:
@@ -27,7 +27,47 @@ def estrai_valori(parola_inizio, parola_fine,riga):
 def scrivi_file(data):
     with open("tratte.txt", 'a') as file:
         file.write(data)
-        
-# with open("tratte.txt", 'w+') as file:
-#         file.write("prova: 2 funzione")
-print(leggi_file())
+#questo se utilizziamo il database Rules
+def leggi_database():
+    #conn = connessione a database
+
+    # Crea un cursore
+    cur = conn.cursor()
+
+    # Esegui una query SQL
+    cur.execute("SELECT * FROM tabella_tratte")
+
+    # Ottieni i risultati
+    risultati = cur.fetchall()
+
+    # Chiudi la connessione
+    conn.close()
+
+    # Inizializza un array vuoto
+    tratte = []
+
+    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
+    for tupla in risultati:
+        tratte.append(tupla)
+
+    # Stampa l'array di stringhe
+    return tratte 
+def scrivi_database(data):
+    #conn = connessione al database
+
+    # Crea un cursore
+    cur = conn.cursor()
+
+    # Prepara la query SQL
+    query = "INSERT INTO mia_tabella (colonna1, colonna2) VALUES (?, ?, ?, ?, ?)"
+
+    # Esegui la query SQL con i valori passati come parametri
+    cur.execute(query, (data[0], data[1], data[2], data[3], data[4]))
+
+    # Esegui il commit delle modifiche
+    conn.commit()
+
+    # Chiudi la connessione
+    conn.close()
+
+
