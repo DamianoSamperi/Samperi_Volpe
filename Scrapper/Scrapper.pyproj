@@ -25,6 +25,9 @@
     <Compile Include="Controller_tratte.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elaboratore.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Scrapper.py" />
   </ItemGroup>
   <ItemGroup>
