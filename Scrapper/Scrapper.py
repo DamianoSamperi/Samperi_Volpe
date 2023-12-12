@@ -6,7 +6,7 @@ amadeus = Client(
     client_secret='ungA0GVVriDUeztB'
 )
 trattegestite = 1 #numero di tratte da cercare, potremmo inserirlo insieme al file dei parametri e me li faccio passare
-# tratte = Controller_tratte.leggi_file()  caso get method
+# tratte = Controller_tratte.leggi_file()  caso get method, inserire controllo errore (nel caso controllo tratte ï¿½ down le tratte devono restare quelle non aggiornate)
 # trattegestite = len(tratte)
 def inviotratta(data):
     print(response)
@@ -38,7 +38,7 @@ while True:
     #           '"MOST_SEGMENTS", "originDestinationIds": [ "2" ] }, { "cabin": "ECONOMY", "coverage": "MOST_SEGMENTS", ' \
     #           '"originDestinationIds": [ "1" ] } ], "connectionRestriction": { "airportChangeAllowed": true, ' \
     #           '"technicalStopsAllowed": true } } } }'
-    #body = json.loads(json_string)   nel caso metodo get non ho bisogno del json però posso farmi passare meno parametri dall'utente però è pure un casino fare il json
+    #body = json.loads(json_string)   nel caso metodo get non ho bisogno del json perï¿½ posso farmi passare meno parametri dall'utente perï¿½ ï¿½ pure un casino fare il json
     for i in range (1,trattegestite):
         try:
             # response = amadeus.shopping.flight_offers_search.get(originLocationCode='SYD', destinationLocationCode='BKK', departureDate='2023-12-08', adults=1) se devo mandare un json con i parametri devo usare il post method
@@ -48,4 +48,9 @@ while True:
             inviotratta(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
         except ResponseError as error:
             raise error
-
+    
+#ci provo di nuovo
+#statti femma        
+#l'ho scaricato
+#again
+#prova ahbsubudebudb

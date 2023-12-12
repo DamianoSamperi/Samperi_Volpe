@@ -69,7 +69,10 @@ def scrivi_database(data):
 
     # Chiudi la connessione
     conn.close()
+    
+#prova commento
 
     #prova mio commento Elena
 
 
+     
