@@ -48,5 +48,7 @@ while True:
             inviotratta(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
         except ResponseError as error:
             raise error
+    
+#ci provo di nuovo
         
 
