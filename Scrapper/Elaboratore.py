@@ -18,9 +18,9 @@ for message in consumer:
 
     # Esegui una query sul database per verificare le informazioni del messaggio
     cursor.execute("SELECT user_id FROM rules WHERE originLocationCode = ? AND destinationLocationCode= ? AND adults = ?", (msg['originLocationCode'],msg['destinationLocationCode'],msg['adults'],))
-
+    #potrebbe poi fare una query a User Id per sapere la sua mail e mandare a notify msg e mail
     result = cursor.fetchone()
     if result is not None:
-        print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id e il msg
+        print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
     else:
         print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta 

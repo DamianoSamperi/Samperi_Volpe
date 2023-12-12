@@ -6,7 +6,7 @@ amadeus = Client(
     client_secret='ungA0GVVriDUeztB'
 )
 trattegestite = 1 #numero di tratte da cercare, potremmo inserirlo insieme al file dei parametri e me li faccio passare
-# tratte = Controller_tratte.leggi_file()  caso get method
+# tratte = Controller_tratte.leggi_file()  caso get method, inserire controllo errore (nel caso controllo tratte è down le tratte devono restare quelle non aggiornate)
 # trattegestite = len(tratte)
 def inviotratta(data):
     print(response)
@@ -48,4 +48,5 @@ while True:
             inviotratta(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
         except ResponseError as error:
             raise error
+        
 
