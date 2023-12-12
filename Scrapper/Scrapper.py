@@ -1,11 +1,14 @@
 from msilib import Control
 from amadeus import Client, ResponseError
 import Controller_tratte
+import socket
+import json
+
 amadeus = Client(
     client_id='mO1GSbwraiZUlQ84AJWQPE6GkxINddt1',
     client_secret='ungA0GVVriDUeztB'
 )
-trattegestite = 1 #numero di tratte da cercare, potremmo inserirlo insieme al file dei parametri e me li faccio passare
+# trattegestite = 1 #numero di tratte da cercare, potremmo inserirlo insieme al file dei parametri e me li faccio passare
 # tratte = Controller_tratte.leggi_file()  caso get method, inserire controllo errore (nel caso controllo tratte � down le tratte devono restare quelle non aggiornate)
 # trattegestite = len(tratte)
 def inviotratta(data):
@@ -20,28 +23,36 @@ def controllo_tratta(user_id,OC,DC,DD,A):
         #COntroller_tratte.scrivi_database(data) su database
     except ResponseError as error:
          raise error
+def richiesta_tratte():
+    # Crea un socket TCP/IP
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    # Connette il socket alla porta dove il server è in ascolto
+    server_address = ('localhost', 12345)
+    sock.connect(server_address)
+
+    try:
+        # # Invia dati
+        # message = 'Richiesta di un vettore'
+        # sock.sendall(message.encode('utf-8'))
+
+        # Aspetta la risposta
+        data = sock.recv(1024)
+        tratte = json.loads(data.decode('utf-8'))
+        print('Vettore ricevuto {!r}'.format(tratte))
+
+    finally:
+        print('Chiusura del socket')
+        sock.close()
+        return tratte
 while True:
-    # json_string = '{ "currencyCode": "ZAR", "originDestinations": [ { "id": "1", "originLocationCode": "JNB", ' \
-    #           '"destinationLocationCode": "CPT", "departureDateTimeRange": { "date": "2022-07-01", "time": "00:00:00" ' \
-    #           '} }, { "id": "2", "originLocationCode": "CPT", "destinationLocationCode": "JNB", ' \
-    #           '"departureDateTimeRange": { "date": "2022-07-29", "time": "00:00:00" } } ], "travelers": [ { "id": ' \
-    #           '"1", "travelerType": "ADULT" }, { "id": "2", "travelerType": "ADULT" }, { "id": "3", "travelerType": ' \
-    #           '"HELD_INFANT", "associatedAdultId": "1" } ], "sources": [ "GDS" ], "searchCriteria": { ' \
-    #           '"excludeAllotments": true, "addOneWayOffers": false, "maxFlightOffers": 10, ' \
-    #           '"allowAlternativeFareOptions": true, "oneFlightOfferPerDay": true, "additionalInformation": { ' \
-    #           '"chargeableCheckedBags": true, "brandedFares": true, "fareRules": false }, "pricingOptions": { ' \
-    #           '"includedCheckedBagsOnly": false }, "flightFilters": { "crossBorderAllowed": true, ' \
-    #           '"moreOvernightsAllowed": true, "returnToDepartureAirport": true, "railSegmentAllowed": true, ' \
-    #           '"busSegmentAllowed": true, "carrierRestrictions": { "blacklistedInEUAllowed": true, ' \
-    #           '"includedCarrierCodes": [ "FA" ] }, "cabinRestrictions": [ { "cabin": "ECONOMY", "coverage": ' \
-    #           '"MOST_SEGMENTS", "originDestinationIds": [ "2" ] }, { "cabin": "ECONOMY", "coverage": "MOST_SEGMENTS", ' \
-    #           '"originDestinationIds": [ "1" ] } ], "connectionRestriction": { "airportChangeAllowed": true, ' \
-    #           '"technicalStopsAllowed": true } } } }'
+    tratte=richiesta_tratte()
+    trattegestite=sizeof(tratte)
     #body = json.loads(json_string)   nel caso metodo get non ho bisogno del json per� posso farmi passare meno parametri dall'utente per� � pure un casino fare il json
     for i in range (1,trattegestite):
         try:
-            # response = amadeus.shopping.flight_offers_search.get(originLocationCode='SYD', destinationLocationCode='BKK', departureDate='2023-12-08', adults=1) se devo mandare un json con i parametri devo usare il post method
+            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratte[0], destinationLocationCode=tratte[1], departureDate=tratte[2], adults=tratte[3])
+            #response = amadeus.shopping.flight_offers_search.get(originLocationCode='SYD', destinationLocationCode='BKK', departureDate='2023-12-08', adults=1) se devo mandare un json con i parametri devo usare il post method
             # response = amadeus.shopping.flight_offers_search.post(body) nel caso post method
             # biaogna fare una response in cui tutti i paramentri variano al variare di i, quindi magare un microservizio che scrive e legge un file e mi invia un array di stringhe , 
             # print(response.data)
@@ -49,8 +60,4 @@ while True:
         except ResponseError as error:
             raise error
     
-#ci provo di nuovo
-#statti femma        
-#l'ho scaricato
-#again
-#prova ahbsubudebudb
+

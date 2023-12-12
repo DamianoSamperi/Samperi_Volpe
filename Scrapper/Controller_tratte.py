@@ -1,3 +1,6 @@
+import socket
+import json
+
 #questo se vogliamo utilizzare un file
 def leggi_file():
     tratte = []
@@ -69,10 +72,37 @@ def scrivi_database(data):
 
     # Chiudi la connessione
     conn.close()
-    
-#prova commento
 
-    #prova mio commento Elena
+def comunicazionesocket():
+    # Crea un socket TCP/IP
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    # Associa il socket a una porta
+    server_address = ('localhost', 12345)
+    sock.bind(server_address)
 
+    # Ascolta le connessioni in arrivo
+    sock.listen(1)
+
+    while True:
+        # Attende una connessione
+        print('In attesa di una connessione...')
+        connection, client_address = sock.accept()
+
+        try:
+            print('Connessione da', client_address)
+
+            # Riceve i dati in piccoli segmenti
+            # data = connection.recv(16)
+            # print('Ricevuto {!r}'.format(data))
+
+            # Invia i dati
+            # if data:
+            print('Invio del vettore al client')
+            vector = leggi_database()
+            connection.sendall(vector.encode('utf-8'))
+
+        finally:
+            # Pulisce la connessione
+            connection.close() 
      
