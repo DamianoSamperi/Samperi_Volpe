@@ -2,13 +2,11 @@
 #ciao Damiano
 
 def registra_client():
+    #chiama la funzione "insersci_client" di UserInfo
     return
-    #inserisce i clienti nel database
 
-def inserisci_rules():
-    return
-    #inserisce le rules
-
+#forse ha più senso fare un unico metodo e in base al tipo di richiesta passata
+#(tratta o aeroporto), allora chiama la funzione giusta del microservizio Rules
 def invia_tratta():
     return
     #invia tratta al topic kafka
