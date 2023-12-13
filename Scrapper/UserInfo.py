@@ -33,7 +33,8 @@ def get_clients():
     return users
 
 def get_id_by_email(email):
-    cursor.execute("SELECT user_id FROM users WHERE email=" + email)
+    id=cursor.execute("SELECT user_id FROM users WHERE email=" + email)
+    return id
 
 def control_client(email):
     cursor.execute("SELECT * FROM users WHERE email=" + email)
