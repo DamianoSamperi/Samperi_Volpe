@@ -27,7 +27,18 @@ def inserisci_client(nome,cognome,email):
     conn.commit()
     conn.close()
 
-def get_client():
+def get_clients():
     cursor.execute("SELECT * FROM users")
     users = cursor.fetchall()
     return users
+
+def get_id_by_email(email):
+    cursor.execute("SELECT user_id FROM users WHERE email=" + email)
+
+def control_client(email):
+    cursor.execute("SELECT * FROM users WHERE email=" + email)
+    result=cursor.fetchall()
+    if result != NULL
+        return true
+    else
+        return false
