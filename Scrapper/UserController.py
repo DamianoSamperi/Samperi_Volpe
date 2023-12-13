@@ -21,6 +21,6 @@ def autentica_client():
     return
     #autentica il cliente
 
-def trova_email():
+def trova_email(rules):
     return
     #chiamata da elaboratore per trovare le email dei client interessati

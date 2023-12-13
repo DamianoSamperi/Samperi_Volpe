@@ -2,10 +2,9 @@
 from kafka import KafkaConsumer
 import sqlite3
 import json
+import UserController
 
-# Crea una connessione al database SQLite
-conn = sqlite3.connect('Rules')
-cursor = conn.cursor()
+
 
 # Crea un consumatore Kafka
 consumer = KafkaConsumer('tratte',
@@ -16,10 +15,11 @@ for message in consumer:
     # Ottieni il messaggio dal topic Kafka
     msg = message.value
 
-    # Esegui una query sul database per verificare le informazioni del messaggio
-    cursor.execute("SELECT user_id FROM rules WHERE originLocationCode = ? AND destinationLocationCode= ? AND adults = ?", (msg['originLocationCode'],msg['destinationLocationCode'],msg['adults'],))
-    #potrebbe poi fare una query a User Id per sapere la sua mail e mandare a notify msg e mail
-    result = cursor.fetchone()
+    # #  Esegui una query sul database per verificare le informazioni del messaggio
+    # cursor.execute("SELECT user_id FROM rules WHERE originLocationCode = ? AND destinationLocationCode= ? AND adults = ?", (msg['originLocationCode'],msg['destinationLocationCode'],msg['adults'],))
+    # #potrebbe poi fare una query a User Id per sapere la sua mail e mandare a notify msg e mail
+    # result = cursor.fetchone()
+    result = UserController.trova_email(msg)
     if result is not None:
         print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
     else:
