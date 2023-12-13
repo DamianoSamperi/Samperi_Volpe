@@ -18,7 +18,7 @@ cursor.execute('''
 
 def inserisci_client(nome,cognome,email):
     cursor.execute('''
-    INSERT INTO utenti (nome, cognome, email)
+    INSERT INTO users (nome, cognome, email)
     VALUES (?, ?, ?)
     ''', (nome, cognome, email))
     
