@@ -38,7 +38,7 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
 
 def inserisci_aeroporto(user_id,origine,budget):
     cursor.execute('''
-    INSERT INTO tratte (user_id, origine, budget)
+    INSERT INTO aeroporti (user_id, origine, budget)
     VALUES (?, ?, ?, ?)
     ''', (user_id, origine, budget))
     
