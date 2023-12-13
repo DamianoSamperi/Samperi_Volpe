@@ -25,7 +25,6 @@ def inserisci_client(nome,cognome,email):
     
     # Commit delle modifiche e chiusura della connessione
     conn.commit()
-    conn.close()
 
 def get_clients():
     cursor.execute("SELECT * FROM users")
@@ -43,3 +42,6 @@ def control_client(email):
         return true
     else
         return false
+
+#la chiamo solo se crasha qualcosa
+#conn.close()
