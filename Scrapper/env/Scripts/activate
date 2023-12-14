@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\damih\source\repos\Samperi_Volpe\Scrapper\env"
+VIRTUAL_ENV="C:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\Scrapper\env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
