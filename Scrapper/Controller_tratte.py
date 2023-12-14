@@ -1,6 +1,29 @@
 import socket
 import json
+import sqlite3
 
+conn1 = sqlite3.connect('tratte_salvate.db')
+conn2 = sqlite3.connect('aeroporti_salvati.db')
+
+# Creazione di un cursore per eseguire le query SQL
+cursor1 = conn1.cursor()
+cursor2 = conn2.cursor()
+cursor1.execute('''
+    CREATE TABLE IF NOT EXISTS tratte (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        origine TEXT NOT NULL,
+        destinazione TEXT NOT NULL,
+        budget INTEGER
+    )
+''')
+
+cursor2.execute('''
+    CREATE TABLE IF NOT EXISTS aeroporti (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        origine TEXT NOT NULL,
+        budget INTEGER
+    )
+''')
 #questo se vogliamo utilizzare un file
 def leggi_file():
     tratte = []
@@ -32,19 +55,22 @@ def scrivi_file(data):
         file.write(data)
 #questo se utilizziamo il database Rules
 def leggi_database():
-    #conn = connessione a database
-
-    # Crea un cursore
-    cur = conn.cursor()
+    # #conn = connessione a database
+    # conn = sqlite3.connect('tratte_salvate.db')
+    # # Crea un cursore
+    # cur = conn.cursor()
 
     # Esegui una query SQL
-    cur.execute("SELECT * FROM tabella_tratte")
+    cursor1.execute("SELECT * FROM tratte_salvate")
+    cursor2.execute("SELECT * FROM aeroporti_salvati")
 
     # Ottieni i risultati
-    risultati = cur.fetchall()
+    risultati = cursor1.fetchall()
+    risultati2 = cursor2.fetchall()
+
 
     # Chiudi la connessione
-    conn.close()
+    # conn1.close()
 
     # Inizializza un array vuoto
     tratte = []
@@ -52,26 +78,45 @@ def leggi_database():
     # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
         tratte.append(tupla)
+    for tupla in risultati2:
+        tratte.append(tupla)
 
     # Stampa l'array di stringhe
     return tratte 
-def scrivi_database(data):
+def scrivi_database_tratte(data):
     #conn = connessione al database
 
     # Crea un cursore
-    cur = conn.cursor()
+    # cur = conn.cursor()
 
     # Prepara la query SQL
-    query = "INSERT INTO mia_tabella (colonna1, colonna2) VALUES (?, ?, ?, ?, ?)"
+    query = "INSERT INTO tratte_salvate ( origine, destinazione , budget) VALUES (?, ?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
 
     # Esegui la query SQL con i valori passati come parametri
-    cur.execute(query, (data[0], data[1], data[2], data[3], data[4]))
+    cursor1.execute(query, (data[0], data[1], data[2]))
 
     # Esegui il commit delle modifiche
-    conn.commit()
+    conn1.commit()
 
     # Chiudi la connessione
-    conn.close()
+    #conn.close()
+def scrivi_database_aeroporti(data):
+    #conn = connessione al database
+
+    # Crea un cursore
+    # cur = conn.cursor()
+
+    # Prepara la query SQL
+    query = "INSERT INTO tratte_salvate ( origine, budget) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+
+    # Esegui la query SQL con i valori passati come parametri
+    cursor2.execute(query, (data[0], data[1]))
+
+    # Esegui il commit delle modifiche
+    conn2.commit()
+
+    # Chiudi la connessione
+    #conn.close()
 
 def comunicazionesocket():
     # Crea un socket TCP/IP
@@ -98,7 +143,7 @@ def comunicazionesocket():
 
             # Invia i dati
             # if data:
-            print('Invio del vettore al client')
+            print('Invio del vettore allo Scraper')
             vector = leggi_database()
             connection.sendall(vector.encode('utf-8'))
 

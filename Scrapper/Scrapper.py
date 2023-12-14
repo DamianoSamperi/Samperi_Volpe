@@ -47,7 +47,7 @@ def richiesta_tratte():
         return tratte
 while True:
     tratte=richiesta_tratte()
-    trattegestite=sizeof(tratte)
+    trattegestite=len(tratte)
     #body = json.loads(json_string)   nel caso metodo get non ho bisogno del json per� posso farmi passare meno parametri dall'utente per� � pure un casino fare il json
     for i in range (1,trattegestite):
         try:

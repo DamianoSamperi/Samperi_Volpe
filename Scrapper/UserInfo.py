@@ -38,10 +38,10 @@ def get_id_by_email(email):
 def control_client(email):
     cursor.execute("SELECT * FROM users WHERE email=" + email)
     result=cursor.fetchall()
-    if result != NULL
-        return true
-    else
-        return false
+    if result != None:
+        return True
+    else:
+        return False
 
 #la chiamo solo se crasha qualcosa
 #conn.close()
