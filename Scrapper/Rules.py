@@ -32,19 +32,34 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
     VALUES (?, ?, ?, ?)
     ''', (user_id, origine, destinazione, budget))
     
-    # Commit delle modifiche e chiusura della connessione
     conn1.commit()
-    return
 
 def inserisci_aeroporto(user_id,origine,budget):
     cursor2.execute('''
     INSERT INTO aeroporti (user_id, origine, budget)
     VALUES (?, ?, ?, ?)
     ''', (user_id, origine, budget))
-    
-    # Commit delle modifiche e chiusura della connessione
+ 
     conn2.commit()
-    return
+
+def get_tratte():
+    cursor1.execute(" SELECT * from tratte")
+    result=cursor1.fetchall()
+    return result
+
+def get_aeroporti():
+    cursor2.execute(" SELECT * from aeroporti")
+    result=cursor2.fetchall()
+    return result
+
+def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
+    cursor1.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
+    "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
+    return cursor1.fetchall()
+
+def get_users_by_aeroporto(aerporto):
+    cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + origine)
+    return cursor2.fetchall()
 
 #farlo se crasha qualcosa
 #conn1.close()

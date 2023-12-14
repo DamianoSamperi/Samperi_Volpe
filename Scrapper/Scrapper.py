@@ -55,6 +55,7 @@ def richiesta_tratte():
         print('Chiusura del socket')
         sock.close()
         return tratte
+    
 while True:
     tratte=richiesta_tratte()
     trattegestite=len(tratte)
@@ -70,4 +71,6 @@ while True:
         except ResponseError as error:
             raise error
     
-
+#Damiano qui si deve aggiungere anche la ricerca search_flight_inspiration o qualcosa
+#del genere, te l'avevo inviato su telegram, per le offerte speciali in partenza
+#da un aeroporto specifico
