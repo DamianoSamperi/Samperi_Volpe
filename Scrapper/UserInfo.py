@@ -1,5 +1,6 @@
 import sqlite3
 
+#forse tutto ciò si deve fare all'interno della funzione, vedi
 conn = sqlite3.connect('users.db')
 
 # Creazione di un cursore per eseguire le query SQL
@@ -24,4 +25,23 @@ def inserisci_client(nome,cognome,email):
     
     # Commit delle modifiche e chiusura della connessione
     conn.commit()
-    conn.close()
+
+def get_clients():
+    cursor.execute("SELECT * FROM users")
+    users = cursor.fetchall()
+    return users
+
+def get_id_by_email(email):
+    id=cursor.execute("SELECT user_id FROM users WHERE email=" + email)
+    return id
+
+def control_client(email):
+    cursor.execute("SELECT * FROM users WHERE email=" + email)
+    result=cursor.fetchall()
+    if result != NULL
+        return true
+    else
+        return false
+
+#la chiamo solo se crasha qualcosa
+#conn.close()
