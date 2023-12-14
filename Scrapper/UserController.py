@@ -1,5 +1,5 @@
-import UserInfo.py
-import Rules.py
+import UserInfo
+import Rules
 
 def registra_client():
     UserInfo.inserisci_client(nome,cognome,email)

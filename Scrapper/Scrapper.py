@@ -1,8 +1,11 @@
 from msilib import Control
 from amadeus import Client, ResponseError
-import Controller_tratte
+import Scrapper.Controllo_tratte.Controller_tratte as Controller_tratte
 import socket
 import json
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
 
 amadeus = Client(
     client_id='mO1GSbwraiZUlQ84AJWQPE6GkxINddt1',
@@ -11,9 +14,16 @@ amadeus = Client(
 # trattegestite = 1 #numero di tratte da cercare, potremmo inserirlo insieme al file dei parametri e me li faccio passare
 # tratte = Controller_tratte.leggi_file()  caso get method, inserire controllo errore (nel caso controllo tratte � down le tratte devono restare quelle non aggiornate)
 # trattegestite = len(tratte)
+global incomes
 def inviotratta(data):
     print(response)
 
+@app.route('/recuperodati_scraper', methods=['POST']) 
+def comunicazionepost():
+    #incomes.append(request.get_json())
+    incomes = request.form['tratte']
+    return '', 204    
+  
 def controllo_tratta(user_id,OC,DC,DD,A):
     try:
         controllo = amadeus.shopping.flight_offers_search.get(originLocationCode=OC, destinationLocationCode=DC, departureDate=DD, adults=A) #se devo mandare un json con i parametri devo usare il post method
