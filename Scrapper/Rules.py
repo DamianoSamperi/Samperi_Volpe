@@ -57,8 +57,8 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
     return cursor1.fetchall()
 
-def get_users_by_aeroporto(aerporto):
-    cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + origine)
+def get_users_by_aeroporto(aeroporto):
+    cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
     return cursor2.fetchall()
 
 #farlo se crasha qualcosa
