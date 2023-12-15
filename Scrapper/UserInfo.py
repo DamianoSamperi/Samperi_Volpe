@@ -40,4 +40,5 @@ def control_client(email):
         return False
 
 #la chiamo solo se crasha qualcosa
-#conn.close()
+def chiusura_programma():
+    conn.close()

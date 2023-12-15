@@ -62,5 +62,6 @@ def get_users_by_aeroporto(aerporto):
     return cursor2.fetchall()
 
 #farlo se crasha qualcosa
-#conn1.close()
-#conn2.close()
+def chiusura_programma():
+    conn1.close()
+    conn2.close()
