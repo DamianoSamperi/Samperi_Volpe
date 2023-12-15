@@ -22,8 +22,7 @@ def main():
             aeroporto()
         elif scelta == 0:
             print("Uscita dal programma.")
-            UserInfo.chiusura_programma()
-            Rules.chiusura_programma()
+            #chiudo la sessione utente
         else:
             print("inserisci una scelta valida")
             main() #vedi se si fa così

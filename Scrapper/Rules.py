@@ -61,7 +61,7 @@ def get_users_by_aeroporto(aeroporto):
     cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
     return cursor2.fetchall()
 
-#farlo se crasha qualcosa
-def chiusura_programma():
+#la chiamo solo se crasha qualcosa 
+def crash():
     conn1.close()
     conn2.close()
