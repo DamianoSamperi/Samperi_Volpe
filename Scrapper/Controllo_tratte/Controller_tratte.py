@@ -78,15 +78,16 @@ def leggi_database():
 
     # Inizializza un array vuoto
     tratte = []
+    aeroporti = []
 
     # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
         tratte.append(tupla)
     for tupla in risultati2:
-        tratte.append(tupla)
+        aeroporti.append(tupla)
 
     # Stampa l'array di stringhe
-    return tratte 
+    return tratte,aeroporti
 def scrivi_database_tratte(data):
     #conn = connessione al database
 

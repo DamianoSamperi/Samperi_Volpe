@@ -2,6 +2,7 @@ import UserInfo
 import Rules
 
 #non so se conviene di fare il main, intanto lo faccio così
+#TO_DO non è il cliente questo, non è nemmeno neccesario averne uno
 def main():
     scelta=None
     while scelta != 0:
