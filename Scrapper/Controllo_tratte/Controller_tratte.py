@@ -123,6 +123,8 @@ def scrivi_database_aeroporti(data):
     # Chiudi la connessione
     #conn.close()
 
+#TO-DO Damiano scusa l'ignoranza,ma questa non è la richiesta per riceverlo?
+#non devi implementare qui l'invio?
 @app.route('/inviodati_scraper', methods=['POST']) 
 def comunicazionepost():
     tratte = leggi_database()
