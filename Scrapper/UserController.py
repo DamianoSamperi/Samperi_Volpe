@@ -73,7 +73,9 @@ def aeroporto():
     autentica_client(email)
     origine=input("inserisci aeroporto origine: ")
     budget=int(input("inserisci il tuo budget, 9999 se non hai un budget: "))
-    inserisci_aeroporto(email,origine,budget)    
+    inserisci_aeroporto(email,origine,budget)   
+
+#TO_DO aggiungere comunicazione tra microservizi dapertutto
     
 def registra_client(utente):
     #prima controllo se era già registrato
