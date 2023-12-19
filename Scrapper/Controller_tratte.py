@@ -28,36 +28,6 @@ cursor2.execute('''
         budget INTEGER
     )
 ''')
-#questo se vogliamo utilizzare un file
-def leggi_file():
-    tratte = []
-    with open("tratte.txt", 'r') as file:
-        for riga in file:
-            # tratte.append(estrai_valori("originLocationCode=","destinationLocationCode=",riga))
-            # tratte.append(estrai_valori("destinationLocationCode=","departureDate=",riga))
-            # tratte.append(estrai_valori("departureDate=","adults=",riga))
-            # tratte.append(estrai_valori("adults=","",riga))
-            tratte.append(riga.split())         
-    return tratte
-def estrai_valori(parola_inizio, parola_fine,riga):
-    # matrice = []
-    # with open("tratte.txt", 'r') as file:
-    #     for riga in file:
-            parole = riga.split()
-            print(parole)
-            try:
-                indice_inizio = parole.index(parola_inizio) + 1
-                indice_fine = parole.index(parola_fine)
-            except ValueError as error:
-                # continue
-                raise error
-            valori = parole[indice_inizio:indice_fine]
-            return valori
-
-def scrivi_file(data):
-    with open("tratte.txt", 'a') as file:
-        file.write(data)
-
 #questo se utilizziamo il database Rules
 def leggi_database():
     # #conn = connessione a database
@@ -97,13 +67,12 @@ def scrivi_database_tratte(data):
     # cur = conn.cursor()
 
     # Prepara la query SQL
-    query = "INSERT INTO tratte_salvate ( origine, destinazione , budget) VALUES (?, ?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+    query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
     #TO-DO Damiano devi controllare se esiste già
-    #in più non c'è bisogno del budget, devi salvare solo la tratta
-    #budget serve solo all'elaboratore e lo prende da Rules
+  
 
     # Esegui la query SQL con i valori passati come parametri
-    cursor1.execute(query, (data[0], data[1], data[2]))
+    cursor1.execute(query, (data[0], data[1]))
 
     # Esegui il commit delle modifiche
     conn1.commit()
@@ -118,13 +87,11 @@ def scrivi_database_aeroporti(data):
     # cur = conn.cursor()
 
     # Prepara la query SQL
-    query = "INSERT INTO tratte_salvate ( origine, budget) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+    query = "INSERT INTO tratte_salvate ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
     #TO-DO Damiano devi controllare se esiste già
-    #in più non c'è bisogno del budget, devi salvare solo l'aeroporto'
-    #budget serve solo all'elaboratore e lo prende da Rules
-
+  
     # Esegui la query SQL con i valori passati come parametri
-    cursor2.execute(query, (data[0], data[1]))
+    cursor2.execute(query, (data[0]))
 
     # Esegui il commit delle modifiche
     conn2.commit()
