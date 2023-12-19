@@ -107,14 +107,14 @@ def comunicazionepost():
     # return response.text   
 
 #TO_DO Elena le comunicazioni di user controller devono inviarla qui
-@app.route('/invio_tratte_controllo', methods=['POST']) 
+@app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
 def comunicazioneUser():
-    tratte= request.form['tratt1']
+    tratte= request.jsons
     scrivi_database_tratte(tratte)
     # return '', 204    
-@app.route('/invio_aeroporto_controllo', methods=['POST']) 
+@app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
 def comunicazioneUser():
-    aeroporti = request.form['aeroporto']
+    aeroporti = request.jsons
     scrivi_database_aeroporti(aeroporti)
     # return '', 204    
 def comunicazionesocket():

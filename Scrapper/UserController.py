@@ -142,17 +142,10 @@ def trova_email_by_offerte(ori):
     #chiamata da elaboratore per trovare le email dei client interessati a un offerta
     #devo fare una GET
 
-<<<<<<< HEAD
-#TO_DO Elena un mess
-def invia_tratta():
-    return
-    #invia tratta a controllo tratte
-=======
 #TO-DO vedi meglio
 def invia_tratta(origine, destinazione):
     # URL del servizio Flask
     url = 'http://localhost:5000/ricevi_tratte_usercontroller'
->>>>>>> d6616382eab36ca1371cf7d2ccd5268a751d0d00
 
     # Dati da inviare con la richiesta POST
     payload = {'origine': origine, 'destinazione': destinazione}
