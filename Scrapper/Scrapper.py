@@ -1,6 +1,6 @@
 from msilib import Control
 from amadeus import Client, ResponseError
-import Controllo_tratte.Controller_tratte as Controller_tratte
+import Samperi_Volpe.Scrapper.Controller_tratte as Controller_tratte
 import socket
 from kafka import KafkaProducer
 import json
@@ -29,8 +29,8 @@ def invioaeroporto(data):
 @app.route('/recuperodati_scraper', methods=['POST']) 
 def comunicazionepost():
     #incomes.append(request.get_json())
-    incomes = request.form['tratte']
-    return '', 204    
+    incomes = request.form['vet_tratte']
+    # return '', 204    
   
 #TO_DO probabilmente va cambiata da comunicazione con socket a quella con flask
 def richiesta_tratte():

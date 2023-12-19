@@ -88,9 +88,6 @@ def leggi_database():
 
     # Stampa l'array di stringhe
     return tratte,aeroporti
-
-#TO-DO Damiano qui non serve che salvi anche il budget, serve solo la tratta
-#il budget viene controllato poi dall'elaboratore
 def scrivi_database_tratte(data):
     #conn = connessione al database
 
@@ -99,7 +96,6 @@ def scrivi_database_tratte(data):
 
     # Prepara la query SQL
     query = "INSERT INTO tratte_salvate ( origine, destinazione , budget) VALUES (?, ?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-    #TO-DO devi controllare che non esiste già
 
     # Esegui la query SQL con i valori passati come parametri
     cursor1.execute(query, (data[0], data[1], data[2]))
@@ -109,9 +105,6 @@ def scrivi_database_tratte(data):
 
     # Chiudi la connessione
     #conn.close()
-
-#TO-DO Damiano qui non serve che salvi anche il budget, serve solo la tratta
-#il budget viene controllato poi dall'elaboratore
 def scrivi_database_aeroporti(data):
     #conn = connessione al database
 
@@ -120,7 +113,6 @@ def scrivi_database_aeroporti(data):
 
     # Prepara la query SQL
     query = "INSERT INTO tratte_salvate ( origine, budget) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-    #TO-DO devi controllare che non esista già
 
     # Esegui la query SQL con i valori passati come parametri
     cursor2.execute(query, (data[0], data[1]))
@@ -137,8 +129,7 @@ def scrivi_database_aeroporti(data):
 def comunicazionepost():
     tratte = leggi_database()
     response = requests.post('http://localhost:5000/recuperodati_scraper', tratte=tratte)
-    return response.text  
- 
+    return response.text   
 def comunicazionesocket():
     # Crea un socket TCP/IP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -171,20 +162,4 @@ def comunicazionesocket():
         finally:
             # Pulisce la connessione
             connection.close() 
-
-#TO-DO forse è così che funziona, qui riceve le tratte e aeroporti da UserController
-@app.route('/ricevi_tratte_usercontroller', methods=['POST'])
-def receive_data():
-    if requests.method == 'POST': #forse è request?
-        data = requests.json
-        scrivi_database_tratte(data) #TO-DO nella funzione devi controllare che non esista già nel db
-        #result = {'message': 'Data received successfully', 'data': data}
-        #return jsonify(result) 
-    
-@app.route('/ricevi_aeroporti_usercontroller', methods=['POST'])
-def receive_data():
-    if requests.method == 'POST': #forse è request?
-        data = requests.json
-        scrivi_database_aeroporti(data) #TO-DO nella funzione devi controllare che non esista già nel db
-        #result = {'message': 'Data received successfully', 'data': data}
-        #return jsonify(result) 
+     

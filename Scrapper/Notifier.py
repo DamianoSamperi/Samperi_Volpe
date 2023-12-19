@@ -13,7 +13,7 @@ def inviomail(notifiche):
     # for tupla in notifiche:
         # s.sendmail("mittente", tupla[0] , tupla[1])
     # s.quit
-    print(mail)
+    print(notifiche[0])
 
 
 @app.route('/recuperomail', methods=['POST']) 

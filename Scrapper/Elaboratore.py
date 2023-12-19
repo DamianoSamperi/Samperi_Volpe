@@ -3,20 +3,18 @@ from kafka import KafkaConsumer
 import sqlite3
 import json
 import UserController
-from flask import Flask, jsonify, requests
+import requests
 
-
-app = Flask(__name__)
 
 # Crea un consumatore Kafka
 consumer = KafkaConsumer('tratte',
                          bootstrap_servers=['localhost:9092'],
                          value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
-@app.route('/InvioNotifier', methods=['POST']) 
+
 def invioNotifier(notifiche):
     print(notifiche)
-    response = requests.post('http://localhost:5000/recuperomail', notifiche=notifiche)
-    return response.text   
+    response = requests.post('http://localhost:5000/recuperomail', {'notifiche':'notifiche'})
+    # return response.text   
 
 # def invioNotifier(data,msg):
 #     print(data)
