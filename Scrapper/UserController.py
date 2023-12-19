@@ -2,6 +2,7 @@ import UserInfo
 import Rules
 from flask import Flask, request, jsonify
 import json
+import requests
 
 app = Flask(__name__)  
 
@@ -15,14 +16,13 @@ def registra_client(utente):
         print("cliente già registrato")
 
 def inserisci_tratta(email, origine, destinazione, budget):
-    #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
     user=autentica_client(email)
 
     #Rules.inserisci_tratta(user,origine,destinazione,budget)
     url = 'http://localhost:5000/ricevi_tratte_Rules'
     payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
     headers = {'Content-Type': 'application/json'}
-    response = request.post(url, data=json.dumps(payload), headers=headers)
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())
@@ -30,14 +30,13 @@ def inserisci_tratta(email, origine, destinazione, budget):
     invia_tratta(origine,destinazione)
 
 def inserisci_aeroporto(email,origine,budget):
-    #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
     user=autentica_client(email)
 
     #Rules.inserisci_aeroporto(user,origine,budget)
     url = 'http://localhost:5000/ricevi_aeroporti_Rules'
     payload = {'userid': user, 'origine': origine, 'budget': budget}
     headers = {'Content-Type': 'application/json'}
-    response = request.post(url, data=json.dumps(payload), headers=headers)
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())
@@ -48,7 +47,7 @@ def autentica_client(email):
     url = 'http://localhost:5000/controlla_utente'
     params = {'email': email}
     try:
-        response = request.get(url, params=params)
+        response = requests.get(url, params=params)
         if response.status_code == 200:
             user=response.json.userid
             if user==False:
@@ -90,7 +89,7 @@ def invia_tratta(origine, destinazione):
     headers = {'Content-Type': 'application/json'}
 
     # Invia la richiesta POST al servizio Flask
-    response = request.post(url, data=json.dumps(payload), headers=headers)
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
 
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
@@ -108,7 +107,7 @@ def invia_aeroporto(aeroporto):
     headers = {'Content-Type': 'application/json'}
 
     # Invia la richiesta POST al servizio Flask
-    response = request.post(url, data=json.dumps(payload), headers=headers)
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
 
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
