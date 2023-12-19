@@ -162,4 +162,21 @@ def comunicazionesocket():
         finally:
             # Pulisce la connessione
             connection.close() 
+
+#TO-DO forse è così che funziona, qui riceve le tratte e aeroporti da UserController
+@app.route('/ricevi_tratte_usercontroller', methods=['POST'])
+def receive_data():
+    if requests.method == 'POST': #forse è request?
+        data = requests.json
+        scrivi_database_tratte(data) #TO-DO nella funzione devi controllare che non esista già nel db
+        #result = {'message': 'Data received successfully', 'data': data}
+        #return jsonify(result) 
+    
+@app.route('/ricevi_aeroporti_usercontroller', methods=['POST'])
+def receive_data():
+    if requests.method == 'POST': #forse è request?
+        data = requests.json
+        scrivi_database_aeroporti(data) #TO-DO nella funzione devi controllare che non esista già nel db
+        #result = {'message': 'Data received successfully', 'data': data}
+        #return jsonify(result) 
      
