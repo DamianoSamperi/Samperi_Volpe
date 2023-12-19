@@ -26,11 +26,13 @@ for message in consumer:
     # Ottieni il messaggio dal topic Kafka
     notifiche = []
     msg = message.value
+    
     result = UserController.trova_email(msg)
-    if result is not None:
-        print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
-        notifiche.append(result,msg)
-        # invioNotifier(result,msg)
-    else:
-        print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
-    invioNotifier(notifiche) 
+    if(UserController.torna_budget(result)<):
+        if result is not None:
+            print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
+            notifiche.append(result,msg)
+            # invioNotifier(result,msg)
+        else:
+            print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
+        invioNotifier(notifiche) 
