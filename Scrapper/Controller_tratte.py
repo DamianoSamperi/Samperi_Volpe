@@ -110,6 +110,8 @@ def comunicazioneUser():
     scrivi_database_tratte(tratte)
     scrivi_database_aeroporti(aeroporti)
     # return '', 204    
+
+#questa oltre che da vedere solo se vogliamo sostituirla a flask    
 def comunicazionesocket():
     # Crea un socket TCP/IP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

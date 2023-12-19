@@ -118,6 +118,7 @@ def trova_email_by_offerte(ori):
     return users
     #chiamata da elaboratore per trovare le email dei client interessati a un offerta
 
+#TO_DO Elena un mess
 def invia_tratta():
     return
     #invia tratta a controllo tratte
