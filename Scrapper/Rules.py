@@ -48,35 +48,11 @@ def get_tratte():
     cursor1.execute(" SELECT * from tratte")
     result=cursor1.fetchall()
     return result
-    
-    ''' URL del servizio Flask
-    url = 'http://localhost:5000/api/tratte_usercontroller'
-    # Dati da inviare con la richiesta POST
-    payload = jsonify({'tratte': result})
-    # Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
-    headers = {'Content-Type': 'application/json'}
-    # Invia la richiesta POST al servizio Flask
-    response = request.post(url, data=json.dumps(payload), headers=headers) #forse era requests, vedi
-    # Stampa la risposta ricevuta dal servizio
-    print(response.status_code)
-    print(response.json())'''
 
 def get_aeroporti():
     cursor2.execute(" SELECT * from aeroporti")
     result=cursor2.fetchall()
     return result 
-
-    '''# URL del servizio Flask
-    url = 'http://localhost:5000/api/aeroporti_usercontroller'
-    # Dati da inviare con la richiesta POST
-    payload = jsonify({'aeroporti': result})
-    # Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
-    headers = {'Content-Type': 'application/json'}
-    # Invia la richiesta POST al servizio Flask
-    response = request.post(url, data=json.dumps(payload), headers=headers) #forse era requests, vedi
-    # Stampa la risposta ricevuta dal servizio
-    print(response.status_code)
-    print(response.json())'''
 
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     cursor1.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
@@ -91,6 +67,14 @@ def get_users_by_aeroporto(aeroporto):
 def crash():
     conn1.close()
     conn2.close()
+
+@app.route('/ricevi_tratte_Rules', methods=['POST'])
+def ricevi_tratte()
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        inserisci_tratta(data) #TO-DO nella funzione devi controllare che non esista già nel db
+        #result = {'message': 'Data received successfully', 'data': data}
+        #return jsonify(result) 
 
 #TO-DO PROVA FLASK ----------------------------------------------------------------------
 '''def get_tratte_flask():
