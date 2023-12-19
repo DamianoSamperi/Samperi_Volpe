@@ -2,6 +2,8 @@ import sqlite3
 from flask import Flask, request, jsonify
 import json
 
+app = Flask(__name__)
+
 conn1 = sqlite3.connect('tratte.db')
 conn2 = sqlite3.connect('aeroporti.db')
 
@@ -68,16 +70,23 @@ def crash():
     conn1.close()
     conn2.close()
 
+#FLASK----------------------------------------------------------------------------------
+#VEDI
 @app.route('/ricevi_tratte_Rules', methods=['POST'])
-def ricevi_tratte()
+def ricevi_tratte():
     if request.method == 'POST': #forse è request?
         data = request.json
-        inserisci_tratta(data) #TO-DO nella funzione devi controllare che non esista già nel db
-        #result = {'message': 'Data received successfully', 'data': data}
-        #return jsonify(result) 
+        inserisci_tratta(data.userid,data.origine,data.destinazione,data.budget)
+        result = {'message': 'Data received successfully', 'data': data}
+        return jsonify(result) 
 
-#TO-DO PROVA FLASK ----------------------------------------------------------------------
-'''def get_tratte_flask():
-    cursor1.execute(" SELECT * from tratte")
-    result=cursor1.fetchall()'''
+#VEDI   
+@app.route('/ricevi_aeroporti_Rules', methods=['POST'])
+def ricevi_tratte():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        inserisci_aeroporto(data.userid,data.origine,data.budget)
+        result = {'message': 'Data received successfully', 'data': data}
+        return jsonify(result) 
+
     
