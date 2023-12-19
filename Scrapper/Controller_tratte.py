@@ -1,7 +1,8 @@
 import socket
 import json
 import sqlite3
-from flask import Flask, jsonify, requests
+from flask import Flask, jsonify, request
+import requests
 
 app = Flask(__name__)
 
@@ -67,8 +68,8 @@ def scrivi_database_tratte(data):
     # cur = conn.cursor()
 
     # Prepara la query SQL
-    query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-    #TO-DO Damiano devi controllare se esiste già
+    query = "REPLACE INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+    #TO-DO replace dovrebbe inserirlo se manca e sostituirlo se uguale
   
 
     # Esegui la query SQL con i valori passati come parametri
@@ -87,8 +88,8 @@ def scrivi_database_aeroporti(data):
     # cur = conn.cursor()
 
     # Prepara la query SQL
-    query = "INSERT INTO tratte_salvate ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
-    #TO-DO Damiano devi controllare se esiste già
+    query = "REPLACE INTO tratte_salvate ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
+    #TO-DO replace dovrebbe inserirlo se manca e sostituirlo se uguale
   
     # Esegui la query SQL con i valori passati come parametri
     cursor2.execute(query, (data[0]))
@@ -106,11 +107,14 @@ def comunicazionepost():
     # return response.text   
 
 #TO_DO Elena le comunicazioni di user controller devono inviarla qui
-@app.route('/inviodati_controllo', methods=['POST']) 
+@app.route('/invio_tratte_controllo', methods=['POST']) 
 def comunicazioneUser():
-    #incomes.append(request.get_json())
-    tratte, aeroporti = request.form['vet_tratte','vet_aeroporti']
+    tratte= request.form['tratt1']
     scrivi_database_tratte(tratte)
+    # return '', 204    
+@app.route('/invio_aeroporto_controllo', methods=['POST']) 
+def comunicazioneUser():
+    aeroporti = request.form['aeroporto']
     scrivi_database_aeroporti(aeroporti)
     # return '', 204    
 def comunicazionesocket():
