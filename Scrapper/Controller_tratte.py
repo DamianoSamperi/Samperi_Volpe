@@ -1,7 +1,8 @@
 import socket
 import json
 import sqlite3
-from flask import Flask, jsonify, requests
+from flask import Flask, jsonify, request
+import requests
 
 app = Flask(__name__)
 
@@ -28,35 +29,7 @@ cursor2.execute('''
         budget INTEGER
     )
 ''')
-#questo se vogliamo utilizzare un file
-def leggi_file():
-    tratte = []
-    with open("tratte.txt", 'r') as file:
-        for riga in file:
-            # tratte.append(estrai_valori("originLocationCode=","destinationLocationCode=",riga))
-            # tratte.append(estrai_valori("destinationLocationCode=","departureDate=",riga))
-            # tratte.append(estrai_valori("departureDate=","adults=",riga))
-            # tratte.append(estrai_valori("adults=","",riga))
-            tratte.append(riga.split())         
-    return tratte
-def estrai_valori(parola_inizio, parola_fine,riga):
-    # matrice = []
-    # with open("tratte.txt", 'r') as file:
-    #     for riga in file:
-            parole = riga.split()
-            print(parole)
-            try:
-                indice_inizio = parole.index(parola_inizio) + 1
-                indice_fine = parole.index(parola_fine)
-            except ValueError as error:
-                # continue
-                raise error
-            valori = parole[indice_inizio:indice_fine]
-            return valori
 
-def scrivi_file(data):
-    with open("tratte.txt", 'a') as file:
-        file.write(data)
 #questo se utilizziamo il database Rules
 def leggi_database():
     # #conn = connessione a database
@@ -123,11 +96,20 @@ def scrivi_database_aeroporti(data):
     # Chiudi la connessione
     #conn.close()
 
-@app.route('/inviodati_scraper', methods=['POST']) 
+
 def comunicazionepost():
     tratte = leggi_database()
-    response = requests.post('http://localhost:5000/recuperodati_scraper', tratte=tratte)
-    return response.text   
+    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':'tratte'})
+    # return response.text   
+
+#TO_DO Elena le comunicazioni di user controller devono inviarla qui
+@app.route('/inviodati_controllo', methods=['POST']) 
+def comunicazionepost():
+    #incomes.append(request.get_json())
+    tratte, aeroporti = request.form['vet_tratte','vet_aeroporti']
+    scrivi_database_tratte(tratte)
+    scrivi_database_aeroporti(aeroporti)
+    # return '', 204    
 def comunicazionesocket():
     # Crea un socket TCP/IP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
