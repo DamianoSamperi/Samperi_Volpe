@@ -91,13 +91,31 @@ def registra_client(utente):
 def inserisci_tratta(email, origine, destinazione, budget):
     #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
     user=UserInfo.get_id_by_email(email)
-    Rules.inserisci_tratta(user,origine,destinazione,budget)
+    #Rules.inserisci_tratta(user,origine,destinazione,budget)
+
+    url = 'http://localhost:5000/ricevi_tratte_Rules'
+    payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
+    headers = {'Content-Type': 'application/json'}
+    response = request.post(url, data=json.dumps(payload), headers=headers)
+    # Stampa la risposta ricevuta dal servizio
+    print(response.status_code)
+    print(response.json())
+
     invia_tratta(origine,destinazione)
 
 def inserisci_aeroporto(email,origine,budget):
     #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
     user=UserInfo.get_id_by_email(email)
-    Rules.inserisci_aeroporto(user,origine,budget)
+    #Rules.inserisci_aeroporto(user,origine,budget)
+
+    url = 'http://localhost:5000/ricevi_aeroporti_Rules'
+    payload = {'userid': user, 'origine': origine, 'budget': budget}
+    headers = {'Content-Type': 'application/json'}
+    response = request.post(url, data=json.dumps(payload), headers=headers)
+    # Stampa la risposta ricevuta dal servizio
+    print(response.status_code)
+    print(response.json())
+
     invia_aeroporto(origine)
 
 def autentica_client(email):
