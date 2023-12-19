@@ -57,6 +57,7 @@ def estrai_valori(parola_inizio, parola_fine,riga):
 def scrivi_file(data):
     with open("tratte.txt", 'a') as file:
         file.write(data)
+
 #questo se utilizziamo il database Rules
 def leggi_database():
     # #conn = connessione a database
@@ -88,6 +89,7 @@ def leggi_database():
 
     # Stampa l'array di stringhe
     return tratte,aeroporti
+
 def scrivi_database_tratte(data):
     #conn = connessione al database
 
@@ -96,6 +98,9 @@ def scrivi_database_tratte(data):
 
     # Prepara la query SQL
     query = "INSERT INTO tratte_salvate ( origine, destinazione , budget) VALUES (?, ?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+    #TO-DO Damiano devi controllare se esiste già
+    #in più non c'è bisogno del budget, devi salvare solo la tratta
+    #budget serve solo all'elaboratore e lo prende da Rules
 
     # Esegui la query SQL con i valori passati come parametri
     cursor1.execute(query, (data[0], data[1], data[2]))
@@ -105,6 +110,7 @@ def scrivi_database_tratte(data):
 
     # Chiudi la connessione
     #conn.close()
+
 def scrivi_database_aeroporti(data):
     #conn = connessione al database
 
@@ -113,6 +119,9 @@ def scrivi_database_aeroporti(data):
 
     # Prepara la query SQL
     query = "INSERT INTO tratte_salvate ( origine, budget) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+    #TO-DO Damiano devi controllare se esiste già
+    #in più non c'è bisogno del budget, devi salvare solo l'aeroporto'
+    #budget serve solo all'elaboratore e lo prende da Rules
 
     # Esegui la query SQL con i valori passati come parametri
     cursor2.execute(query, (data[0], data[1]))
