@@ -27,15 +27,15 @@ def get_clients():
     users = cursor.fetchall()
     return users
 
-def get_id_by_email(email):
+'''def get_id_by_email(email):
     id=cursor.execute("SELECT user_id FROM users WHERE email=" + email)
-    return id
+    return id'''
 
 def control_client(email):
-    cursor.execute("SELECT * FROM users WHERE email=" + email)
+    cursor.execute("SELECT user_id FROM users WHERE email=" + email)
     result=cursor.fetchall()
     if result != None:
-        return True
+        return result
     else:
         return False
 
