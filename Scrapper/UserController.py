@@ -90,9 +90,9 @@ def registra_client(utente):
 
 def inserisci_tratta(email, origine, destinazione, budget):
     #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
-    user=UserInfo.control_client(email)
-    #Rules.inserisci_tratta(user,origine,destinazione,budget)
+    user=autentica_client(email)
 
+    #Rules.inserisci_tratta(user,origine,destinazione,budget)
     url = 'http://localhost:5000/ricevi_tratte_Rules'
     payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
     headers = {'Content-Type': 'application/json'}
@@ -105,9 +105,9 @@ def inserisci_tratta(email, origine, destinazione, budget):
 
 def inserisci_aeroporto(email,origine,budget):
     #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
-    user=UserInfo.control_client(email)
-    #Rules.inserisci_aeroporto(user,origine,budget)
+    user=autentica_client(email)
 
+    #Rules.inserisci_aeroporto(user,origine,budget)
     url = 'http://localhost:5000/ricevi_aeroporti_Rules'
     payload = {'userid': user, 'origine': origine, 'budget': budget}
     headers = {'Content-Type': 'application/json'}
@@ -119,12 +119,22 @@ def inserisci_aeroporto(email,origine,budget):
     invia_aeroporto(origine)
 
 def autentica_client(email):
-    f=UserInfo.control_client(email)
-    if f == True:
-        print("ok esisti")
-    else:
-        print("ti devi registrare")
-        #main() #vedi se si fa così
+    url = 'http://localhost:5000/controlla_utente'
+    params = {'email': email}
+    try:
+        response = request.get(url, params=params)
+        if response.status_code == 200:
+            user=response.json.userid
+            if user==False:
+                print("non sei registrato")
+                #TO-DO DOVREBBE USCIRE DA QUI E DA TUTTE LE FUNZIONI
+            else:
+                print("ok esisti")
+                return user
+        else:
+            print(f"Error: {response.status_code}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
 #def trova_email(msg)
         #potremmo fare un if qui dentro e in base al tipo di msg che ha trovato, chiama
@@ -177,31 +187,4 @@ def invia_aeroporto(aeroporto):
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())
-
-
-#TO-DO PROVA FLASK--------------------------------------------------------
-
-'''app=Flask(__name__)
-
-#@app.route('/inviodati_controllotratte', methods=['POST']) 
-#def comunicazionepost():
- #   tratte = leggi_database()
-  #  response = requests.post('http://localhost:5000/recuperodati_scraper', tratte=tratte)
-   # return response.text 
-
-# URL del servizio Flask
-url = 'http://localhost:5000/api/tratte'
-
-# Dati da inviare con la richiesta POST
-payload = {'nome': 'John', 'cognome': 'Doe', 'eta': 30}
-
-# Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
-headers = {'Content-Type': 'application/json'}
-
-# Invia la richiesta POST al servizio Flask
-response = requests.post(url, data=json.dumps(payload), headers=headers)
-
-# Stampa la risposta ricevuta dal servizio
-print(response.status_code)
-print(response.json())'''
 

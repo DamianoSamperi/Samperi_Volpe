@@ -1,4 +1,7 @@
 import sqlite3
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 conn = sqlite3.connect('users.db')
 
@@ -42,3 +45,11 @@ def control_client(email):
 #la chiamo solo se crasha qualcosa
 def crash():
     conn.close()
+
+#FLASK----------------------------------------------------------------------------------
+@app.route('/controlla_utente', methods=['GET'])
+def controlla_utente():
+    email = request.args.get('email')
+    id=control_client(email)
+    result = {'userid': id}
+    return jsonify(result)
