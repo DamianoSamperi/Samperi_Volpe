@@ -1,9 +1,11 @@
 import UserInfo
 import Rules
+from flask import Flask, request, jsonify
+import json
 
 #non so se conviene di fare il main, intanto lo faccio così
 #TO_DO non è il cliente questo, non è nemmeno neccesario averne uno
-def main():
+'''def main():
     scelta=None
     while scelta != 0:
         stampa_menu()
@@ -73,7 +75,7 @@ def aeroporto():
     autentica_client(email)
     origine=input("inserisci aeroporto origine: ")
     budget=int(input("inserisci il tuo budget, 9999 se non hai un budget: "))
-    inserisci_aeroporto(email,origine,budget)   
+    inserisci_aeroporto(email,origine,budget)'''   
 
 #TO_DO aggiungere comunicazione tra microservizi dapertutto
     
@@ -100,7 +102,7 @@ def autentica_client(email):
         print("ok esisti")
     else:
         print("ti devi registrare")
-        main() #vedi se si fa così
+        #main() #vedi se si fa così
 
 #def trova_email(msg)
         #potremmo fare un if qui dentro e in base al tipo di msg che ha trovato, chiama
@@ -123,3 +125,31 @@ def invia_tratta():
 def invia_aeroporto():
     return
     #invia aeroporto a controllo tratte
+
+
+#TO-DO PROVA FLASK--------------------------------------------------------
+
+'''app=Flask(__name__)
+
+#@app.route('/inviodati_controllotratte', methods=['POST']) 
+#def comunicazionepost():
+ #   tratte = leggi_database()
+  #  response = requests.post('http://localhost:5000/recuperodati_scraper', tratte=tratte)
+   # return response.text 
+
+# URL del servizio Flask
+url = 'http://localhost:5000/api/tratte'
+
+# Dati da inviare con la richiesta POST
+payload = {'nome': 'John', 'cognome': 'Doe', 'eta': 30}
+
+# Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
+headers = {'Content-Type': 'application/json'}
+
+# Invia la richiesta POST al servizio Flask
+response = requests.post(url, data=json.dumps(payload), headers=headers)
+
+# Stampa la risposta ricevuta dal servizio
+print(response.status_code)
+print(response.json())'''
+

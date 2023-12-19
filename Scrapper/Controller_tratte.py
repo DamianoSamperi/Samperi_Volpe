@@ -104,7 +104,7 @@ def comunicazionepost():
 
 #TO_DO Elena le comunicazioni di user controller devono inviarla qui
 @app.route('/inviodati_controllo', methods=['POST']) 
-def comunicazionepost():
+def comunicazioneUser():
     #incomes.append(request.get_json())
     tratte, aeroporti = request.form['vet_tratte','vet_aeroporti']
     scrivi_database_tratte(tratte)
