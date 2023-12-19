@@ -29,12 +29,8 @@ cursor2.execute('''
         budget INTEGER
     )
 ''')
-#questo se utilizziamo il database Rules
+#questo se utilizziamo il database Rules, quindi non servirebbe perchè adesso facciamo la richiesta a user controller
 def leggi_database():
-    # #conn = connessione a database
-    # conn = sqlite3.connect('tratte_salvate.db')
-    # # Crea un cursore
-    # cur = conn.cursor()
 
     # Esegui una query SQL
     cursor1.execute("SELECT * FROM tratte_salvate")
@@ -62,10 +58,6 @@ def leggi_database():
     return tratte,aeroporti
 
 def scrivi_database_tratte(data):
-    #conn = connessione al database
-
-    # Crea un cursore
-    # cur = conn.cursor()
 
     # Prepara la query SQL
     query = "REPLACE INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
@@ -82,10 +74,6 @@ def scrivi_database_tratte(data):
     #conn.close()
 
 def scrivi_database_aeroporti(data):
-    #conn = connessione al database
-
-    # Crea un cursore
-    # cur = conn.cursor()
 
     # Prepara la query SQL
     query = "REPLACE INTO tratte_salvate ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
@@ -100,7 +88,6 @@ def scrivi_database_aeroporti(data):
     # Chiudi la connessione
     #conn.close()
 
-
 def comunicazionepost():
     tratte = leggi_database()
     response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':'tratte'})
@@ -109,12 +96,12 @@ def comunicazionepost():
 #TO_DO Elena le comunicazioni di user controller devono inviarla qui
 @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
 def comunicazioneUser():
-    tratte= request.jsons
+    tratte= request.json
     scrivi_database_tratte(tratte)
     # return '', 204    
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
 def comunicazioneUser():
-    aeroporti = request.jsons
+    aeroporti = request.json
     scrivi_database_aeroporti(aeroporti)
     # return '', 204    
 def comunicazionesocket():
