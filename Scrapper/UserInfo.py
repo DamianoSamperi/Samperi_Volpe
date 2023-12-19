@@ -30,10 +30,6 @@ def get_clients():
     users = cursor.fetchall()
     return users
 
-'''def get_id_by_email(email):
-    id=cursor.execute("SELECT user_id FROM users WHERE email=" + email)
-    return id'''
-
 def control_client(email):
     cursor.execute("SELECT user_id FROM users WHERE email=" + email)
     result=cursor.fetchall()
@@ -53,3 +49,11 @@ def controlla_utente():
     id=control_client(email)
     result = {'userid': id}
     return jsonify(result)
+
+@app.route('/registra_utente', methods=['POST'])
+def inserisci_utente():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        inserisci_client(data.nome,data.cognome,data.email)
+        result = {'message': 'Data received successfully', 'data': data}
+        return jsonify(result) 

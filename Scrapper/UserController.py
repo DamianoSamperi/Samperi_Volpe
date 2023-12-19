@@ -5,13 +5,17 @@ import json
 import requests
 
 app = Flask(__name__)  
-
-#TO_DO aggiungere comunicazione tra microservizi dapertutto
     
-def registra_client(utente):
+def registra_client(nome,cognome,email):
     #prima controllo se era già registrato
-    if UserInfo.control_client(utente[2]) == False:
-        UserInfo.inserisci_client(utente[0],utente[1],utente[2])
+    if autentica_client(email) == False:
+        url = 'http://localhost:5000/registra_utente'
+        payload = {'email': email, 'nome': nome, 'cognome': cognome}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        # Stampa la risposta ricevuta dal servizio
+        print(response.status_code)
+        print(response.json())
     else:
         print("cliente già registrato")
 
@@ -52,6 +56,7 @@ def autentica_client(email):
             user=response.json.userid
             if user==False:
                 print("non sei registrato")
+                return user
                 #TO-DO DOVREBBE USCIRE DA QUI E DA TUTTE LE FUNZIONI
             else:
                 print("ok esisti")
@@ -79,36 +84,20 @@ def trova_email_by_offerte(ori):
 
 #TO-DO vedi meglio
 def invia_tratta(origine, destinazione):
-    # URL del servizio Flask
     url = 'http://localhost:5000/ricevi_tratte_usercontroller'
-
-    # Dati da inviare con la richiesta POST
     payload = {'origine': origine, 'destinazione': destinazione}
-
-    # Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
     headers = {'Content-Type': 'application/json'}
-
-    # Invia la richiesta POST al servizio Flask
     response = requests.post(url, data=json.dumps(payload), headers=headers)
-
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())
 
 #TO-DO vedi meglio
 def invia_aeroporto(aeroporto):
-    # URL del servizio Flask
     url = 'http://localhost:5000/ricevi_aeroporto_usercontroller'
-
-    # Dati da inviare con la richiesta POST
     payload = {'aeroporto': aeroporto}
-
-    # Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
     headers = {'Content-Type': 'application/json'}
-
-    # Invia la richiesta POST al servizio Flask
     response = requests.post(url, data=json.dumps(payload), headers=headers)
-
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())
