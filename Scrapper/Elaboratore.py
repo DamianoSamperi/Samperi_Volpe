@@ -24,22 +24,22 @@ def invioNotifier(notifiche):
 notifiche = []
 for message in consumer_tratta:
     # Ottieni il messaggio dal topic Kafka
-    msg = message.value
+    # msg = message.value
     
-    result = UserController.trova_email_by_tratta(msg)
+    result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
     if result is not None:
         print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
-        notifiche.append(result,msg)
+        notifiche.append(result,message)
         # invioNotifier(result,msg)
     else:
         print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
 for message in consumer_aeroporto:
-    msg = message.value
+    #msg = message.value
     
-    result = UserController.trova_email_by_offerte(msg)
+    result = UserController.trova_email_by_offerte(message.origin)
     if result is not None:
         print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
-        notifiche.append(result,msg)
+        notifiche.append(result,message)
         # invioNotifier(result,msg)
     else:
         print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
