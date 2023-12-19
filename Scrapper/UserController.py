@@ -3,6 +3,8 @@ import Rules
 from flask import Flask, request, jsonify
 import json
 
+app = Flask(__name__)
+
 #non so se conviene di fare il main, intanto lo faccio così
 #TO_DO non è il cliente questo, non è nemmeno neccesario averne uno
 '''def main():
@@ -90,11 +92,13 @@ def inserisci_tratta(email, origine, destinazione, budget):
     #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
     user=UserInfo.get_id_by_email(email)
     Rules.inserisci_tratta(user,origine,destinazione,budget)
+    invia_tratta(origine,destinazione)
 
 def inserisci_aeroporto(email,origine,budget):
     #in teoria non c'è bisogno di fare il controllo perchè l'ho già autenticato prima
     user=UserInfo.get_id_by_email(email)
     Rules.inserisci_aeroporto(user,origine,budget)
+    invia_aeroporto(origine)
 
 def autentica_client(email):
     f=UserInfo.control_client(email)
@@ -112,19 +116,49 @@ def trova_email_by_tratta(ori,dest,pr):
     users=Rules.get_users_by_tratta_and_budget(ori,dest,pr)
     return users
     #chiamata da elaboratore per trovare le email dei client interessati a una tratta
+    #devo fare una GET
 
 def trova_email_by_offerte(ori):
     users=Rules.get_users_by_aeroporto(ori)
     return users
     #chiamata da elaboratore per trovare le email dei client interessati a un offerta
+    #devo fare una GET
 
-def invia_tratta():
-    return
-    #invia tratta a controllo tratte
+#TO-DO vedi meglio
+def invia_tratta(origine, destinazione):
+    # URL del servizio Flask
+    url = 'http://localhost:5000/ricevi_tratte_usercontroller'
 
-def invia_aeroporto():
-    return
-    #invia aeroporto a controllo tratte
+    # Dati da inviare con la richiesta POST
+    payload = {'origine': origine, 'destinazione': destinazione}
+
+    # Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
+    headers = {'Content-Type': 'application/json'}
+
+    # Invia la richiesta POST al servizio Flask
+    response = request.post(url, data=json.dumps(payload), headers=headers)
+
+    # Stampa la risposta ricevuta dal servizio
+    print(response.status_code)
+    print(response.json())
+
+#TO-DO vedi meglio
+def invia_aeroporto(aeroporto):
+    # URL del servizio Flask
+    url = 'http://localhost:5000/ricevi_aeroporto_usercontroller'
+
+    # Dati da inviare con la richiesta POST
+    payload = {'aeroporto': aeroporto}
+
+    # Imposta l'intestazione della richiesta per indicare che stai inviando dati JSON
+    headers = {'Content-Type': 'application/json'}
+
+    # Invia la richiesta POST al servizio Flask
+    response = request.post(url, data=json.dumps(payload), headers=headers)
+
+    # Stampa la risposta ricevuta dal servizio
+    print(response.status_code)
+    print(response.json())
 
 
 #TO-DO PROVA FLASK--------------------------------------------------------
