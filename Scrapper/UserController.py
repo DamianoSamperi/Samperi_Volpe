@@ -20,32 +20,30 @@ def registra_client(nome,cognome,email):
         print("cliente già registrato")
 
 def inserisci_tratta(email, origine, destinazione, budget):
-    user=autentica_client(email)
-
-    #Rules.inserisci_tratta(user,origine,destinazione,budget)
-    url = 'http://localhost:5000/ricevi_tratte_Rules'
-    payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
-    # Stampa la risposta ricevuta dal servizio
-    print(response.status_code)
-    print(response.json())
-
-    invia_tratta(origine,destinazione)
+    user=autentica_client(email) 
+    if user != False:
+        #Rules.inserisci_tratta(user,origine,destinazione,budget)
+        url = 'http://localhost:5000/ricevi_tratte_Rules'
+        payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        # Stampa la risposta ricevuta dal servizio
+        print(response.status_code)
+        print(response.json())
+        invia_tratta(origine,destinazione)
 
 def inserisci_aeroporto(email,origine,budget):
     user=autentica_client(email)
-
-    #Rules.inserisci_aeroporto(user,origine,budget)
-    url = 'http://localhost:5000/ricevi_aeroporti_Rules'
-    payload = {'userid': user, 'origine': origine, 'budget': budget}
-    headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
-    # Stampa la risposta ricevuta dal servizio
-    print(response.status_code)
-    print(response.json())
-
-    invia_aeroporto(origine)
+    if user != False:
+        #Rules.inserisci_aeroporto(user,origine,budget)
+        url = 'http://localhost:5000/ricevi_aeroporti_Rules'
+        payload = {'userid': user, 'origine': origine, 'budget': budget}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        # Stampa la risposta ricevuta dal servizio
+        print(response.status_code)
+        print(response.json())
+        invia_aeroporto(origine)
 
 def autentica_client(email):
     url = 'http://localhost:5000/controlla_utente'
@@ -57,7 +55,6 @@ def autentica_client(email):
             if user==False:
                 print("non sei registrato")
                 return user
-                #TO-DO DOVREBBE USCIRE DA QUI E DA TUTTE LE FUNZIONI
             else:
                 print("ok esisti")
                 return user
