@@ -29,7 +29,6 @@ cursor2.execute('''
         budget INTEGER
     )
 ''')
-#questo se utilizziamo il database Rules, quindi non servirebbe perchè adesso facciamo la richiesta a user controller
 def leggi_database():
 
     # Esegui una query SQL
@@ -56,6 +55,51 @@ def leggi_database():
 
     # Stampa l'array di stringhe
     return tratte,aeroporti
+
+def leggi_database_tratte():
+
+    # Esegui una query SQL
+    cursor1.execute("SELECT * FROM tratte_salvate")
+
+    # Ottieni i risultati
+    risultati = cursor1.fetchall()
+
+
+    # Chiudi la connessione
+    # conn1.close()
+
+    # Inizializza un array vuoto
+    tratte = []
+
+    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
+    for tupla in risultati:
+        tratte.append(tupla)
+
+
+    # Stampa l'array di stringhe
+    return tratte
+
+def leggi_database_aeroporti():
+
+    # Esegui una query SQL
+    cursor2.execute("SELECT * FROM aeroporti_salvati")
+
+    # Ottieni i risultati
+    risultati = cursor2.fetchall()
+
+
+    # Chiudi la connessione
+    # conn1.close()
+
+    # Inizializza un array vuoto
+    aeroporti = []
+
+    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
+    for tupla in risultati:
+        aeroporti.append(tupla)
+
+    # Stampa l'array di stringhe
+    return aeroporti
 
 def scrivi_database_tratte(data):
 
@@ -88,52 +132,28 @@ def scrivi_database_aeroporti(data):
     # Chiudi la connessione
     #conn.close()
 
+#TO_DO per fare questo dovrei inserirlo in un ciclo while con un timer di 24 ore, invece ho deciso di inviarle ogni volta che ha una comunicazione con l'user controller
 def comunicazionepost():
-    tratte = leggi_database()
-    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':'tratte'})
+    tratte ,aeroporti = leggi_database()
+    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte, 'vet_aroporti':aeroporti})
     # return response.text   
 
 #TO_DO Elena le comunicazioni di user controller devono inviarla qui
 @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
 def comunicazioneUser():
-    tratte= request.json
-    scrivi_database_tratte(tratte)
+    tratta= request.json
+    scrivi_database_tratte(tratta)
+    tratte= leggi_database_tratte()
+    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte})
+
     # return '', 204    
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
 def comunicazioneUser():
-    aeroporti = request.json
-    scrivi_database_aeroporti(aeroporti)
-    # return '', 204    
-def comunicazionesocket():
-    # Crea un socket TCP/IP
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    aeroporto = request.json
+    scrivi_database_aeroporti(aeroporto)
+    aeroporti=leggi_database_aeroporti()
+    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
 
-    # Associa il socket a una porta
-    server_address = ('localhost', 12345)
-    sock.bind(server_address)
-
-    # Ascolta le connessioni in arrivo
-    sock.listen(1)
-
-    while True:
-        # Attende una connessione
-        print('In attesa di una connessione...')
-        connection, client_address = sock.accept()
-
-        try:
-            print('Connessione da', client_address)
-
-            # Riceve i dati in piccoli segmenti
-            # data = connection.recv(16)
-            # print('Ricevuto {!r}'.format(data))
-
-            # Invia i dati
-            # if data:
-            print('Invio del vettore allo Scraper')
-            vector = leggi_database()
-            connection.sendall(vector.encode('utf-8'))
-
-        finally:
-            # Pulisce la connessione
-            connection.close() 
+    # return '', 204   
+     
 

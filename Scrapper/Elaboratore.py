@@ -18,7 +18,6 @@ def invioNotifier(notifiche):
     print(notifiche)
     response = requests.post('http://localhost:5000/recuperomail', {'notifiche':'notifiche'})
     # return response.text   
-#TO_DO comunicazione con Notifier
 
 notifiche = []
 for message in consumer_tratta:

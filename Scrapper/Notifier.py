@@ -18,6 +18,6 @@ def inviomail(notifiche):
 
 @app.route('/recuperomail', methods=['POST']) 
 def comunicazionepost():
-    notifiche = request.form['notifiche'] #TO_DO non sono sicuro che cosi richiede due dati
+    notifiche = request.form['notifiche'] 
     inviomail(notifiche)
     return '', 204   
