@@ -1,6 +1,7 @@
 import sqlite3
 from flask import Flask, request, jsonify
 import json
+import requests
 
 app = Flask(__name__)
 
@@ -59,11 +60,17 @@ def get_aeroporti():
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     cursor1.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
     "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
-    return cursor1.fetchall()
+    users=cursor1.fetchall() #insieme di userid interessati in quella tratta
+    url='http://localhost:5000/trova_email_by_user_id'
+    result = requests.post(url, jsonify(users)) #credo sia così
+    return result
 
 def get_users_by_aeroporto(aeroporto):
     cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
-    return cursor2.fetchall()
+    users=cursor2.fetchall() #insieme di userid interessati in quell'aeroporto
+    url='http://localhost:5000/trova_email_by_user_id'
+    result = requests.post(url, jsonify(users)) #credo sia così
+    return result
 
 #la chiamo solo se crasha qualcosa 
 def crash():
@@ -71,7 +78,6 @@ def crash():
     conn2.close()
 
 #FLASK----------------------------------------------------------------------------------
-#VEDI
 @app.route('/ricevi_tratte_Rules', methods=['POST'])
 def ricevi_tratte():
     if request.method == 'POST': #forse è request?
@@ -79,14 +85,27 @@ def ricevi_tratte():
         inserisci_tratta(data.userid,data.origine,data.destinazione,data.budget)
         result = {'message': 'Data received successfully', 'data': data}
         return jsonify(result) 
-
-#VEDI   
+  
 @app.route('/ricevi_aeroporti_Rules', methods=['POST'])
-def ricevi_tratte():
+def ricevi_aeroporti():
     if request.method == 'POST': #forse è request?
         data = request.json
         inserisci_aeroporto(data.userid,data.origine,data.budget)
         result = {'message': 'Data received successfully', 'data': data}
         return jsonify(result) 
+    
+@app.route('/trova_email_by_tratta_rules', methods=['POST'])
+def email_by_tratta():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        result=get_users_by_tratta_and_budget(data.ori,data.dest,data.pr)
+        return result
+    
+@app.route('/trova_email_by_aeroporti_rules', methods=['POST'])
+def email_by_aeroporti():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        result=get_users_by_aeroporto(data.ori)
+        return result
 
     

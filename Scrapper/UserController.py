@@ -66,21 +66,17 @@ def autentica_client(email):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-#def trova_email(msg)
-        #potremmo fare un if qui dentro e in base al tipo di msg che ha trovato, chiama
-        #by tratta o by offerte
-
 def trova_email_by_tratta(ori,dest,pr):
-    users=Rules.get_users_by_tratta_and_budget(ori,dest,pr)
-    return users
-    #chiamata da elaboratore per trovare le email dei client interessati a una tratta
-    #devo fare una GET
+    #users=Rules.get_users_by_tratta_and_budget(ori,dest,pr)
+    url='http://localhost:5000/trova_email_by_tratta_rules'
+    result = requests.post(url, {'ori':ori, 'dest': dest,'pr': pr})
+    return result
 
 def trova_email_by_offerte(ori):
-    users=Rules.get_users_by_aeroporto(ori)
-    return users
-    #chiamata da elaboratore per trovare le email dei client interessati a un offerta
-    #devo fare una GET
+    #users=Rules.get_users_by_aeroporto(ori)
+    url='http://localhost:5000/trova_email_by_aeroporti_rules'
+    result = requests.post(url, {'ori':ori,})
+    return result
 
 #TO-DO vedi meglio
 def invia_tratta(origine, destinazione):
@@ -102,3 +98,17 @@ def invia_aeroporto(aeroporto):
     print(response.status_code)
     print(response.json())
 
+#FLASK----------------------------------------------------------------------------------
+@app.route('/trova_email_by_tratta', methods=['POST'])
+def trova_email_tratta():
+    if request.method == 'POST':
+        data = request.json
+        result=trova_email_by_tratta(data.ori,data.dest,data.pr)
+        return result
+    
+@app.route('/trova_email_by_offerte', methods=['POST'])
+def trova_email_offerte():
+    if request.method == 'POST':
+        data = request.json
+        result=trova_email_by_offerte(data.ori)
+        return result

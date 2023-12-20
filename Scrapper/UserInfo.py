@@ -1,5 +1,6 @@
 import sqlite3
 from flask import Flask, request, jsonify
+import json
 
 app = Flask(__name__)
 
@@ -25,13 +26,16 @@ def inserisci_client(nome,cognome,email):
 
     conn.commit()
 
-def get_clients():
-    cursor.execute("SELECT * FROM users")
-    users = cursor.fetchall()
+def get_email_by_userid(*ids):
+    users=[]
+    for id in ids:
+        cursor.execute("SELECT email FROM users WHERE id=" +id)
+        user = cursor.fetchall()
+        users.append(user)
     return users
 
 def control_client(email):
-    cursor.execute("SELECT user_id FROM users WHERE email=" + email)
+    cursor.execute("SELECT id FROM users WHERE email=" + email)
     result=cursor.fetchall()
     if result != None:
         return result
@@ -57,3 +61,11 @@ def inserisci_utente():
         inserisci_client(data.nome,data.cognome,data.email)
         result = {'message': 'Data received successfully', 'data': data}
         return jsonify(result) 
+    
+@app.route('/trova_email_by_user_id', methods=['POST'])
+def inserisci_utente():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        data_dict = json.loads(data)
+        emails=get_email_by_userid(*data_dict.values())
+        return jsonify(emails) 
