@@ -4,78 +4,103 @@ import json
 import requests
 
 app = Flask(__name__)
+try:
+    conn1 = sqlite3.connect('tratte.db')
+    conn2 = sqlite3.connect('aeroporti.db')
+    cursor1 = conn1.cursor()
+    cursor2 = conn2.cursor()
+except sqlite3.Error as e:
+    print("Errore durante la connessione al database: {e}")
 
-conn1 = sqlite3.connect('tratte.db')
-conn2 = sqlite3.connect('aeroporti.db')
+try:
+    cursor1.execute('''
+        CREATE TABLE IF NOT EXISTS tratte (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            origine TEXT NOT NULL,
+            destinazione TEXT NOT NULL,
+            budget INTEGER
+        )
+    ''')
+except sqlite3.Error as e:
+    print("Errore durante l'esecuzione della query: {e}")
 
-# Creazione di un cursore per eseguire le query SQL
-cursor1 = conn1.cursor()
-cursor2 = conn2.cursor()
-
-cursor1.execute('''
-    CREATE TABLE IF NOT EXISTS tratte (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        origine TEXT NOT NULL,
-        destinazione TEXT NOT NULL,
-        budget INTEGER
-    )
-''')
-
-cursor2.execute('''
-    CREATE TABLE IF NOT EXISTS aeroporti (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        origine TEXT NOT NULL,
-        budget INTEGER
-    )
-''')
+try:
+    cursor2.execute('''
+        CREATE TABLE IF NOT EXISTS aeroporti (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            origine TEXT NOT NULL,
+            budget INTEGER
+        )
+    ''')
+except sqlite3.Error as e:
+    print("Errore durante l'esecuzione della query: {e}")
 
 def inserisci_tratta(user_id,origine,destinazione,budget):
-    cursor1.execute('''
-    INSERT INTO tratte (user_id, origine, destinazione, budget)
-    VALUES (?, ?, ?, ?)
-    ''', (user_id, origine, destinazione, budget))
-    
-    conn1.commit()
+    try:
+        cursor1.execute('''
+        INSERT INTO tratte (user_id, origine, destinazione, budget)
+        VALUES (?, ?, ?, ?)
+        ''', (user_id, origine, destinazione, budget))
+        conn1.commit()
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
 
 def inserisci_aeroporto(user_id,origine,budget):
-    cursor2.execute('''
-    INSERT INTO aeroporti (user_id, origine, budget)
-    VALUES (?, ?, ?, ?)
-    ''', (user_id, origine, budget))
- 
-    conn2.commit()
+    try:
+        cursor2.execute('''
+        INSERT INTO aeroporti (user_id, origine, budget)
+        VALUES (?, ?, ?, ?)
+        ''', (user_id, origine, budget))
+        conn2.commit()
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
 
 def get_tratte():
-    cursor1.execute(" SELECT * from tratte")
-    result=cursor1.fetchall()
+    try:
+        cursor1.execute(" SELECT * from tratte")
+        result=cursor1.fetchall()
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
     return result
 
 def get_aeroporti():
-    cursor2.execute(" SELECT * from aeroporti")
-    result=cursor2.fetchall()
+    try:
+        cursor2.execute(" SELECT * from aeroporti")
+        result=cursor2.fetchall()
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
     return result 
 
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
-    cursor1.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
-    "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
-    users=cursor1.fetchall() #insieme di userid interessati in quella tratta
+    try:
+        cursor1.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
+        "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
+        users=cursor1.fetchall() #insieme di userid interessati in quella tratta
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
     result = requests.post(url, jsonify(users)) #credo sia così
     return result
 
 def get_users_by_aeroporto(aeroporto):
-    cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
-    users=cursor2.fetchall() #insieme di userid interessati in quell'aeroporto
+    try:
+        cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
+        users=cursor2.fetchall() #insieme di userid interessati in quell'aeroporto
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
     result = requests.post(url, jsonify(users)) #credo sia così
     return result
 
 #la chiamo solo se crasha qualcosa 
 def crash():
-    conn1.close()
-    conn2.close()
+    try:
+        conn1.close()
+        conn2.close()
+    except sqlite3.Error as e:
+        print("Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------
 @app.route('/ricevi_tratte_Rules', methods=['POST'])
