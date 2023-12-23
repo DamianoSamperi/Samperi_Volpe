@@ -27,12 +27,9 @@ def inserisci_tratta(email, origine, destinazione, budget):
         payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, data=json.dumps(payload), headers=headers)
-        # Stampa la risposta ricevuta dal servizio
-        print(response.status_code)
-        print(response.json())
-        #TO_DO Elena lo deve inviare solo se non esistono altri utenti che hanno selezionato quella tratta
-        #o ti fai tornare con la prima richiesta pure un count o fai un altra richiesta al database
-        invia_tratta(origine,destinazione)
+        #print(response.status_code) forse devo controllare lo status_code
+        if response==1: #la invia solo è il primo cliente ad averla chiesta
+            invia_tratta(origine,destinazione)
 
 def inserisci_aeroporto(email,origine,budget):
     user=autentica_client(email)
@@ -42,16 +39,34 @@ def inserisci_aeroporto(email,origine,budget):
         payload = {'userid': user, 'origine': origine, 'budget': budget}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, data=json.dumps(payload), headers=headers)
-        # Stampa la risposta ricevuta dal servizio
-        print(response.status_code)
-        print(response.json())
-        #TO_DO Elena lo deve inviare solo se non esistono altri utenti che hanno selezionato quell'aeroporto
-        #o ti fai tornare con la prima richiesta pure un count o fai un altra richiesta al database
-        invia_aeroporto(origine)
+        #print(response.status_code) forse devo controllare lo status_code
+        if response==1: #la invia solo se è il primo cliente ad averla chiesta
+            invia_aeroporto(origine)
 
 #TO_DO Elena bisogna fare la disiscrizione o come nuova funziona oppure nelle funzione inserisce puoi controllare se gia inserito e in quel caso cancelli dal database e invi al controller solo se non ci sono utenti per quella tratta-aeroporto
-#def disiscrizione_tratta(email, origine, destinazione, budget):
-#def disiscrizione_aeroporto(email, origine, budget):         
+def disiscrizione_tratta(email, origine, destinazione):
+    user=autentica_client(email) 
+    if user != False:
+        #Rules.inserisci_tratta(user,origine,destinazione,budget)
+        url = 'http://localhost:5000/elimina_tratte_Rules'
+        payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        #print(response.status_code) forse devo controllare lo status_code
+        if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+            invia_tratta(origine,destinazione)
+
+def disiscrizione_aeroporto(email, origine):  
+    user=autentica_client(email) 
+    if user != False:
+        #Rules.inserisci_tratta(user,origine,destinazione,budget)
+        url = 'http://localhost:5000/elimina_aeroporto_Rules'
+        payload = {'userid': user, 'origine': origine}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        #print(response.status_code) forse devo controllare lo status_code
+        if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+            invia_aeroporto(origine)       
 
 def autentica_client(email):
     url = 'http://localhost:5000/controlla_utente'

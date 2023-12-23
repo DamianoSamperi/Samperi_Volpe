@@ -4,6 +4,9 @@ import json
 import requests
 
 app = Flask(__name__)
+
+#FORSE IN REALTà SERVE SOLO UN CONN E UN CURSOR, VEDIAMO
+#PERCHè UNICO DB MA PIù TABELLE
 try:
     conn1 = sqlite3.connect('tratte.db')
     conn2 = sqlite3.connect('aeroporti.db')
@@ -44,6 +47,10 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
         VALUES (?, ?, ?, ?)
         ''', (user_id, origine, destinazione, budget))
         conn1.commit()
+        #ritorna il numero di utenti iscritti a quella tratta
+        cursor1.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
+        result=cursor1.fetchall()
+        return result
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
@@ -54,6 +61,10 @@ def inserisci_aeroporto(user_id,origine,budget):
         VALUES (?, ?, ?, ?)
         ''', (user_id, origine, budget))
         conn2.commit()
+        #ritorna il numero di utenti iscritti a quell'aeroporto
+        cursor2.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
+        result=cursor2.fetchall()
+        return result
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
@@ -94,6 +105,28 @@ def get_users_by_aeroporto(aeroporto):
     result = requests.post(url, jsonify(users)) #credo sia così
     return result
 
+def elimina_tratta(user_id,origine,destinazione):
+    try:
+        cursor1.execute("DELETE FROM tratte WHERE user_id=" + user_id+ "AND origine=" + origine + "AND destinazione=" + destinazione)
+        conn1.commit()
+        #ritorna il numero di utenti iscritti a quella tratta
+        cursor1.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
+        result=cursor1.fetchall()
+        return result
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
+
+def elimina_aeroporto(user_id,origine):
+    try:
+        cursor2.execute("DELETE FROM aeroporti WHERE user_id=" + user_id+ "AND origine=" + origine)
+        conn2.commit()
+        #ritorna il numero di utenti iscritti a quell'aeroporto'
+        cursor2.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
+        result=cursor2.fetchall()
+        return result
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
+
 #la chiamo solo se crasha qualcosa 
 def crash():
     try:
@@ -107,17 +140,15 @@ def crash():
 def ricevi_tratte():
     if request.method == 'POST': #forse è request?
         data = request.json
-        inserisci_tratta(data.userid,data.origine,data.destinazione,data.budget)
-        result = {'message': 'Data received successfully', 'data': data}
-        return jsonify(result) 
+        result=inserisci_tratta(data.userid,data.origine,data.destinazione,data.budget)
+        return result
   
 @app.route('/ricevi_aeroporti_Rules', methods=['POST'])
 def ricevi_aeroporti():
     if request.method == 'POST': #forse è request?
         data = request.json
-        inserisci_aeroporto(data.userid,data.origine,data.budget)
-        result = {'message': 'Data received successfully', 'data': data}
-        return jsonify(result) 
+        result=inserisci_aeroporto(data.userid,data.origine,data.budget)
+        return result
     
 @app.route('/trova_email_by_tratta_rules', methods=['POST'])
 def email_by_tratta():
@@ -131,6 +162,20 @@ def email_by_aeroporti():
     if request.method == 'POST': #forse è request?
         data = request.json
         result=get_users_by_aeroporto(data.ori)
+        return result
+    
+@app.route('/elimina_tratte_Rules', methods=['POST'])
+def ricevi_tratte():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        result=elimina_tratta(data.userid,data.origine,data.destinazione)
+        return result
+    
+@app.route('/elimina_aeroporto_Rules', methods=['POST'])
+def ricevi_tratte():
+    if request.method == 'POST': #forse è request?
+        data = request.json
+        result=elimina_aeroporto(data.userid,data.origine)
         return result
 
     
