@@ -120,17 +120,30 @@ def leggi_database_aeroporti():
 def scrivi_database_tratte(data):
     try:
         # Prepara la query SQL
-        query = "REPLACE INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-        #TO-DO replace dovrebbe inserirlo se manca e sostituirlo se uguale
+        query = "SELECT COUNT(*) FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
     
 
         # Esegui la query SQL con i valori passati come parametri
         cursor1.execute(query, (data[0], data[1]))
-
+        count = cursor1.fetchall()
+        
         # Esegui il commit delle modifiche
-        conn1.commit()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
+    if count==0:
+        try:
+            query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
+            cursor1.execute(query, (data[0], data[1]))
+            conn1.commit()
+        except sqlite3.Error as e:
+            print("Errore durante l'esecuzione della query: {e}")
+    else:
+        try:
+            query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
+            cursor1.execute(query, (data[0], data[1]))
+            conn1.commit()
+        except sqlite3.Error as e:
+            print("Errore durante l'esecuzione della query: {e}")
 
     # Chiudi la connessione
     #conn.close()
@@ -138,16 +151,30 @@ def scrivi_database_tratte(data):
 def scrivi_database_aeroporti(data):
     try:
         # Prepara la query SQL
-        query = "REPLACE INTO tratte_salvate ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
-        #TO-DO replace dovrebbe inserirlo se manca e sostituirlo se uguale
+        query = "SELECT COUNT(*) FROM aeroporti_salvati WHERE origine = ?" 
     
         # Esegui la query SQL con i valori passati come parametri
         cursor2.execute(query, (data[0]))
+        count = cursor2.fetchall()
 
         # Esegui il commit delle modifiche
         conn2.commit()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
+    if count == 0:
+        try:
+            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
+            cursor2.execute(query, (data[0]))
+            conn2.commit()
+        except sqlite3.Error as e:
+            print("Errore durante l'esecuzione della query: {e}")
+    else:
+        try:
+            query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
+            cursor2.execute(query, (data[0]))
+            conn2.commit()
+        except sqlite3.Error as e:
+            print("Errore durante l'esecuzione della query: {e}")
 
     # Chiudi la connessione
     #conn.close()
