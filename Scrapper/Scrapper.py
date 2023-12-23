@@ -57,7 +57,9 @@ def trova_prezzo_aeroporto(data):
 
 while True:
     #tratte,aeroporti=richiesta_tratte()
-    tratte = requests.post('http://localhost:5000/invio_Scraper', {'request':'tratta'})
+    response=requests.post('http://localhost:5000/invio_Scraper', {'request':'tratta'})
+    if  response != 'error':
+        tratte = response
     trattegestite=len(tratte)
     for i in range (1,trattegestite):
         try:
@@ -69,7 +71,9 @@ while True:
         except ResponseError as error:
             raise error
          
-    aeroporti = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
+    response = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
+    if response != 'error':
+        aeroporti = response
     aeroportigestiti=len(aeroporti)
     for i in range (1,aeroportigestiti):
         try:

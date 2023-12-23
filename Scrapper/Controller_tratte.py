@@ -77,6 +77,8 @@ def leggi_database_tratte():
         risultati = cursor1.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
+        return "error"
+
 
 
     # Chiudi la connessione
@@ -102,6 +104,7 @@ def leggi_database_aeroporti():
         risultati = cursor2.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
+        return "error"
 
 
     # Chiudi la connessione
