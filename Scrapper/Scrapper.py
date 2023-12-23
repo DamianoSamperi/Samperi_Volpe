@@ -16,7 +16,7 @@ amadeus = Client(
 #TO-DO vanno controllati i parametri di configurazione kafka
 producer = KafkaProducer(bootstrap_servers='localhost:9092',value_serializer=lambda v: json.dumps(v).encode('utf-8')) #TO_DO ultimo valore da controllare, dovrebbe servire a inviare json
 
-global incomes
+# global incomes
 
 
 def inviotratta(data):
@@ -27,25 +27,18 @@ def invioaeroporto(data):
     producer.send('Aeroporti', data)
     producer.flush()
 
-@app.route('/recuperodati_scraper', methods=['POST']) 
-def comunicazionepost():
-    #incomes.append(request.get_json())
-    incomes = request.form['vet_tratte']
-    # return '', 204    
+#TO_DO questi nel caso vogliamo aggiornare ad ogni inserimento su daatabase di controller_tratte
+# @app.route('/recupero_tratte_scraper', methods=['POST']) 
+# def comunicazionepost():
+#     #incomes.append(request.get_json())
+#     global tratte 
+#     tratte = request.form['vet_tratte']
 
-@app.route('/recupero_tratte_scraper', methods=['POST']) 
-def comunicazionepost():
-    #incomes.append(request.get_json())
-    global tratte 
-    tratte = request.form['vet_tratte']
-    # return '', 204   
-
-@app.route('/recupero_aeroporti_scraper', methods=['POST']) 
-def comunicazionepost():
-    #incomes.append(request.get_json())
-    global aeroporti 
-    aeroporti = request.form['vet_aeroporti']
-    # return '', 204   
+# @app.route('/recupero_aeroporti_scraper', methods=['POST']) 
+# def comunicazionepost():
+#     #incomes.append(request.get_json())
+#     global aeroporti 
+#     aeroporti = request.form['vet_aeroporti']
 
 
 def trova_prezzo_tratta(response,origin,destination):
@@ -64,8 +57,8 @@ def trova_prezzo_aeroporto(data):
 
 while True:
     #tratte,aeroporti=richiesta_tratte()
+    tratte = requests.post('http://localhost:5000/invio_Scraper', {'request':'tratta'})
     trattegestite=len(tratte)
-    aeroportigestiti=len(aeroporti)
     for i in range (1,trattegestite):
         try:
             #TO_DO bisogna variare con i quindi bisogna controllare cosa ritorna effettivamente richiesta_tratte
@@ -75,6 +68,9 @@ while True:
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
         except ResponseError as error:
             raise error
+         
+    aeroporti = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
+    aeroportigestiti=len(aeroporti)
     for i in range (1,aeroportigestiti):
         try:
             #TO_DO bisogna variare con i quindi bisogna controllare cosa ritorna effettivamente richiesta_tratte

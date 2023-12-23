@@ -152,28 +152,31 @@ def scrivi_database_aeroporti(data):
     # Chiudi la connessione
     #conn.close()
 
-#TO_DO per fare questo dovrei inserirlo in un ciclo while con un timer di 24 ore, invece ho deciso di inviarle ogni volta che ha una comunicazione con l'user controller
-def comunicazionepost():
-    tratte ,aeroporti = leggi_database()
-    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte, 'vet_aroporti':aeroporti})
-    # return response.text   
+#TO_DO oltre questo si possono inviare ogni volta che arriva un aggiornamento sulle tratte-aeroporti, bisogna considerare qual'è l'opzione migliore
+@app.route('/invio_Scraper', methods=['POST']) 
+def comunicazione_Scraper():
+    richiesta= request.json
+    if richiesta=='tratta':
+        tratte= leggi_database_tratte()
+        return tratte
+    elif richiesta == 'aroporto':
+        aeroporti=leggi_database_aeroporti()
+        return aeroporti
 
-#TO_DO Elena le comunicazioni di user controller devono inviarla qui
-@app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
-def comunicazioneUser():
-    tratta= request.json
-    scrivi_database_tratte(tratta)
-    tratte= leggi_database_tratte()
-    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte})
 
-    # return '', 204    
-@app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
-def comunicazioneUser():
-    aeroporto = request.json
-    scrivi_database_aeroporti(aeroporto)
-    aeroporti=leggi_database_aeroporti()
-    response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
+# @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
+# def comunicazioneUser():
+#     tratta= request.json
+#     scrivi_database_tratte(tratta)
+#     tratte= leggi_database_tratte()
+#     response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte})
 
-    # return '', 204   
+# @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
+# def comunicazioneUser():
+#     aeroporto = request.json
+#     scrivi_database_aeroporti(aeroporto)
+#     aeroporti=leggi_database_aeroporti()
+#     response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
+
      
 
