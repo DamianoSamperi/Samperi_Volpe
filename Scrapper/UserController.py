@@ -30,6 +30,8 @@ def inserisci_tratta(email, origine, destinazione, budget):
         # Stampa la risposta ricevuta dal servizio
         print(response.status_code)
         print(response.json())
+        #TO_DO Elena lo deve inviare solo se non esistono altri utenti che hanno selezionato quella tratta
+        #o ti fai tornare con la prima richiesta pure un count o fai un altra richiesta al database
         invia_tratta(origine,destinazione)
 
 def inserisci_aeroporto(email,origine,budget):
@@ -43,7 +45,13 @@ def inserisci_aeroporto(email,origine,budget):
         # Stampa la risposta ricevuta dal servizio
         print(response.status_code)
         print(response.json())
+        #TO_DO Elena lo deve inviare solo se non esistono altri utenti che hanno selezionato quell'aeroporto
+        #o ti fai tornare con la prima richiesta pure un count o fai un altra richiesta al database
         invia_aeroporto(origine)
+
+#TO_DO Elena bisogna fare la disiscrizione o come nuova funziona oppure nelle funzione inserisce puoi controllare se gia inserito e in quel caso cancelli dal database e invi al controller solo se non ci sono utenti per quella tratta-aeroporto
+#def disiscrizione_tratta(email, origine, destinazione, budget):
+#def disiscrizione_aeroporto(email, origine, budget):         
 
 def autentica_client(email):
     url = 'http://localhost:5000/controlla_utente'
