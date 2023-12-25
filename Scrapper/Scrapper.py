@@ -52,7 +52,7 @@ def trova_prezzo_aeroporto(data):
     for i in 5:
         if data.data[i] is not None:
             prezzo= data.data[i]["price"]["total"] * 0.91
-            aeroporti_speciali.append({'origin':'data.data[i]["origin"]','destination':'data.data[i]["destination"]', 'price':prezzo})
+            aeroporti_speciali.append({'origin':data.data[i]["origin"],'destination':data.data[i]["destination"], 'price':prezzo})
     return aeroporti_speciali
 
 while True:
