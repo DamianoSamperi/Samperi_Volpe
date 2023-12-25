@@ -6,6 +6,7 @@ import json
 from flask import Flask, jsonify, request
 import time
 import requests
+import threading
 
 app = Flask(__name__)
 
@@ -54,6 +55,55 @@ def trova_prezzo_aeroporto(data):
             prezzo= data.data[i]["price"]["total"] * 0.91
             aeroporti_speciali.append({'origin':data.data[i]["origin"],'destination':data.data[i]["destination"], 'price':prezzo})
     return aeroporti_speciali
+
+#TO_DO Possibilità utilizzo thread
+# def Richiesta_API_Tratta():
+#     response=requests.post('http://localhost:5000/invio_Scraper', {'request':'tratta'})
+#     if  response != 'error':
+#         tratte = response
+#     trattegestite=len(tratte)
+#     for i in range (1,trattegestite):
+#         try:
+#             #TO_DO bisogna variare con i quindi bisogna controllare cosa ritorna effettivamente richiesta_tratte
+#             response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratte[0], destinationLocationCode=tratte[1], departureDate=tratte[2], adults=tratte[3]) 
+#             #TO_DO un realtà la data non viene salvata ma va aggiunta quella del giorno dopo
+#             data = trova_prezzo_tratta(response,tratte[0],tratte[1])
+#             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+#         except ResponseError as error:
+#             raise error
+
+# def Richiesta_API_Aeroporto():
+#     response = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
+#     if response != 'error':
+#         aeroporti = response
+#     aeroportigestiti=len(aeroporti)
+#     for i in range (1,aeroportigestiti):
+#         try:
+#             #TO_DO bisogna variare con i quindi bisogna controllare cosa ritorna effettivamente richiesta_tratte
+#             response = amadeus.shopping.flight_destinations.get(origin=aeroporti[i],oneWay=True,nonStop=True)  
+#             data = trova_prezzo_aeroporto(response)
+#             invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
+#         except ResponseError as error:
+#             raise error
+# while True:
+#     # Creazione del primo thread
+#     t1 = threading.Thread(target=Richiesta_API_Tratta)
+
+#     # Creazione del secondo thread
+#     t2 = threading.Thread(target=Richiesta_API_Aeroporto)
+
+#     # Avvio dei thread
+#     t1.start()
+#     t2.start()
+
+#     # Attendere che entrambi i thread terminino
+#     t1.join()
+#     t2.join()
+
+#     time.sleep(86400)
+
+            
+
 
 while True:
     #tratte,aeroporti=richiesta_tratte()
