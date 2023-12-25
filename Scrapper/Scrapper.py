@@ -71,6 +71,7 @@ def trova_prezzo_aeroporto(data):
 #             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
 #         except ResponseError as error:
 #             raise error
+#     time.sleep(86400)
 
 # def Richiesta_API_Aeroporto():
 #     response = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
@@ -85,22 +86,18 @@ def trova_prezzo_aeroporto(data):
 #             invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
 #         except ResponseError as error:
 #             raise error
-# while True:
-#     # Creazione del primo thread
-#     t1 = threading.Thread(target=Richiesta_API_Tratta)
-
-#     # Creazione del secondo thread
-#     t2 = threading.Thread(target=Richiesta_API_Aeroporto)
-
-#     # Avvio dei thread
-#     t1.start()
-#     t2.start()
-
-#     # Attendere che entrambi i thread terminino
-#     t1.join()
-#     t2.join()
-
 #     time.sleep(86400)
+
+# # Creazione del primo thread
+# t1 = threading.Thread(target=Richiesta_API_Tratta)
+
+# # Creazione del secondo thread
+# t2 = threading.Thread(target=Richiesta_API_Aeroporto)
+
+# # Avvio dei thread
+# t1.start()
+# t2.start()
+
 
             
 
