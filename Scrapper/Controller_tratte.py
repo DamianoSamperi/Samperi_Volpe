@@ -20,24 +20,24 @@ except sqlite3.Error as e:
 
 try:
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tratte (
+        CREATE TABLE IF NOT EXISTS tratte_salvate (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             origine TEXT NOT NULL,
             destinazione TEXT NOT NULL,
             budget INTEGER
         )
-    ''')
+    ''') #tu avevi messo tratte
 except sqlite3.Error as e:
     print("Errore durante l'esecuzione della query: {e}")
 
 try:
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS aeroporti (
+        CREATE TABLE IF NOT EXISTS aeroporti_salvati (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             origine TEXT NOT NULL,
             budget INTEGER
         )
-    ''')
+    ''') #tu avevi messo aeroporti
 except sqlite3.Error as e:
     print("Errore durante l'esecuzione della query: {e}")
     
