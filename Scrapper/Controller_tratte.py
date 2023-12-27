@@ -159,7 +159,7 @@ def scrivi_database_aeroporti(data):
         query = "SELECT COUNT(*) FROM aeroporti_salvati WHERE origine = ?" 
     
         # Esegui la query SQL con i valori passati come parametri
-        cursor.execute(query, (data[0]))
+        cursor.execute(query, (data[0])) #TO-DO damiamo probabilmente devi scrivere (data[0],) con la virgola ogni volta che è un parametro da uno, l'ho visto online, quindi anche nelle altre 2 qui sotto
         count = cursor.fetchall()
 
         # Esegui il commit delle modifiche
