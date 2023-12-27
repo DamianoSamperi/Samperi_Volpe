@@ -8,7 +8,7 @@ app = Flask(__name__)
 #FORSE IN REALTà SERVE SOLO UN CONN E UN CURSOR, VEDIAMO
 #PERCHè UNICO DB MA PIù TABELLE
 try:
-    conn=sqlite3.connect('voli.db')
+    conn=sqlite3.connect('rules.db')
     #conn1 = sqlite3.connect('tratte.db')
     #conn2 = sqlite3.connect('aeroporti.db')
     #cursor1 = conn1.cursor()

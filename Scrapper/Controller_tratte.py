@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 
 try:
-    conn=sqlite3.connect('voli.db')
+    conn=sqlite3.connect('controllertratte.db')
     #conn1 = sqlite3.connect('tratte_salvate.db')
     #conn2 = sqlite3.connect('aeroporti_salvati.db')
 
