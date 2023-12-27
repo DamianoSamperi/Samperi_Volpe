@@ -96,7 +96,7 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
-    result = requests.post(url, jsonify(users)) #credo sia così
+    result = requests.post(url, json=json.dumps(users)) #credo sia così
     return result
 
 def get_users_by_aeroporto(aeroporto):
@@ -107,7 +107,7 @@ def get_users_by_aeroporto(aeroporto):
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
-    result = requests.post(url, jsonify(users)) #credo sia così
+    result = requests.post(url, json=json.dumps(users)) #credo sia così
     return result
 
 def elimina_tratta(user_id,origine,destinazione):

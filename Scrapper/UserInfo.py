@@ -36,9 +36,9 @@ def get_email_by_userid(*ids):
     for id in ids:
         try:
             query="SELECT email FROM users WHERE id= ?"
-            cursor.execute(query, (id,)) #vedi meglio
+            cursor.execute(query, (id[0],)) #TO_DO andrebbero messe delle stampe per vedere che stiamo facendo
             user = cursor.fetchall()
-            users.append(user)
+            users.append(user[0])
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
     return users
@@ -46,7 +46,7 @@ def get_email_by_userid(*ids):
 def control_client(email):
     try:
         query="SELECT id FROM users WHERE email= ?"
-        cursor.execute(query,(email,)) #vedi meglio
+        cursor.execute(query,(email,)) #TO_DO andrebbero messe delle stampe per vedere che stiamo facendo
         result=cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
@@ -72,7 +72,7 @@ def controlla_utente():
 
 @app.route('/registra_utente', methods=['POST'])
 def inserisci_utente():
-    if request.method == 'POST': #forse è request?
+    if request.method == 'POST': 
         data = request.json
         inserisci_client(data.nome,data.cognome,data.email)
         result = {'message': 'Data received successfully', 'data': data}
@@ -80,8 +80,8 @@ def inserisci_utente():
     
 @app.route('/trova_email_by_user_id', methods=['POST'])
 def inserisci_utente():
-    if request.method == 'POST': #forse è request?
+    if request.method == 'POST': 
         data = request.json
         data_dict = json.loads(data)
-        emails=get_email_by_userid(*data_dict.values())
+        emails=get_email_by_userid(*data_dict)
         return jsonify(emails) 

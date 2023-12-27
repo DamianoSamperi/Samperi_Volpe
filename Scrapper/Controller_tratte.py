@@ -128,7 +128,7 @@ def scrivi_database_tratte(data):
     
 
         # Esegui la query SQL con i valori passati come parametri
-        cursor.execute(query, (data[0], data[1]))
+        cursor.execute(query, (data['origine'], data['destinazione']))
         count = cursor.fetchall()
         
         # Esegui il commit delle modifiche
@@ -137,14 +137,14 @@ def scrivi_database_tratte(data):
     if count==0:
         try:
             query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor.execute(query, (data[0], data[1]))
+            cursor.execute(query, (data['origine'], data['destinazione']))
             conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
     else:
         try:
             query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor.execute(query, (data[0], data[1]))
+            cursor.execute(query, (data['origine'], data['destinazione']))
             conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
@@ -158,7 +158,7 @@ def scrivi_database_aeroporti(data):
         query = "SELECT COUNT(*) FROM aeroporti_salvati WHERE origine = ?" 
     
         # Esegui la query SQL con i valori passati come parametri
-        cursor.execute(query, (data[0])) #TO-DO damiamo probabilmente devi scrivere (data[0],) con la virgola ogni volta che è un parametro da uno, l'ho visto online, quindi anche nelle altre 2 qui sotto
+        cursor.execute(query, (data['aeroporto'],)) 
         count = cursor.fetchall()
 
         # Esegui il commit delle modifiche
@@ -168,14 +168,14 @@ def scrivi_database_aeroporti(data):
     if count == 0:
         try:
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor.execute(query, (data[0]))
+            cursor.execute(query, (data['aeroporto'],))
             conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
     else:
         try:
             query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor.execute(query, (data[0]))
+            cursor.execute(query, (data['aeroporto'],))
             conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
@@ -187,10 +187,10 @@ def scrivi_database_aeroporti(data):
 @app.route('/invio_Scraper', methods=['POST']) 
 def comunicazione_Scraper():
     richiesta= request.json
-    if richiesta=='tratta':
+    if richiesta['request']=='tratta':
         tratte= leggi_database_tratte()
         return tratte
-    elif richiesta == 'aroporto':
+    elif richiesta['request'] == 'aroporto':
         aeroporti=leggi_database_aeroporti()
         return aeroporti
 
