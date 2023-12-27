@@ -12,7 +12,7 @@ def registra_client(nome,cognome,email):
         url = 'http://localhost:5000/registra_utente'
         payload = {'email': email, 'nome': nome, 'cognome': cognome}
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         # Stampa la risposta ricevuta dal servizio
         print(response.status_code)
         print(response.json())
@@ -26,7 +26,7 @@ def inserisci_tratta(email, origine, destinazione, budget):
         url = 'http://localhost:5000/ricevi_tratte_Rules'
         payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
         if response==1: #la invia solo è il primo cliente ad averla chiesta
             invia_tratta(origine,destinazione)
@@ -38,7 +38,7 @@ def inserisci_aeroporto(email,origine,budget):
         url = 'http://localhost:5000/ricevi_aeroporti_Rules'
         payload = {'userid': user, 'origine': origine, 'budget': budget}
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
         if response==1: #la invia solo se è il primo cliente ad averla chiesta
             invia_aeroporto(origine)
@@ -51,7 +51,7 @@ def disiscrizione_tratta(email, origine, destinazione):
         url = 'http://localhost:5000/elimina_tratte_Rules'
         payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
         if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
             invia_tratta(origine,destinazione)
@@ -63,7 +63,7 @@ def disiscrizione_aeroporto(email, origine):
         url = 'http://localhost:5000/elimina_aeroporto_Rules'
         payload = {'userid': user, 'origine': origine}
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
         if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
             invia_aeroporto(origine)       
@@ -74,7 +74,7 @@ def autentica_client(email):
     try:
         response = requests.get(url, params=params)
         if response.status_code == 200:
-            user=response.json.userid
+            user=response.json['userid']
             if user==False:
                 print("non sei registrato")
                 return user
@@ -89,13 +89,13 @@ def autentica_client(email):
 def trova_email_by_tratta(ori,dest,pr):
     #users=Rules.get_users_by_tratta_and_budget(ori,dest,pr)
     url='http://localhost:5000/trova_email_by_tratta_rules'
-    result = requests.post(url, {'ori':ori, 'dest': dest,'pr': pr})
+    result = requests.post(url, json={'ori':ori, 'dest': dest,'pr': pr})
     return result
 
 def trova_email_by_offerte(ori):
     #users=Rules.get_users_by_aeroporto(ori)
     url='http://localhost:5000/trova_email_by_aeroporti_rules'
-    result = requests.post(url, {'ori':ori,})
+    result = requests.post(url, json={'ori':ori,})
     return result
 
 #TO-DO vedi meglio
@@ -103,7 +103,7 @@ def invia_tratta(origine, destinazione):
     url = 'http://localhost:5000/ricevi_tratte_usercontroller'
     payload = {'origine': origine, 'destinazione': destinazione}
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
+    response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())
@@ -113,7 +113,7 @@ def invia_aeroporto(aeroporto):
     url = 'http://localhost:5000/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
+    response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
     print(response.json())

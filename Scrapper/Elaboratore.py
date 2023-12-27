@@ -18,7 +18,7 @@ consumer_aeroporto = KafkaConsumer('aeroporti',
 
 def invioNotifier(notifiche):
     print(notifiche)
-    response = requests.post('http://localhost:5000/recuperomail', {'notifiche':notifiche})
+    response = requests.post('http://localhost:5000/recuperomail', json={'notifiche':notifiche})
     # return response.text   
 
 notifiche = []
@@ -26,7 +26,7 @@ for message in consumer_tratta:
     # Ottieni il messaggio dal topic Kafka
     # msg = message.value
 
-    result = requests.post('http://localhost:5000/trova_email_by_tratta', {'ori':message.value['origin'], 'dest': message.value['destination'],'pr': message.value['price']})
+    result = requests.post('http://localhost:5000/trova_email_by_tratta', json={'ori':message.value['origin'], 'dest': message.value['destination'],'pr': message.value['price']})
    #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
     if result['email'] is not None:
         print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
@@ -42,7 +42,7 @@ except Exception as e:
 
 for message in consumer_aeroporto:
     #msg = message.value
-    result = requests.post('http://localhost:5000/trova_email_by_offerte', {'ori':message.origin})
+    result = requests.post('http://localhost:5000/trova_email_by_offerte', json={'ori':message.origin})
     result.json
     if result['email'] is not None:
         print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg

@@ -58,7 +58,7 @@ def trova_prezzo_aeroporto(data):
 
 #TO_DO Possibilità utilizzo thread
 # def Richiesta_API_Tratta():
-#     response=requests.post('http://localhost:5000/invio_Scraper', {'request':'tratta'})
+#     response=requests.post('http://localhost:5000/invio_Scraper', json={'request':'tratta'})
 #     if  response != 'error':
 #         tratte = response
 #     trattegestite=len(tratte)
@@ -74,7 +74,7 @@ def trova_prezzo_aeroporto(data):
 #     time.sleep(86400)
 
 # def Richiesta_API_Aeroporto():
-#     response = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
+#     response = requests.post('http://localhost:5000/invio_Scraper', {json='request':'aeroporto'})
 #     if response != 'error':
 #         aeroporti = response
 #     aeroportigestiti=len(aeroporti)
@@ -104,7 +104,7 @@ def trova_prezzo_aeroporto(data):
 
 while True:
     #tratte,aeroporti=richiesta_tratte()
-    response=requests.post('http://localhost:5000/invio_Scraper', {'request':'tratta'})
+    response=requests.post('http://localhost:5000/invio_Scraper', json={'request':'tratta'})
     if  response != 'error':
         tratte = response
     trattegestite=len(tratte)
@@ -118,7 +118,7 @@ while True:
         except ResponseError as error:
             raise error
          
-    response = requests.post('http://localhost:5000/invio_Scraper', {'request':'aeroporto'})
+    response = requests.post('http://localhost:5000/invio_Scraper', json={'request':'aeroporto'})
     if response != 'error':
         aeroporti = response
     aeroportigestiti=len(aeroporti)

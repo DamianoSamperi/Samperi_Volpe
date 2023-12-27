@@ -45,11 +45,10 @@ def leggi_database():
     try:
         # Esegui una query SQL
         cursor.execute("SELECT * FROM tratte_salvate")
-        cursor.execute("SELECT * FROM aeroporti_salvati")
-
-        # Ottieni i risultati
         risultati = cursor.fetchall()
+        cursor.execute("SELECT * FROM aeroporti_salvati")
         risultati2 = cursor.fetchall()
+
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
