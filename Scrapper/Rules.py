@@ -50,7 +50,8 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
         ''', (user_id, origine, destinazione, budget))
         conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        cursor.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
+        query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
+        cursor.execute(query,(origine, destinazione)) #vedi meglio
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
@@ -64,7 +65,8 @@ def inserisci_aeroporto(user_id,origine,budget):
         ''', (user_id, origine, budget))
         conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto
-        cursor.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
+        query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
+        cursor.execute(query,(origine,)) #vedi meglio
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
@@ -88,8 +90,8 @@ def get_aeroporti():
 
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     try:
-        cursor.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
-        "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
+        query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ?"
+        cursor.execute(query,(origine, destinazione, prezzo)) #vedi meglio
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
@@ -99,7 +101,8 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
 
 def get_users_by_aeroporto(aeroporto):
     try:
-        cursor.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
+        query=" SELECT user_id FROM aeroporti WHERE origine= ?"
+        cursor.execute(query,(aeroporto,)) #vedi meglio
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
@@ -109,10 +112,12 @@ def get_users_by_aeroporto(aeroporto):
 
 def elimina_tratta(user_id,origine,destinazione):
     try:
-        cursor.execute("DELETE FROM tratte WHERE user_id=" + user_id+ "AND origine=" + origine + "AND destinazione=" + destinazione)
+        query1="DELETE FROM tratte WHERE user_id= ? AND origine= ? AND destinazione= ?"
+        cursor.execute(query1,(user_id,origine,destinazione)) #vedi meglio
         conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        cursor.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
+        query2="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
+        cursor.execute(query2,(origine,destinazione)) #vedi meglio
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
@@ -120,10 +125,12 @@ def elimina_tratta(user_id,origine,destinazione):
 
 def elimina_aeroporto(user_id,origine):
     try:
-        cursor.execute("DELETE FROM aeroporti WHERE user_id=" + user_id+ "AND origine=" + origine)
+        query1="DELETE FROM aeroporti WHERE user_id= ? AND origine= ?"
+        cursor.execute(query1,(user_id,origine)) #vedi meglio
         conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto'
-        cursor.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
+        query2="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
+        cursor.execute(query2,(origine,))
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:

@@ -35,7 +35,8 @@ def get_email_by_userid(*ids):
     users=[]
     for id in ids:
         try:
-            cursor.execute("SELECT email FROM users WHERE id=" +id)
+            query="SELECT email FROM users WHERE id= ?"
+            cursor.execute(query, (id,)) #vedi meglio
             user = cursor.fetchall()
             users.append(user)
         except sqlite3.Error as e:
@@ -44,7 +45,8 @@ def get_email_by_userid(*ids):
 
 def control_client(email):
     try:
-        cursor.execute("SELECT id FROM users WHERE email=" + email)
+        query="SELECT id FROM users WHERE email= ?"
+        cursor.execute(query,(email,)) #vedi meglio
         result=cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
