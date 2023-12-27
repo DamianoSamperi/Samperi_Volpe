@@ -4,7 +4,7 @@ import json
 
 app = Flask(__name__)
 try:
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect('voli.db')
     cursor = conn.cursor()
 except sqlite3.Error as e:
     print("Errore durante la connessione al database: {e}")

@@ -7,17 +7,19 @@ import requests
 app = Flask(__name__)
 
 try:
-    conn1 = sqlite3.connect('tratte_salvate.db')
-    conn2 = sqlite3.connect('aeroporti_salvati.db')
+    conn=sqlite3.connect('voli.db')
+    #conn1 = sqlite3.connect('tratte_salvate.db')
+    #conn2 = sqlite3.connect('aeroporti_salvati.db')
 
     # Creazione di un cursore per eseguire le query SQL
-    cursor1 = conn1.cursor()
-    cursor2 = conn2.cursor()
+    #cursor1 = conn1.cursor()
+    #cursor2 = conn2.cursor()
+    cursor=conn.cursor()
 except sqlite3.Error as e:
     print("Errore durante la connessione al database: {e}")
 
 try:
-    cursor1.execute('''
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS tratte (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             origine TEXT NOT NULL,
@@ -29,7 +31,7 @@ except sqlite3.Error as e:
     print("Errore durante l'esecuzione della query: {e}")
 
 try:
-    cursor2.execute('''
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS aeroporti (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             origine TEXT NOT NULL,
@@ -42,12 +44,12 @@ except sqlite3.Error as e:
 def leggi_database():
     try:
         # Esegui una query SQL
-        cursor1.execute("SELECT * FROM tratte_salvate")
-        cursor2.execute("SELECT * FROM aeroporti_salvati")
+        cursor.execute("SELECT * FROM tratte_salvate")
+        cursor.execute("SELECT * FROM aeroporti_salvati")
 
         # Ottieni i risultati
-        risultati = cursor1.fetchall()
-        risultati2 = cursor2.fetchall()
+        risultati = cursor.fetchall()
+        risultati2 = cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
@@ -71,10 +73,10 @@ def leggi_database():
 def leggi_database_tratte():
     try:
         # Esegui una query SQL
-        cursor1.execute("SELECT * FROM tratte_salvate")
+        cursor.execute("SELECT * FROM tratte_salvate")
 
         # Ottieni i risultati
-        risultati = cursor1.fetchall()
+        risultati = cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
         return "error"
@@ -98,10 +100,10 @@ def leggi_database_tratte():
 def leggi_database_aeroporti():
     try:
         # Esegui una query SQL
-        cursor2.execute("SELECT * FROM aeroporti_salvati")
+        cursor.execute("SELECT * FROM aeroporti_salvati")
 
         # Ottieni i risultati
-        risultati = cursor2.fetchall()
+        risultati = cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
         return "error"
@@ -127,8 +129,8 @@ def scrivi_database_tratte(data):
     
 
         # Esegui la query SQL con i valori passati come parametri
-        cursor1.execute(query, (data[0], data[1]))
-        count = cursor1.fetchall()
+        cursor.execute(query, (data[0], data[1]))
+        count = cursor.fetchall()
         
         # Esegui il commit delle modifiche
     except sqlite3.Error as e:
@@ -136,15 +138,15 @@ def scrivi_database_tratte(data):
     if count==0:
         try:
             query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor1.execute(query, (data[0], data[1]))
-            conn1.commit()
+            cursor.execute(query, (data[0], data[1]))
+            conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
     else:
         try:
             query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor1.execute(query, (data[0], data[1]))
-            conn1.commit()
+            cursor.execute(query, (data[0], data[1]))
+            conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
 
@@ -157,25 +159,25 @@ def scrivi_database_aeroporti(data):
         query = "SELECT COUNT(*) FROM aeroporti_salvati WHERE origine = ?" 
     
         # Esegui la query SQL con i valori passati come parametri
-        cursor2.execute(query, (data[0]))
-        count = cursor2.fetchall()
+        cursor.execute(query, (data[0]))
+        count = cursor.fetchall()
 
         # Esegui il commit delle modifiche
-        conn2.commit()
+        conn.commit()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     if count == 0:
         try:
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor2.execute(query, (data[0]))
-            conn2.commit()
+            cursor.execute(query, (data[0]))
+            conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
     else:
         try:
             query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor2.execute(query, (data[0]))
-            conn2.commit()
+            cursor.execute(query, (data[0]))
+            conn.commit()
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
 

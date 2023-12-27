@@ -8,15 +8,17 @@ app = Flask(__name__)
 #FORSE IN REALTà SERVE SOLO UN CONN E UN CURSOR, VEDIAMO
 #PERCHè UNICO DB MA PIù TABELLE
 try:
-    conn1 = sqlite3.connect('tratte.db')
-    conn2 = sqlite3.connect('aeroporti.db')
-    cursor1 = conn1.cursor()
-    cursor2 = conn2.cursor()
+    conn=sqlite3.connect('voli.db')
+    #conn1 = sqlite3.connect('tratte.db')
+    #conn2 = sqlite3.connect('aeroporti.db')
+    #cursor1 = conn1.cursor()
+    #cursor2 = conn2.cursor()
+    cursor=conn.cursor()
 except sqlite3.Error as e:
     print("Errore durante la connessione al database: {e}")
 
 try:
-    cursor1.execute('''
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS tratte (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -29,7 +31,7 @@ except sqlite3.Error as e:
     print("Errore durante l'esecuzione della query: {e}")
 
 try:
-    cursor2.execute('''
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS aeroporti (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -42,53 +44,53 @@ except sqlite3.Error as e:
 
 def inserisci_tratta(user_id,origine,destinazione,budget):
     try:
-        cursor1.execute('''
+        cursor.execute('''
         INSERT INTO tratte (user_id, origine, destinazione, budget)
         VALUES (?, ?, ?, ?)
         ''', (user_id, origine, destinazione, budget))
-        conn1.commit()
+        conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        cursor1.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
-        result=cursor1.fetchall()
+        cursor.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
+        result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
 def inserisci_aeroporto(user_id,origine,budget):
     try:
-        cursor2.execute('''
+        cursor.execute('''
         INSERT INTO aeroporti (user_id, origine, budget)
         VALUES (?, ?, ?, ?)
         ''', (user_id, origine, budget))
-        conn2.commit()
+        conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto
-        cursor2.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
-        result=cursor2.fetchall()
+        cursor.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
+        result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
 def get_tratte():
     try:
-        cursor1.execute(" SELECT * from tratte")
-        result=cursor1.fetchall()
+        cursor.execute(" SELECT * from tratte")
+        result=cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     return result
 
 def get_aeroporti():
     try:
-        cursor2.execute(" SELECT * from aeroporti")
-        result=cursor2.fetchall()
+        cursor.execute(" SELECT * from aeroporti")
+        result=cursor.fetchall()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     return result 
 
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     try:
-        cursor1.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
+        cursor.execute(" SELECT user_id FROM tratte WHERE origine=" + origine +
         "AND destinazione= " + destinazione + "AND budget>=" + prezzo)
-        users=cursor1.fetchall() #insieme di userid interessati in quella tratta
+        users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
@@ -97,8 +99,8 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
 
 def get_users_by_aeroporto(aeroporto):
     try:
-        cursor2.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
-        users=cursor2.fetchall() #insieme di userid interessati in quell'aeroporto
+        cursor.execute(" SELECT user_id FROM aeroporti WHERE origine=" + aeroporto)
+        users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
@@ -107,22 +109,22 @@ def get_users_by_aeroporto(aeroporto):
 
 def elimina_tratta(user_id,origine,destinazione):
     try:
-        cursor1.execute("DELETE FROM tratte WHERE user_id=" + user_id+ "AND origine=" + origine + "AND destinazione=" + destinazione)
-        conn1.commit()
+        cursor.execute("DELETE FROM tratte WHERE user_id=" + user_id+ "AND origine=" + origine + "AND destinazione=" + destinazione)
+        conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        cursor1.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
-        result=cursor1.fetchall()
+        cursor.execute("SELECT COUNT(*) FROM tratte WHERE origine=" + origine + "AND destinazione=" + destinazione)
+        result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
 
 def elimina_aeroporto(user_id,origine):
     try:
-        cursor2.execute("DELETE FROM aeroporti WHERE user_id=" + user_id+ "AND origine=" + origine)
-        conn2.commit()
+        cursor.execute("DELETE FROM aeroporti WHERE user_id=" + user_id+ "AND origine=" + origine)
+        conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto'
-        cursor2.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
-        result=cursor2.fetchall()
+        cursor.execute("SELECT COUNT(*) FROM aeroporti WHERE origine=" + origine)
+        result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
@@ -130,8 +132,9 @@ def elimina_aeroporto(user_id,origine):
 #la chiamo solo se crasha qualcosa 
 def crash():
     try:
-        conn1.close()
-        conn2.close()
+        #conn1.close()
+        #conn2.close()
+        conn.close()
     except sqlite3.Error as e:
         print("Errore durante la chiusura della connessione al database: {e}")
 
