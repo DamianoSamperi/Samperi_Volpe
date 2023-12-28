@@ -3,23 +3,7 @@ from flask import Flask, request, jsonify
 import json
 
 app = Flask(__name__)
-try:
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-except sqlite3.Error as e:
-    print("Errore durante la connessione al database: {e}")
 
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            cognome TEXT NOT NULL,
-            email TEXT NOT NULL
-        )
-    ''')
-except sqlite3.Error as e:
-    print("Errore durante l'esecuzione della query: {e}")
 
 def inserisci_client(nome,cognome,email):
     try:
@@ -88,3 +72,20 @@ def trova_utente():
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+    except sqlite3.Error as e:
+        print("Errore durante la connessione al database: {e}")
+
+    try:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL,
+                cognome TEXT NOT NULL,
+                email TEXT NOT NULL
+            )
+        ''')
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
