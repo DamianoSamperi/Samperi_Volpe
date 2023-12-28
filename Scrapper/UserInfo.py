@@ -80,7 +80,7 @@ def inserisci_utente():
         return jsonify(result) 
     
 @app.route('/trova_email_by_user_id', methods=['POST'])
-def inserisci_utente():
+def trova_utente():
     if request.method == 'POST': 
         data = request.json
         data_dict = json.loads(data)
