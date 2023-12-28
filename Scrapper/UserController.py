@@ -151,7 +151,7 @@ def registra_client():
 @app.route('/Insert_tratta', methods=['POST'])
 def inserisci_tratta():
     data= request.json
-    email = data["emai"]
+    email = data["email"]
     origine = data["origine"]
     destinazione = data["destinazione"]
     budget = data["budget"]
@@ -165,11 +165,14 @@ def inserisci_tratta():
         #print(response.status_code) forse devo controllare lo status_code
         if response==1: #la invia solo è il primo cliente ad averla chiesta
             invia_tratta(origine,destinazione)
+            return "Iscrizione effettuata"      
+    return "autenticazione fallita, si prega di registrarsi"
+
 
 @app.route('/Insert_aeroporto', methods=['POST'])
 def inserisci_aeroporto():
     data= request.json
-    email = data["emai"]
+    email = data["email"]
     origine = data["origine"]
     budget = data["budget"]
     user=autentica_client(email)
@@ -182,13 +185,15 @@ def inserisci_aeroporto():
         #print(response.status_code) forse devo controllare lo status_code
         if response==1: #la invia solo se è il primo cliente ad averla chiesta
             invia_aeroporto(origine)
+        return "Iscrizione effettuata"
+    return "autenticazione fallita, si prega di registrarsi"
 
 
 #TO_DO Elena bisogna fare la disiscrizione o come nuova funziona oppure nelle funzione inserisce puoi controllare se gia inserito e in quel caso cancelli dal database e invi al controller solo se non ci sono utenti per quella tratta-aeroporto
 @app.route('/Disiscrizione_tratta', methods=['POST'])
 def disiscrizione_tratta():
     data= request.json
-    email = data["emai"]
+    email = data["email"]
     origine = data["origine"]
     destinazione = data["destinazione"]
     user=autentica_client(email) 
@@ -201,11 +206,13 @@ def disiscrizione_tratta():
         #print(response.status_code) forse devo controllare lo status_code
         if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
             invia_tratta(origine,destinazione)
+        return "Disiscrizione effettuata"
+    return "autenticazione fallita, si prega di registrarsi"
 
 @app.route('/Disiscrizione_aeroporto', methods=['POST'])
 def disiscrizione_aeroporto():  
     data= request.json
-    email = data["emai"]
+    email = data["email"]
     origine = data["origine"]
     user=autentica_client(email) 
     if user != False:
@@ -217,6 +224,8 @@ def disiscrizione_aeroporto():
         #print(response.status_code) forse devo controllare lo status_code
         if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
             invia_aeroporto(origine)       
+        return "Disiscrizione effettuata"
+    return "autenticazione fallita, si prega di registrarsi"
 
 
 
