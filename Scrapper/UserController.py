@@ -123,14 +123,14 @@ def invia_aeroporto(aeroporto):
 @app.route('/trova_email_by_tratta', methods=['POST'])
 def trova_email_tratta():
     if request.method == 'POST':
-        data = json.loads(request.json) #forse è senza json.loads
+        data = request.json 
         result=trova_email_by_tratta(data["ori"],data["dest"],data["pr"])
         return result
     
 @app.route('/trova_email_by_offerte', methods=['POST'])
 def trova_email_offerte():
     if request.method == 'POST':
-        data = json.loads(request.json)
+        data = request.json
         result=trova_email_by_offerte(data["ori"])
         return result
     

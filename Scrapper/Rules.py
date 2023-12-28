@@ -149,42 +149,42 @@ def crash():
 @app.route('/ricevi_tratte_Rules', methods=['POST'])
 def ricevi_tratte():
     if request.method == 'POST': 
-        data = json.loads(request.json) #forse è senza json.loads
+        data = request.json 
         result=inserisci_tratta(data['userid'],data['origine'],data['destinazione'],data['budget'])
         return result
   
 @app.route('/ricevi_aeroporti_Rules', methods=['POST'])
 def ricevi_aeroporti():
     if request.method == 'POST': 
-        data = json.loads(request.json)
+        data = request.json
         result=inserisci_aeroporto(data['userid'],data['origine'],data['budget'])
         return result
     
 @app.route('/trova_email_by_tratta_rules', methods=['POST'])
 def email_by_tratta():
     if request.method == 'POST': 
-        data = json.loads(request.json)
+        data = request.json
         result=get_users_by_tratta_and_budget(data['ori'],data['dest'],data['pr'])
         return result
     
 @app.route('/trova_email_by_aeroporti_rules', methods=['POST'])
 def email_by_aeroporti():
     if request.method == 'POST': 
-        data = json.loads(request.json)
+        data = request.json
         result=get_users_by_aeroporto(data['ori'])
         return result
     
 @app.route('/elimina_tratte_Rules', methods=['POST'])
 def ricevi_tratte():
     if request.method == 'POST': 
-        data = json.loads(request.json)
+        data = request.json
         result=elimina_tratta(data['userid'],data['origine'],data['destinazione'])
         return result
     
 @app.route('/elimina_aeroporto_Rules', methods=['POST'])
 def ricevi_tratte():
     if request.method == 'POST': 
-        data = json.loads(request.json)
+        data = request.json
         result=elimina_aeroporto(data['userid'],data['origine'])
         return result
 
