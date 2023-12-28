@@ -34,12 +34,13 @@ def control_client(email):
         query="SELECT id FROM users WHERE email= ?"
         cursor.execute(query,(email,)) #TO_DO andrebbero messe delle stampe per vedere che stiamo facendo
         result=cursor.fetchall()
+        if result != None:
+            return result
+        else:
+            return False
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
-    if result != None:
-        return result
-    else:
-        return False
+   
 
 #la chiamo solo se crasha qualcosa
 def crash():
@@ -51,7 +52,7 @@ def crash():
 #FLASK----------------------------------------------------------------------------------
 @app.route('/controlla_utente', methods=['GET'])
 def controlla_utente():
-    email = request.args.get('email')
+    email = request.args.get("email")
     id=control_client(email)
     result = {'userid': id}
     return jsonify(result)
@@ -73,9 +74,9 @@ def trova_utente():
         return jsonify(emails) 
     
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)
     try:
         conn = sqlite3.connect('users.db')
+        global cursor 
         cursor = conn.cursor()
     except sqlite3.Error as e:
         print("Errore durante la connessione al database: {e}")
@@ -91,3 +92,5 @@ if __name__ == "__main__":
         ''')
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
+    app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)
+
