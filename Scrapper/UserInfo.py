@@ -73,8 +73,8 @@ def controlla_utente():
 @app.route('/registra_utente', methods=['POST'])
 def inserisci_utente():
     if request.method == 'POST': 
-        #data = request.json
-        data=json.loads(request.json)
+        data = request.json
+        #data=json.loads(request.json) che è non funziona
         inserisci_client(data["nome"],data["cognome"],data["email"]) #vedi se funziona
         result = {'message': 'Data received successfully', 'data': data}
         return jsonify(result) 
@@ -86,3 +86,5 @@ def trova_utente():
         data_dict = json.loads(data)
         emails=get_email_by_userid(*data_dict)
         return jsonify(emails) 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)

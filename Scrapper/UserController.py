@@ -5,7 +5,8 @@ import json
 import requests
 
 app = Flask(__name__)  
-    
+
+
 def registra_client(nome,cognome,email):
     #prima controllo se era già registrato
     if autentica_client(email) == False:
@@ -100,7 +101,7 @@ def trova_email_by_offerte(ori):
 
 #TO-DO vedi meglio
 def invia_tratta(origine, destinazione):
-    url = 'http://localhost:5000/ricevi_tratte_usercontroller'
+    url = 'http://localhost:5002/ricevi_tratte_usercontroller'
     payload = {'origine': origine, 'destinazione': destinazione}
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
@@ -110,7 +111,7 @@ def invia_tratta(origine, destinazione):
 
 #TO-DO vedi meglio
 def invia_aeroporto(aeroporto):
-    url = 'http://localhost:5000/ricevi_aeroporto_usercontroller'
+    url = 'http://localhost:5002/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
@@ -132,3 +133,6 @@ def trova_email_offerte():
         data = json.loads(request.json)
         result=trova_email_by_offerte(data["ori"])
         return result
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=5000, debug=True, threaded=True)

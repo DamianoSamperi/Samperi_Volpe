@@ -72,7 +72,7 @@ def trova_prezzo_aeroporto(data):
 #     domani = datetime.now() + timedelta(days=1) 
 #     data_domani = domani.strftime('%Y-%m-%d')
 
-#     response=requests.post('http://localhost:5000/invio_Scraper', json={'request':'tratta'})
+#     response=requests.post('http://localhost:5002/invio_Scraper', json={'request':'tratta'})
 #     if  response != 'error':
 #       tratte = response
 #     for tratta in tratte:
@@ -87,7 +87,7 @@ def trova_prezzo_aeroporto(data):
 # def Richiesta_API_Aeroporto():
 #     domani = datetime.now() + timedelta(days=1) 
 #     data_domani = domani.strftime('%Y-%m-%d')
-#     response = requests.post('http://localhost:5000/invio_Scraper', json={'request':'aeroporto'})
+#     response = requests.post('http://localhost:5002/invio_Scraper', json={'request':'aeroporto'})
 #     if response != 'error':
 #         aeroporti = response
 #     for aeroporto in aeroporti:
@@ -118,7 +118,7 @@ while True:
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
 
-    response=requests.post('http://localhost:5000/invio_Scraper', json={'request':'tratta'})
+    response=requests.post('http://localhost:5002/invio_Scraper', json={'request':'tratta'})
     if  response != 'error':
         tratte = response
     for tratta in tratte:
@@ -130,7 +130,7 @@ while True:
         except ResponseError as error:
             raise error
          
-    response = requests.post('http://localhost:5000/invio_Scraper', json={'request':'aeroporto'})
+    response = requests.post('http://localhost:5002/invio_Scraper', json={'request':'aeroporto'})
     if response != 'error':
         aeroporti = response
     for aeroporto in aeroporti:

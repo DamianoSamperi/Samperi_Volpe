@@ -34,3 +34,6 @@ def comunicazionepost():
     notifiche = request.json
     stato=inviomail(notifiche['notifiche'])
     return stato  
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=5003, debug=True, threaded=True)

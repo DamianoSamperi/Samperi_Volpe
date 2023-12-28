@@ -6,40 +6,7 @@ import requests
 
 app = Flask(__name__)
 
-try:
-    conn=sqlite3.connect('controllertratte.db')
-    #conn1 = sqlite3.connect('tratte_salvate.db')
-    #conn2 = sqlite3.connect('aeroporti_salvati.db')
 
-    # Creazione di un cursore per eseguire le query SQL
-    #cursor1 = conn1.cursor()
-    #cursor2 = conn2.cursor()
-    cursor=conn.cursor()
-except sqlite3.Error as e:
-    print("Errore durante la connessione al database: {e}")
-
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tratte_salvate (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            origine TEXT NOT NULL,
-            destinazione TEXT NOT NULL,
-            budget INTEGER
-        )
-    ''') #tu avevi messo tratte
-except sqlite3.Error as e:
-    print("Errore durante l'esecuzione della query: {e}")
-
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS aeroporti_salvati (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            origine TEXT NOT NULL,
-            budget INTEGER
-        )
-    ''') #tu avevi messo aeroporti
-except sqlite3.Error as e:
-    print("Errore durante l'esecuzione della query: {e}")
     
 def leggi_database():
     try:
@@ -209,5 +176,39 @@ def comunicazioneUser():
     # aeroporti=leggi_database_aeroporti()
     # response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
 
-     
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=5002, debug=True, threaded=True)
+    try:
+        conn=sqlite3.connect('controllertratte.db')
+        #conn1 = sqlite3.connect('tratte_salvate.db')
+        #conn2 = sqlite3.connect('aeroporti_salvati.db')
 
+        # Creazione di un cursore per eseguire le query SQL
+        #cursor1 = conn1.cursor()
+        #cursor2 = conn2.cursor()
+        cursor=conn.cursor()
+    except sqlite3.Error as e:
+        print("Errore durante la connessione al database: {e}")
+
+    try:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS tratte_salvate (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                origine TEXT NOT NULL,
+                destinazione TEXT NOT NULL,
+                budget INTEGER
+            )
+        ''') #tu avevi messo tratte
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")
+
+    try:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS aeroporti_salvati (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                origine TEXT NOT NULL,
+                budget INTEGER
+            )
+        ''') #tu avevi messo aeroporti
+    except sqlite3.Error as e:
+        print("Errore durante l'esecuzione della query: {e}")

@@ -8,7 +8,7 @@ import requests
 def invioNotifier(notifiche):
     print(notifiche)
     while True:
-        response = requests.post('http://localhost:5000/recuperomail', json={'notifiche':notifiche})
+        response = requests.post('http://localhost:5003/recuperomail', json={'notifiche':notifiche})
         if response == 'ok':
             break
 
