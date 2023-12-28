@@ -5,7 +5,7 @@ import json
 import requests
 
 
-# Crea un consumatore Kafka
+# Crea consumatore Kafka
 consumer_tratta = KafkaConsumer('tratte',
                         bootstrap_servers=['localhost:9092'],
                         enable_auto_commit=False,
@@ -18,8 +18,10 @@ consumer_aeroporto = KafkaConsumer('aeroporti',
 
 def invioNotifier(notifiche):
     print(notifiche)
-    response = requests.post('http://localhost:5000/recuperomail', json={'notifiche':notifiche})
-    # return response.text   
+    while True:
+        response = requests.post('http://localhost:5000/recuperomail', json={'notifiche':notifiche})
+        if response == 'ok':
+            break
 
 notifiche = []
 for message in consumer_tratta:
