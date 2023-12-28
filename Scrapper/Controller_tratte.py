@@ -163,14 +163,14 @@ def comunicazione_Scraper():
 
 
 @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
-def comunicazioneUser():
+def comunicazioneUser_tratte():
     tratta= request.json
     scrivi_database_tratte(tratta)
     # tratte= leggi_database_tratte()
     # response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte})
 
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
-def comunicazioneUser():
+def comunicazioneUser_aeroporto():
     aeroporto = request.json
     scrivi_database_aeroporti(aeroporto)
     # aeroporti=leggi_database_aeroporti()
