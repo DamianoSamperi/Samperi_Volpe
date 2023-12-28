@@ -188,4 +188,5 @@ def ricevi_tratte():
         result=elimina_aeroporto(data['userid'],data['origine'])
         return result
 
-    
+if __name__ == "__main__":
+    app.run(host="0.0.0.0",port=5005, debug=True, threaded=True)
