@@ -73,8 +73,9 @@ def controlla_utente():
 @app.route('/registra_utente', methods=['POST'])
 def inserisci_utente():
     if request.method == 'POST': 
-        data = request.json
-        inserisci_client(data.nome,data.cognome,data.email)
+        #data = request.json
+        data=json.loads(request.json)
+        inserisci_client(data["nome"],data["cognome"],data["email"]) #vedi se funziona
         result = {'message': 'Data received successfully', 'data': data}
         return jsonify(result) 
     
