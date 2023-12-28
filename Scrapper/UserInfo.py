@@ -74,7 +74,6 @@ def controlla_utente():
 def inserisci_utente():
     if request.method == 'POST': 
         data = request.json
-        #data=json.loads(request.json) che è non funziona
         inserisci_client(data["nome"],data["cognome"],data["email"]) #vedi se funziona
         result = {'message': 'Data received successfully', 'data': data}
         return jsonify(result) 
