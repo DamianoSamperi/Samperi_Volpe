@@ -1,5 +1,3 @@
-import UserInfo
-import Rules
 from flask import Flask, request, jsonify
 import json
 import requests
@@ -145,9 +143,10 @@ def registra_client():
         response = requests.post(url, json=payload, headers=headers)
         # Stampa la risposta ricevuta dal servizio
         print(response.status_code)
-        print(response.json())
+        return response["message"]
     else:
-        print("cliente già registrato")
+        return "cliente già registrato"
+
 
 @app.route('/Insert_tratta', methods=['POST'])
 def inserisci_tratta():

@@ -175,14 +175,14 @@ def email_by_aeroporti():
         return result
     
 @app.route('/elimina_tratte_Rules', methods=['POST'])
-def ricevi_tratte():
+def elimina_tratte():
     if request.method == 'POST': 
         data = request.json
         result=elimina_tratta(data['userid'],data['origine'],data['destinazione'])
         return result
     
 @app.route('/elimina_aeroporto_Rules', methods=['POST'])
-def ricevi_tratte():
+def elimina_aeroporto():
     if request.method == 'POST': 
         data = request.json
         result=elimina_aeroporto(data['userid'],data['origine'])

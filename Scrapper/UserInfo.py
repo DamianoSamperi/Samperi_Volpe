@@ -12,8 +12,10 @@ def inserisci_client(nome,cognome,email):
         VALUES (?, ?, ?)
         ''', (nome, cognome, email))
         conn.commit()
+        return 'ok'
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
+        return e
 
 def get_email_by_userid(*ids):
     users=[]
@@ -58,8 +60,8 @@ def controlla_utente():
 def inserisci_utente():
     if request.method == 'POST': 
         data = request.json
-        inserisci_client(data["nome"],data["cognome"],data["email"])
-        result = {'message': 'Data received successfully', 'data': data}
+        stato = inserisci_client(data["nome"],data["cognome"],data["email"])
+        result = {'message': stato, 'data': data}
         return jsonify(result) 
     
 @app.route('/trova_email_by_user_id', methods=['POST'])
