@@ -105,7 +105,7 @@ def invia_tratta(origine, destinazione):
     response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
-    print(response.json())
+    print(response.text)
 
 #TO-DO vedi meglio
 def invia_aeroporto(aeroporto):
@@ -162,13 +162,13 @@ def inserisci_tratta():
     if user != False:
         #Rules.inserisci_tratta(user,origine,destinazione,budget)
         url = 'http://localhost:5005/ricevi_tratte_Rules'
-        payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
+        payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
-        if response==1: #la invia solo è il primo cliente ad averla chiesta
+        if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
             invia_tratta(origine,destinazione)
-            return "Iscrizione effettuata"      
+        return "Iscrizione effettuata"      
     return "autenticazione fallita, si prega di registrarsi"
 
 

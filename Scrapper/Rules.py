@@ -8,7 +8,7 @@ app = Flask(__name__)
 #FORSE IN REALTà SERVE SOLO UN CONN E UN CURSOR, VEDIAMO
 #PERCHè UNICO DB MA PIù TABELLE
 try:
-    conn=sqlite3.connect('rules.db')
+    conn=sqlite3.connect('rules.db',check_same_thread=False)
     #conn1 = sqlite3.connect('tratte.db')
     #conn2 = sqlite3.connect('aeroporti.db')
     #cursor1 = conn1.cursor()
@@ -42,21 +42,21 @@ try:
 except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
+#TO_DO ELENA devi inserirli solo se non c'è gia una richiesta uguale
 def inserisci_tratta(user_id,origine,destinazione,budget):
     try:
-        cursor.execute('''
-        INSERT INTO tratte (user_id, origine, destinazione, budget)
-        VALUES (?, ?, ?, ?)
-        ''', (user_id, origine, destinazione, budget))
+        query="INSERT INTO tratte (user_id, origine, destinazione, budget) VALUES(?, ?, ?, ?)"
+        cursor.execute(query, (user_id, origine, destinazione, budget))
         conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
         query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
         cursor.execute(query,(origine, destinazione)) #vedi meglio
-        result=cursor.fetchall()
+        result=cursor.fetchone()
         return result
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
+#TO_DO ELENA devi inserirli solo se non c'è gia una richiesta uguale
 def inserisci_aeroporto(user_id,origine,budget):
     try:
         cursor.execute('''
@@ -150,8 +150,9 @@ def crash():
 def ricevi_tratte():
     if request.method == 'POST': 
         data = request.json 
-        result=inserisci_tratta(data['userid'],data['origine'],data['destinazione'],data['budget'])
-        return result
+        result=inserisci_tratta(data["userid"],data["origine"],data["destinazione"],data["budget"])
+        Count = {"count":result[0]}
+        return Count
   
 @app.route('/ricevi_aeroporti_Rules', methods=['POST'])
 def ricevi_aeroporti():

@@ -6,6 +6,38 @@ import requests
 
 app = Flask(__name__)
 
+try:
+    conn=sqlite3.connect('controllertratte.db',check_same_thread=False)
+    #conn1 = sqlite3.connect('tratte_salvate.db')
+    #conn2 = sqlite3.connect('aeroporti_salvati.db')
+
+    # Creazione di un cursore per eseguire le query SQL
+    #cursor1 = conn1.cursor()
+    #cursor2 = conn2.cursor()
+    cursor=conn.cursor()
+except sqlite3.Error as e:
+    print(f"Errore durante la connessione al database: {e}")
+
+try:
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tratte_salvate (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            origine TEXT NOT NULL,
+            destinazione TEXT NOT NULL,
+        )
+    ''') #tu avevi messo tratte
+except sqlite3.Error as e:
+    print(f"Errore durante l'esecuzione della query: {e}")
+
+try:
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS aeroporti_salvati (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            origine TEXT NOT NULL,
+        )
+    ''') #tu avevi messo aeroporti
+except sqlite3.Error as e:
+    print(f"Errore durante l'esecuzione della query: {e}")
 
     
 def leggi_database():
@@ -95,26 +127,32 @@ def scrivi_database_tratte(data):
     
 
         # Esegui la query SQL con i valori passati come parametri
+        print("origine ",data['origine'])
         cursor.execute(query, (data['origine'], data['destinazione']))
-        count = cursor.fetchall()
+        count = cursor.fetchone()
         
         # Esegui il commit delle modifiche
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
-    if count==0:
+        return e
+    if count[0]==0:
         try:
             query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['origine'], data['destinazione']))
             conn.commit()
+            return 'ok'
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
+            return e
     else:
         try:
             query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['origine'], data['destinazione']))
             conn.commit()
+            return 'ok'
         except sqlite3.Error as e:
             print("Errore durante l'esecuzione della query: {e}")
+            return e
 
     # Chiudi la connessione
     #conn.close()
@@ -126,13 +164,13 @@ def scrivi_database_aeroporti(data):
     
         # Esegui la query SQL con i valori passati come parametri
         cursor.execute(query, (data['aeroporto'],)) 
-        count = cursor.fetchall()
+        count = cursor.fetchone()
 
         # Esegui il commit delle modifiche
         conn.commit()
     except sqlite3.Error as e:
         print("Errore durante l'esecuzione della query: {e}")
-    if count == 0:
+    if count[0] == 0:
         try:
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
@@ -165,9 +203,10 @@ def comunicazione_Scraper():
 @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
 def comunicazioneUser_tratte():
     tratta= request.json
-    scrivi_database_tratte(tratta)
+    response = scrivi_database_tratte(tratta)
     # tratte= leggi_database_tratte()
     # response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte})
+    return response
 
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
 def comunicazioneUser_aeroporto():
@@ -178,37 +217,3 @@ def comunicazioneUser_aeroporto():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5002, debug=True, threaded=True)
-    try:
-        conn=sqlite3.connect('controllertratte.db')
-        #conn1 = sqlite3.connect('tratte_salvate.db')
-        #conn2 = sqlite3.connect('aeroporti_salvati.db')
-
-        # Creazione di un cursore per eseguire le query SQL
-        #cursor1 = conn1.cursor()
-        #cursor2 = conn2.cursor()
-        cursor=conn.cursor()
-    except sqlite3.Error as e:
-        print("Errore durante la connessione al database: {e}")
-
-    try:
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tratte_salvate (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                origine TEXT NOT NULL,
-                destinazione TEXT NOT NULL,
-                budget INTEGER
-            )
-        ''') #tu avevi messo tratte
-    except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
-
-    try:
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS aeroporti_salvati (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                origine TEXT NOT NULL,
-                budget INTEGER
-            )
-        ''') #tu avevi messo aeroporti
-    except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
