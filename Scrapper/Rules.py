@@ -29,7 +29,6 @@ try:
     ''')
 except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
-
 try:
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS aeroporti (
@@ -41,32 +40,33 @@ try:
     ''')
 except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
-
-#TO_DO ELENA devi inserirli solo se non c'è gia una richiesta uguale
+ 
+ 
 def inserisci_tratta(user_id,origine,destinazione,budget):
     try:
-        query="INSERT INTO tratte (user_id, origine, destinazione, budget) VALUES(?, ?, ?, ?)"
-        cursor.execute(query, (user_id, origine, destinazione, budget))
-        conn.commit()
+        query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ? AND budget =?"
+        cursor.execute(query,(user_id, origine, destinazione, budget)) #vedi meglio
+        Count=cursor.fetchone()
+        if Count[0]==0:
+            query="INSERT INTO tratte (user_id, origine, destinazione, budget) VALUES(?, ?, ?, ?)"
+            cursor.execute(query, (user_id, origine, destinazione, budget))
+            conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
-        cursor.execute(query,(origine, destinazione)) #vedi meglio
-        result=cursor.fetchone()
-        return result
+        return Count[0]+1
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
-#TO_DO ELENA devi inserirli solo se non c'è gia una richiesta uguale
 def inserisci_aeroporto(user_id,origine,budget):
     try:
-        query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?, ?)"
-        cursor.execute(query, (user_id, origine, budget))
-        conn.commit()
-        #ritorna il numero di utenti iscritti a quell'aeroporto
         query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query,(origine,)) #vedi meglio
-        result=cursor.fetchone()
-        return result
+        Count=cursor.fetchone()
+        if Count[0]==0:
+            query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?, ?)"
+            cursor.execute(query, (user_id, origine, budget))
+            conn.commit()
+        #ritorna il numero di utenti iscritti a quell'aeroporto
+        return Count[0]+1
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
@@ -116,7 +116,7 @@ def elimina_tratta(user_id,origine,destinazione):
         #ritorna il numero di utenti iscritti a quella tratta
         query2="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
         cursor.execute(query2,(origine,destinazione)) #vedi meglio
-        result=cursor.fetchall()
+        result=cursor.fetchone()
         return result
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
@@ -149,7 +149,7 @@ def ricevi_tratte():
     if request.method == 'POST': 
         data = request.json 
         result=inserisci_tratta(data["userid"],data["origine"],data["destinazione"],data["budget"])
-        Count = {"count":result[0]}
+        Count = {"count":result}
         return Count
   
 @app.route('/ricevi_aeroporti_Rules', methods=['POST'])
@@ -157,7 +157,7 @@ def ricevi_aeroporti():
     if request.method == 'POST': 
         data = request.json
         result=inserisci_aeroporto(data["userid"],data["origine"],data["budget"])
-        Count = {"count":result[0]}
+        Count = {"count":result}
         return Count
     
 @app.route('/trova_email_by_tratta_rules', methods=['POST'])
@@ -179,14 +179,16 @@ def elimina_tratte():
     if request.method == 'POST': 
         data = request.json
         result=elimina_tratta(data['userid'],data['origine'],data['destinazione'])
-        return result
+        Count = {"count":result[0]}
+        return Count
     
 @app.route('/elimina_aeroporto_Rules', methods=['POST'])
 def elimina_aeroporto():
     if request.method == 'POST': 
         data = request.json
         result=elimina_aeroporto(data['userid'],data['origine'])
-        return result
+        Count = {"count":result[0]}
+        return Count
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5005, debug=True, threaded=True)

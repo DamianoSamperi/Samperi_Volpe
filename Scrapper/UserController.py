@@ -165,8 +165,9 @@ def inserisci_tratta():
         payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
-        #print(response.status_code) forse devo controllare lo status_code
+        print("response count ",response.json()["count"]) 
         if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
+            print("sto inviando")
             invia_tratta(origine,destinazione)
         return "Iscrizione effettuata"      
     return "autenticazione fallita, si prega di registrarsi"
@@ -207,7 +208,7 @@ def disiscrizione_tratta():
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
-        if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+        if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
             invia_tratta(origine,destinazione)
         return "Disiscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"
@@ -225,7 +226,7 @@ def disiscrizione_aeroporto():
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
-        if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+        if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
             invia_aeroporto(origine)       
         return "Disiscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"

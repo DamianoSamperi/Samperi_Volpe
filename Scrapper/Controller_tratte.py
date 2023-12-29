@@ -23,7 +23,7 @@ try:
         CREATE TABLE IF NOT EXISTS tratte_salvate (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             origine TEXT NOT NULL,
-            destinazione TEXT NOT NULL,
+            destinazione TEXT NOT NULL
         )
     ''') #tu avevi messo tratte
 except sqlite3.Error as e:
@@ -33,7 +33,7 @@ try:
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS aeroporti_salvati (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            origine TEXT NOT NULL,
+            origine TEXT NOT NULL
         )
     ''') #tu avevi messo aeroporti
 except sqlite3.Error as e:
@@ -49,7 +49,7 @@ def leggi_database():
         risultati2 = cursor.fetchall()
 
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 
     # Chiudi la connessione
@@ -76,7 +76,7 @@ def leggi_database_tratte():
         # Ottieni i risultati
         risultati = cursor.fetchall()
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
 
@@ -103,7 +103,7 @@ def leggi_database_aeroporti():
         # Ottieni i risultati
         risultati = cursor.fetchall()
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
 
@@ -133,8 +133,9 @@ def scrivi_database_tratte(data):
         
         # Esegui il commit delle modifiche
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
         return e
+    print("Count ",count[0])
     if count[0]==0:
         try:
             query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
@@ -142,7 +143,7 @@ def scrivi_database_tratte(data):
             conn.commit()
             return 'ok'
         except sqlite3.Error as e:
-            print("Errore durante l'esecuzione della query: {e}")
+            print(f"Errore durante l'esecuzione della query: {e}")
             return e
     else:
         try:
@@ -151,7 +152,7 @@ def scrivi_database_tratte(data):
             conn.commit()
             return 'ok'
         except sqlite3.Error as e:
-            print("Errore durante l'esecuzione della query: {e}")
+            print(f"Errore durante l'esecuzione della query: {e}")
             return e
 
     # Chiudi la connessione
@@ -169,21 +170,21 @@ def scrivi_database_aeroporti(data):
         # Esegui il commit delle modifiche
         conn.commit()
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
     if count[0] == 0:
         try:
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
         except sqlite3.Error as e:
-            print("Errore durante l'esecuzione della query: {e}")
+            print(f"Errore durante l'esecuzione della query: {e}")
     else:
         try:
             query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
         except sqlite3.Error as e:
-            print("Errore durante l'esecuzione della query: {e}")
+            print(f"Errore durante l'esecuzione della query: {e}")
 
     # Chiudi la connessione
     #conn.close()
