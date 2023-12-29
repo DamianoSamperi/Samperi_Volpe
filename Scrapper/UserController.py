@@ -186,7 +186,7 @@ def inserisci_aeroporto():
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
         #print(response.status_code) forse devo controllare lo status_code
-        if response==1: #la invia solo se è il primo cliente ad averla chiesta
+        if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
             invia_aeroporto(origine)
         return "Iscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"

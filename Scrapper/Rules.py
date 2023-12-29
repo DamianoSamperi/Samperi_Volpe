@@ -59,15 +59,13 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
 #TO_DO ELENA devi inserirli solo se non c'è gia una richiesta uguale
 def inserisci_aeroporto(user_id,origine,budget):
     try:
-        cursor.execute('''
-        INSERT INTO aeroporti (user_id, origine, budget)
-        VALUES (?, ?, ?, ?)
-        ''', (user_id, origine, budget))
+        query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?, ?)"
+        cursor.execute(query, (user_id, origine, budget))
         conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto
         query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query,(origine,)) #vedi meglio
-        result=cursor.fetchall()
+        result=cursor.fetchone()
         return result
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
@@ -158,8 +156,9 @@ def ricevi_tratte():
 def ricevi_aeroporti():
     if request.method == 'POST': 
         data = request.json
-        result=inserisci_aeroporto(data['userid'],data['origine'],data['budget'])
-        return result
+        result=inserisci_aeroporto(data["userid"],data["origine"],data["budget"])
+        Count = {"count":result[0]}
+        return Count
     
 @app.route('/trova_email_by_tratta_rules', methods=['POST'])
 def email_by_tratta():
