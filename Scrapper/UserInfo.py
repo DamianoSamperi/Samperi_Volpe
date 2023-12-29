@@ -4,6 +4,25 @@ import json
 
 app = Flask(__name__)
 
+try:
+    conn = sqlite3.connect('users.db',check_same_thread=False)
+    cursor = conn.cursor()
+except sqlite3.Error as e:
+    print(f"Errore durante la connessione al database: {e}")
+
+try:
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            cognome TEXT NOT NULL,
+            email TEXT NOT NULL
+        )
+    ''')
+except sqlite3.Error as e:
+    print(f"Errore durante l'esecuzione della query: {e}")
+
+
 
 def inserisci_client(nome,cognome,email):
     try:
@@ -14,32 +33,32 @@ def inserisci_client(nome,cognome,email):
         conn.commit()
         return 'ok'
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
         return e
 
 def get_email_by_userid(*ids):
-    users=[]
-    for id in ids:
+    users=[]      
+    for id in ids:           
         try:
             query="SELECT email FROM users WHERE id= ?"
             cursor.execute(query, (id[0],)) #TO_DO andrebbero messe delle stampe per vedere che stiamo facendo
             user = cursor.fetchall()
             users.append(user[0])
         except sqlite3.Error as e:
-            print("Errore durante l'esecuzione della query: {e}")
+            print(f"Errore durante l'esecuzione della query: {e}")
     return users
 
 def control_client(email):
     try:
         query="SELECT id FROM users WHERE email= ?"
         cursor.execute(query,(email,)) #TO_DO andrebbero messe delle stampe per vedere che stiamo facendo
-        result=cursor.fetchall()
+        result=cursor.fetchone()
         if result != None:
             return result
         else:
             return False
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
    
 
 #la chiamo solo se crasha qualcosa
@@ -47,15 +66,15 @@ def crash():
     try:
         conn.close()
     except sqlite3.Error as e:
-        print("Errore durante la chiusura della connessione al database: {e}")
+        print(f"Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------
 @app.route('/controlla_utente', methods=['GET'])
 def controlla_utente():
     email = request.args.get("email")
     id=control_client(email)
-    result = {'userid': id}
-    return jsonify(result)
+    result = {"userid": id}
+    return result
 
 @app.route('/registra_utente', methods=['POST'])
 def inserisci_utente():
@@ -74,23 +93,5 @@ def trova_utente():
         return jsonify(emails) 
     
 if __name__ == "__main__":
-    try:
-        conn = sqlite3.connect('users.db')
-        global cursor 
-        cursor = conn.cursor()
-    except sqlite3.Error as e:
-        print("Errore durante la connessione al database: {e}")
-
-    try:
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                cognome TEXT NOT NULL,
-                email TEXT NOT NULL
-            )
-        ''')
-    except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
     app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)
 

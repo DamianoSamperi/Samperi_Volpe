@@ -73,8 +73,7 @@ def autentica_client(email):
     try:
         response = requests.get(url, params=params)
         if response.status_code == 200:
-            user=response.json["userid"]
-            print("user ",user)
+            user=response.json()["userid"]
             if user==False:
                 print("non sei registrato")
                 return user
@@ -137,17 +136,19 @@ def trova_email_offerte():
 def registra_client():
     data= request.json
     #prima controllo se era già registrato
-    autenticato=autentica_client(data["email"])
-    if  autenticato== False:
+    autenticato =autentica_client(data["email"])
+    if  autenticato == False:
         url = 'http://localhost:5001/registra_utente'
         payload = {'email': data["email"], 'nome': data["nome"], 'cognome': data["cognome"]}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
         # Stampa la risposta ricevuta dal servizio
-        print(response.status_code)
-        return response["message"]
+        if response.status_code == 200:
+            return response.json()["message"]
+        else:
+            return "errore nella registrazione"
     else:
-        return f"cliente già registrato dati:{autenticato}"
+        return f"cliente già registrato "
 
 
 @app.route('/Insert_tratta', methods=['POST'])

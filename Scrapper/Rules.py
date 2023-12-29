@@ -15,7 +15,7 @@ try:
     #cursor2 = conn2.cursor()
     cursor=conn.cursor()
 except sqlite3.Error as e:
-    print("Errore durante la connessione al database: {e}")
+    print(f"Errore durante la connessione al database: {e}")
 
 try:
     cursor.execute('''
@@ -28,7 +28,7 @@ try:
         )
     ''')
 except sqlite3.Error as e:
-    print("Errore durante l'esecuzione della query: {e}")
+    print(f"Errore durante l'esecuzione della query: {e}")
 
 try:
     cursor.execute('''
@@ -40,7 +40,7 @@ try:
         )
     ''')
 except sqlite3.Error as e:
-    print("Errore durante l'esecuzione della query: {e}")
+    print(f"Errore durante l'esecuzione della query: {e}")
 
 def inserisci_tratta(user_id,origine,destinazione,budget):
     try:
@@ -55,7 +55,7 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 def inserisci_aeroporto(user_id,origine,budget):
     try:
@@ -70,14 +70,14 @@ def inserisci_aeroporto(user_id,origine,budget):
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 def get_tratte():
     try:
         cursor.execute(" SELECT * from tratte")
         result=cursor.fetchall()
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
     return result
 
 def get_aeroporti():
@@ -85,7 +85,7 @@ def get_aeroporti():
         cursor.execute(" SELECT * from aeroporti")
         result=cursor.fetchall()
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
     return result 
 
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
@@ -94,7 +94,7 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
         cursor.execute(query,(origine, destinazione, prezzo)) #vedi meglio
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users)) #credo sia così
     return result
@@ -105,7 +105,7 @@ def get_users_by_aeroporto(aeroporto):
         cursor.execute(query,(aeroporto,)) #vedi meglio
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
     url='http://localhost:5000/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users)) #credo sia così
     return result
@@ -121,7 +121,7 @@ def elimina_tratta(user_id,origine,destinazione):
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 def elimina_aeroporto(user_id,origine):
     try:
@@ -134,7 +134,7 @@ def elimina_aeroporto(user_id,origine):
         result=cursor.fetchall()
         return result
     except sqlite3.Error as e:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 #la chiamo solo se crasha qualcosa 
 def crash():
@@ -143,7 +143,7 @@ def crash():
         #conn2.close()
         conn.close()
     except sqlite3.Error as e:
-        print("Errore durante la chiusura della connessione al database: {e}")
+        print(f"Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------
 @app.route('/ricevi_tratte_Rules', methods=['POST'])
