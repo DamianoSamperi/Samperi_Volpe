@@ -16,12 +16,12 @@ def invioNotifier(notifiche):
 def leggi_topic():
     # Crea consumatore Kafka
     consumer_tratta = KafkaConsumer('tratte',
-                            bootstrap_servers=['localhost:9092'],
+                            bootstrap_servers=['localhost:29092'],
                             enable_auto_commit=False,
                             value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
 
     consumer_aeroporto = KafkaConsumer('aeroporti',
-                            bootstrap_servers=['localhost:9092'],
+                            bootstrap_servers=['localhost:29092'],
                             enable_auto_commit=False,
                             value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
 

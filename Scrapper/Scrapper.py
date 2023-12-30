@@ -16,7 +16,7 @@ amadeus = Client(
     client_secret='ungA0GVVriDUeztB'
 )
 #TO-DO vanno controllati i parametri di configurazione kafka
-producer = KafkaProducer(bootstrap_servers='localhost:9092',value_serializer=lambda v: json.dumps(v).encode('utf-8')) #TO_DO ultimo valore da controllare, dovrebbe servire a inviare json
+producer = KafkaProducer(bootstrap_servers='localhost:29092',value_serializer=lambda v: json.dumps(v).encode('utf-8')) #TO_DO ultimo valore da controllare, dovrebbe servire a inviare json
 
 # global incomes
 
@@ -119,28 +119,28 @@ while True:
     data_domani = domani.strftime('%Y-%m-%d')
 
     response=requests.post('http://localhost:5002/invio_Scraper', json={'request':'tratta'})
-    if  response != 'error':
-        tratte = response
+    if  response.text != 'error':
+        tratte = response.json()
     for tratta in tratte:
         try:
-            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta[1], destinationLocationCode=tratta[2], departureDate= data_domani, adults=tratta[3]) 
-            data = trova_prezzo_tratta(response,tratte[0],tratte[1])
+            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate= data_domani, adults=1) 
+            data = trova_prezzo_tratta(response,tratte["origine"],tratte["destinazione"])
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0,1)
         except ResponseError as error:
-            raise error
+            print(f"Errore durante l'esecuzione della chiamata API: {error}")
          
     response = requests.post('http://localhost:5002/invio_Scraper', json={'request':'aeroporto'})
-    if response != 'error':
-        aeroporti = response
+    if response.text != 'error':
+        aeroporti = response.json()
     for aeroporto in aeroporti:
         try:
-            response = amadeus.shopping.flight_destinations.get(origin=aeroporto[0],oneWay=True,nonStop=True)  
+            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],oneWay=True,nonStop=True)  
             data = trova_prezzo_aeroporto(response)
             invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0,1)
         except ResponseError as error:
-            raise error
+            print(f"Errore durante l'esecuzione della chiamata API: {error}")
     time.sleep(86400)
 
     

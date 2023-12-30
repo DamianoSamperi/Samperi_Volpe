@@ -89,7 +89,7 @@ def leggi_database_tratte():
 
     # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
-        tratte.append(tupla)
+        tratte.append({"origine": tupla[1] , "destinazione" : tupla[2]})
 
 
     # Stampa l'array di stringhe
@@ -115,7 +115,7 @@ def leggi_database_aeroporti():
 
     # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
-        aeroporti.append(tupla)
+        aeroporti.append({"origine": tupla[1] })
 
     # Stampa l'array di stringhe
     return aeroporti
@@ -176,15 +176,19 @@ def scrivi_database_aeroporti(data):
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
+            return 'ok'
         except sqlite3.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
+            return e
     else:
         try:
             query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
+            return 'ok'
         except sqlite3.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
+            return e
 
     # Chiudi la connessione
     #conn.close()
@@ -212,9 +216,10 @@ def comunicazioneUser_tratte():
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
 def comunicazioneUser_aeroporto():
     aeroporto = request.json
-    scrivi_database_aeroporti(aeroporto)
+    response = scrivi_database_aeroporti(aeroporto)
     # aeroporti=leggi_database_aeroporti()
     # response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
+    return response
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5002, debug=True, threaded=True)

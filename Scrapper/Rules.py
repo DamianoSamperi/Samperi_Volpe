@@ -55,20 +55,22 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
         return Count[0]+1
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        return -1
 
 def inserisci_aeroporto(user_id,origine,budget):
     try:
-        query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
-        cursor.execute(query,(origine,)) #vedi meglio
+        query="SELECT COUNT(*) FROM aeroporti WHERE user_id = ? AND origine= ?"
+        cursor.execute(query,(user_id,origine)) #vedi meglio
         Count=cursor.fetchone()
         if Count[0]==0:
-            query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?, ?)"
+            query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?)"
             cursor.execute(query, (user_id, origine, budget))
             conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto
         return Count[0]+1
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        return -1
 
 def get_tratte():
     try:
