@@ -20,6 +20,7 @@ def inviomail(notifiche):
         return 'error'
     for tupla in notifiche:
         try:
+            print("la tupla completa ",tupla)
             body = f"Caro {tupla[0]} ,\n questa è l'offerta da te richiesta\n {tupla[1]}"
             mail.sendmail("Notifier.dsbd@gmail.com", tupla[0] , body)
         except smtplib.SMTPDataError as error:

@@ -88,8 +88,11 @@ def inserisci_utente():
 def trova_utente():
     if request.method == 'POST': 
         data = request.json
+        print("json ",data)
         data_dict = json.loads(data)
+        print("load ",data_dict)
         emails=get_email_by_userid(*data_dict)
+        print("emails ",emails)
         return jsonify(emails) 
     
 if __name__ == "__main__":

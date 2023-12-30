@@ -24,8 +24,9 @@ def leggi_topic_tratte():
         # Ottieni il messaggio dal topic Kafka
         # msg = message.value
         for message in messages.value:
-            result = requests.post('http://localhost:5000/trova_email_by_tratta', json={'ori':message.value['origin'], 'dest': message.value['destination'],'pr': message.value['price']})
+            result = requests.post('http://localhost:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'] })
         #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
+            print("result ",result)
             if result['email'] is not None:
                 print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
                 notifiche.append(result['email'],message)
@@ -49,7 +50,7 @@ def leggi_topic_aeroporti():
     for messages in consumer_aeroporto:
         #msg = message.value
         for message in messages.value:
-            result = requests.post('http://localhost:5000/trova_email_by_offerte', json={'ori':message.origin})
+            result = requests.post('http://localhost:5000/trova_email_by_offerte', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price']})
             if result['email'] is not None:
                 print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
                 notifiche.append(result['email'],message)
