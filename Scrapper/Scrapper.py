@@ -44,17 +44,18 @@ def invioaeroporto(data):
 
 
 def trova_prezzo_tratta(response,origin,destination):
-    tratte_speciali=[]
-    prezzo= response.data[00]["price"]["total"] * 0.91
-    tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo})
+    tratte_speciali=[]   
+    for offer in response.data:
+            prezzo= offer["price"]["total"] * 0.91
+            tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo})
+    # prezzo= response.data[00]["price"]["total"] * 0.91
     return tratte_speciali
 
 def trova_prezzo_aeroporto(data):
     aeroporti_speciali=[]
-    for i in 5:
-        if data.data[i] is not None:
-            prezzo= data.data[i]["price"]["total"] * 0.91
-            aeroporti_speciali.append({'origin':data.data[i]["origin"],'destination':data.data[i]["destination"], 'price':prezzo})
+    for offer in response.data:
+        prezzo= offer["price"]["total"] * 0.91
+        aeroporti_speciali.append({'origin':offer["origin"],'destination':offer["destination"], 'price':prezzo})
     return aeroporti_speciali
 
 #TO_DO Possibilità utilizzo thread
@@ -112,7 +113,8 @@ def trova_prezzo_aeroporto(data):
 
             
 
-
+aeroporti = {}
+tratte = {}
 while True:
     #tratte,aeroporti=richiesta_tratte()
     domani = datetime.now() + timedelta(days=1) 
@@ -123,10 +125,11 @@ while True:
         tratte = response.json()
     for tratta in tratte:
         try:
-            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate= data_domani, adults=1) 
-            data = trova_prezzo_tratta(response,tratte["origine"],tratte["destinazione"])
+            # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
+            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=1) 
+            data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"])
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0,1)
+            time.sleep(0.1)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
          
@@ -138,7 +141,7 @@ while True:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],oneWay=True,nonStop=True)  
             data = trova_prezzo_aeroporto(response)
             invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0,1)
+            time.sleep(0.1)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
     time.sleep(86400)

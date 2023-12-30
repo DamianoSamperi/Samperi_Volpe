@@ -203,7 +203,7 @@ def comunicazione_Scraper():
     elif richiesta['request'] == 'aroporto':
         aeroporti=leggi_database_aeroporti()
         return aeroporti
-
+    return "error"
 
 @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
 def comunicazioneUser_tratte():
