@@ -160,19 +160,22 @@ def inserisci_tratta():
     budget = data["budget"]
     user=autentica_client(email) 
     if user != False:
-        #Rules.inserisci_tratta(user,origine,destinazione,budget)
-        url = 'http://localhost:5005/ricevi_tratte_Rules'
-        payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, json=payload, headers=headers)
-        print("response count ",response.json()["count"]) 
-        if response.json()["count"]!=-1:
-            if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
-                print("sto inviando")
-                invia_tratta(origine,destinazione)
-            return "Iscrizione effettuata" 
+        if len(origine)!=3 or len(destinazione)!=3:
+            print("i codici degli aeroporti devono avere lunghezza 3")
         else:
-            return "Errore durante l'iscrizione"     
+            #Rules.inserisci_tratta(user,origine,destinazione,budget)
+            url = 'http://localhost:5005/ricevi_tratte_Rules'
+            payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, json=payload, headers=headers)
+            print("response count ",response.json()["count"]) 
+            if response.json()["count"]!=-1:
+                if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
+                    print("sto inviando")
+                    invia_tratta(origine,destinazione)
+                return "Iscrizione effettuata" 
+            else:
+                return "Errore durante l'iscrizione"     
     return "autenticazione fallita, si prega di registrarsi"
 
 
@@ -184,18 +187,21 @@ def inserisci_aeroporto():
     budget = data["budget"]
     user=autentica_client(email)
     if user != False:
-        #Rules.inserisci_aeroporto(user,origine,budget)
-        url = 'http://localhost:5005/ricevi_aeroporti_Rules'
-        payload = {'userid': user[0], 'origine': origine, 'budget': budget}
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, json=payload, headers=headers)
-        #print(response.status_code) forse devo controllare lo status_code
-        if response.json()["count"]!=-1:
-            if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
-                invia_aeroporto(origine)
-            return "Iscrizione effettuata"
+        if len(origine)!=3:
+            print("i codici degli aeroporti devono avere lunghezza 3")
         else:
-            return "Errore durante l'iscrizione"   
+            #Rules.inserisci_aeroporto(user,origine,budget)
+            url = 'http://localhost:5005/ricevi_aeroporti_Rules'
+            payload = {'userid': user[0], 'origine': origine, 'budget': budget}
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, json=payload, headers=headers)
+            #print(response.status_code) forse devo controllare lo status_code
+            if response.json()["count"]!=-1:
+                if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
+                    invia_aeroporto(origine)
+                return "Iscrizione effettuata"
+            else:
+                return "Errore durante l'iscrizione"   
     return "autenticazione fallita, si prega di registrarsi"
 
 
@@ -208,15 +214,18 @@ def disiscrizione_tratta():
     destinazione = data["destinazione"]
     user=autentica_client(email) 
     if user != False:
-        #Rules.inserisci_tratta(user,origine,destinazione,budget)
-        url = 'http://localhost:5005/elimina_tratte_Rules'
-        payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, json=payload, headers=headers)
-        #print(response.status_code) forse devo controllare lo status_code
-        if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-            invia_tratta(origine,destinazione)
-        return "Disiscrizione effettuata"
+        if len(origine)!=3 or len(destinazione)!=3:
+            print("i codici degli aeroporti devono avere lunghezza 3")
+        else:
+            #Rules.inserisci_tratta(user,origine,destinazione,budget)
+            url = 'http://localhost:5005/elimina_tratte_Rules'
+            payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, json=payload, headers=headers)
+            #print(response.status_code) forse devo controllare lo status_code
+            if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+                invia_tratta(origine,destinazione)
+            return "Disiscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"
 
 @app.route('/Disiscrizione_aeroporto', methods=['POST'])
@@ -226,15 +235,18 @@ def disiscrizione_aeroporto():
     origine = data["origine"]
     user=autentica_client(email) 
     if user != False:
-        #Rules.inserisci_tratta(user,origine,destinazione,budget)
-        url = 'http://localhost:5005/elimina_aeroporto_Rules'
-        payload = {'userid': user, 'origine': origine}
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, json=payload, headers=headers)
-        #print(response.status_code) forse devo controllare lo status_code
-        if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-            invia_aeroporto(origine)       
-        return "Disiscrizione effettuata"
+        if len(origine)!=3:
+            print("i codici degli aeroporti devono avere lunghezza 3")
+        else:
+            #Rules.inserisci_tratta(user,origine,destinazione,budget)
+            url = 'http://localhost:5005/elimina_aeroporto_Rules'
+            payload = {'userid': user, 'origine': origine}
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, json=payload, headers=headers)
+            #print(response.status_code) forse devo controllare lo status_code
+            if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+                invia_aeroporto(origine)       
+            return "Disiscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"
 
 
