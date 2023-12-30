@@ -39,7 +39,7 @@ def leggi_topic_tratte():
             else:
                 print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
         try:
-            consumer_tratta.commit(messages.offset+1)
+            consumer_tratta.commit(messages.offsets+1)
         except Exception as e:
             print("Commit failed due to : ", e)
         invioNotifier(notifiche)
@@ -63,7 +63,7 @@ def leggi_topic_aeroporti():
             else:
                 print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
         try:
-            consumer_aeroporto.commit(messages.offset+1)
+            consumer_aeroporto.commit(messages.offsets+1)
         except Exception as e:
             print("Commit failed due to : "+ e)
             e.printStackTrace()
