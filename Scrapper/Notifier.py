@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import smtplib
+import json
 
 app = Flask(__name__)
 
@@ -11,20 +12,24 @@ def inviomail(notifiche):
         mail = smtplib.SMTP('smtp.gmail.com', 587)
         mail.starttls()
     except smtplib.SMTPConnectError as error:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante la connessione a gmail: {error}")
         return 'error'
     try: 
-        mail.login('Notifier.dsbd@gmail.com', '@cUhTt!r5F')
+        mail.login('notifier.dsbd@gmail.com', 'sywb dxem iyph awkk')
     except smtplib.SMTPAuthenticationError as error:
-        print("Errore durante l'esecuzione della query: {e}")
+        print(f"Errore durante l'esecuzione della query: {error}")
         return 'error'
     for tupla in notifiche:
         try:
             print("la tupla completa ",tupla)
-            body = f"Caro {tupla['email']} ,\n questa è l'offerta da te richiesta\n {tupla['message']}"
-            mail.sendmail("Notifier.dsbd@gmail.com", tupla['email'] , body)
+            email=tupla['email']
+            messaggio=json.dumps(tupla['message'])
+            body = f"Caro {email} ,\n questa e' l'offerta da te richiesta\n {messaggio}"
+            print("mail ",email)
+            print("body ",body)
+            mail.sendmail("Notifier.dsbd@gmail.com", email, body)
         except smtplib.SMTPDataError as error:
-            print("Errore durante l'esecuzione della query: {e}")
+            print(f"Errore durante l'esecuzione della query: {error}")
             return 'error'    
     mail.close()
     return 'ok'

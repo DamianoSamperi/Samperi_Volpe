@@ -34,12 +34,14 @@ def leggi_topic_tratte():
                 for email in emails:
                     print("emails ",emails)
                     print("email ",email)
-                    notifiche.append({email[0]:message})
+                    notifiche.append({"email": email[0],"message":message})
                 # invioNotifier(result,msg)
             else:
                 print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
         try:
-            consumer_tratta.commit(messages.offsets+1)
+            offset=messages.offset
+            offsets = {'Tratte': offset + 1}          
+            consumer_tratta.commit(offsets)
         except Exception as e:
             print("Commit failed due to : ", e)
         invioNotifier(notifiche)
@@ -56,17 +58,20 @@ def leggi_topic_aeroporti():
         #msg = message.value
         for message in messages.value:
             result = requests.post('http://localhost:5000/trova_email_by_offerte', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price']})
-            if result['email'] is not None:
-                print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
-                notifiche.append(result['email'],message)
+            emails=result.json()
+            if emails is not None:
+                print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
+                for email in emails:
+                    notifiche.append({"email": email[0],"message":message})
                 # invioNotifier(result,msg)
             else:
                 print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
         try:
-            consumer_aeroporto.commit(messages.offsets+1)
+            offset=messages.offset
+            offsets = {'Aeroporti': offset + 1} 
+            consumer_aeroporto.commit(offsets)
         except Exception as e:
-            print("Commit failed due to : "+ e)
-            e.printStackTrace()
+            print("Commit failed due to : ", e)
         invioNotifier(notifiche)
 
 
