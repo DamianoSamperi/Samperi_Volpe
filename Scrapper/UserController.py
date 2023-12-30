@@ -164,7 +164,7 @@ def inserisci_tratta():
     user=autentica_client(email) 
     if user != False:
         if len(origine)!=3 or len(destinazione)!=3:
-            print("i codici degli aeroporti devono avere lunghezza 3")
+            return "i codici degli aeroporti devono avere lunghezza 3"
         else:
             #Rules.inserisci_tratta(user,origine,destinazione,budget)
             url = 'http://localhost:5005/ricevi_tratte_Rules'
@@ -191,7 +191,7 @@ def inserisci_aeroporto():
     user=autentica_client(email)
     if user != False:
         if len(origine)!=3:
-            print("i codici degli aeroporti devono avere lunghezza 3")
+            return "i codici degli aeroporti devono avere lunghezza 3"
         else:
             #Rules.inserisci_aeroporto(user,origine,budget)
             url = 'http://localhost:5005/ricevi_aeroporti_Rules'
