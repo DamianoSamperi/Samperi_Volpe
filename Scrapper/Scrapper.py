@@ -22,12 +22,14 @@ producer = KafkaProducer(bootstrap_servers='localhost:29092',value_serializer=la
 
 
 def inviotratta(data):
-    producer.send('Tratte', data)
-    #flush dovrebbe aspettare che il messaggio venga effettivamente inviato
-    producer.flush()
+    if data != []:
+        producer.send('Tratte', data)
+        #flush dovrebbe aspettare che il messaggio venga effettivamente inviato
+        producer.flush()
 def invioaeroporto(data):
-    producer.send('Aeroporti', data)
-    producer.flush()
+    if data != []:
+        producer.send('Aeroporti', data)
+        producer.flush()
 
 #TO_DO questi nel caso vogliamo aggiornare ad ogni inserimento su daatabase di controller_tratte
 # @app.route('/recupero_tratte_scraper', methods=['POST']) 
@@ -46,7 +48,7 @@ def invioaeroporto(data):
 def trova_prezzo_tratta(response,origin,destination):
     tratte_speciali=[]   
     for offer in response.data:
-            prezzo= offer["price"]["total"] * 0.91
+            prezzo= float(offer["price"]["total"]) * 0.91
             tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo})
     # prezzo= response.data[00]["price"]["total"] * 0.91
     return tratte_speciali
@@ -54,7 +56,7 @@ def trova_prezzo_tratta(response,origin,destination):
 def trova_prezzo_aeroporto(data):
     aeroporti_speciali=[]
     for offer in response.data:
-        prezzo= offer["price"]["total"] * 0.91
+        prezzo= float(offer["price"]["total"]) * 0.91
         aeroporti_speciali.append({'origin':offer["origin"],'destination':offer["destination"], 'price':prezzo})
     return aeroporti_speciali
 
