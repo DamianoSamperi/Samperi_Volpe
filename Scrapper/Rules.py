@@ -95,9 +95,10 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
-    url='http://localhost:5000/trova_email_by_user_id'
+    url='http://localhost:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users)) #credo sia così
-    return result
+    print("result info",result.json())
+    return result.json()
 
 def get_users_by_aeroporto(aeroporto):
     try:
@@ -166,7 +167,9 @@ def ricevi_aeroporti():
 def email_by_tratta():
     if request.method == 'POST': 
         data = request.json
+        print("data rules",data)
         result=get_users_by_tratta_and_budget(data['ori'],data['dest'],data['pr'])
+        print("result",result)
         return result
     
 @app.route('/trova_email_by_aeroporti_rules', methods=['POST'])

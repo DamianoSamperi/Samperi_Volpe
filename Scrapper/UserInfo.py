@@ -93,7 +93,7 @@ def trova_utente():
         print("load ",data_dict)
         emails=get_email_by_userid(*data_dict)
         print("emails ",emails)
-        return jsonify(emails) 
+        return jsonify(emails)
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)

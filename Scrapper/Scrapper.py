@@ -128,7 +128,7 @@ while True:
     for tratta in tratte:
         try:
             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
-            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=1, max=10) 
+            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=1, max=5) 
             data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"])
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.1)
@@ -140,7 +140,7 @@ while True:
         aeroporti = response.json()
     for aeroporto in aeroporti:
         try:
-            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],oneWay=True,nonStop=True, max=10)  
+            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],oneWay=True,nonStop=True, max=5)  
             data = trova_prezzo_aeroporto(response)
             invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.1)

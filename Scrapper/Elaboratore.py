@@ -17,6 +17,7 @@ def leggi_topic_tratte():
     # Crea consumatore Kafka
     consumer_tratta = KafkaConsumer('Tratte',
                             bootstrap_servers=['localhost:29092'],
+                            group_id='grp1',
                             enable_auto_commit=False,
                             value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
     notifiche = []
@@ -26,24 +27,28 @@ def leggi_topic_tratte():
         for message in messages.value:
             result = requests.post('http://localhost:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'] })
         #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
-            print("result ",result)
-            if result['email'] is not None:
-                print(f"esiste almeno un user_id con quelle regole: {result}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
-                notifiche.append(result['email'],message)
+            print("result ",result.json())
+            emails=result.json()
+            if emails is not None:
+                print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
+                for email in emails:
+                    print("emails ",emails)
+                    print("email ",email)
+                    notifiche.append({email[0]:message})
                 # invioNotifier(result,msg)
             else:
                 print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
-    try:
-        consumer_tratta.commit(messages.offset+1)
-    except Exception as e:
-        print("Commit failed due to : "+ e)
-        e.printStackTrace()
-    invioNotifier(notifiche)
+        try:
+            consumer_tratta.commit(messages.offset+1)
+        except Exception as e:
+            print("Commit failed due to : ", e)
+        invioNotifier(notifiche)
 
 def leggi_topic_aeroporti():
     # Crea consumatore Kafka
     consumer_aeroporto = KafkaConsumer('Aeroporti',
                             bootstrap_servers=['localhost:29092'],
+                            group_id='grp1',
                             enable_auto_commit=False,
                             value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
     notifiche = []
@@ -57,12 +62,12 @@ def leggi_topic_aeroporti():
                 # invioNotifier(result,msg)
             else:
                 print("messaggio non destinato a un utente") # qui si potrebbe fare un meccanismo che elimina dal database la tratta, al proposito potrebbe aver senso cancellarla la tratta
-    try:
-        consumer_aeroporto.commit(messages.offset+1)
-    except Exception as e:
-        print("Commit failed due to : "+ e)
-        e.printStackTrace()
-    invioNotifier(notifiche)
+        try:
+            consumer_aeroporto.commit(messages.offset+1)
+        except Exception as e:
+            print("Commit failed due to : "+ e)
+            e.printStackTrace()
+        invioNotifier(notifiche)
 
 
 if __name__ == "__main__":

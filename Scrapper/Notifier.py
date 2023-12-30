@@ -21,8 +21,8 @@ def inviomail(notifiche):
     for tupla in notifiche:
         try:
             print("la tupla completa ",tupla)
-            body = f"Caro {tupla[0]} ,\n questa è l'offerta da te richiesta\n {tupla[1]}"
-            mail.sendmail("Notifier.dsbd@gmail.com", tupla[0] , body)
+            body = f"Caro {tupla['email']} ,\n questa è l'offerta da te richiesta\n {tupla['message']}"
+            mail.sendmail("Notifier.dsbd@gmail.com", tupla['email'] , body)
         except smtplib.SMTPDataError as error:
             print("Errore durante l'esecuzione della query: {e}")
             return 'error'    

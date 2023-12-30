@@ -87,9 +87,10 @@ def autentica_client(email):
 
 def trova_email_by_tratta(ori,dest,pr):
     #users=Rules.get_users_by_tratta_and_budget(ori,dest,pr)
-    url='http://localhost:5000/trova_email_by_tratta_rules'
+    url='http://localhost:5005/trova_email_by_tratta_rules'
     result = requests.post(url, json={'ori':ori, 'dest': dest,'pr': pr})
-    return result
+    print("result rules ",result.json())
+    return result.json()
 
 def trova_email_by_offerte(ori):
     #users=Rules.get_users_by_aeroporto(ori)
@@ -122,7 +123,9 @@ def invia_aeroporto(aeroporto):
 def trova_email_tratta():
     if request.method == 'POST':
         data = request.json 
+        print("data normali",data)
         result=trova_email_by_tratta(data["ori"],data["dest"],data["pr"])
+        print("result normali",result)
         return result
     
 @app.route('/trova_email_by_offerte', methods=['POST'])
