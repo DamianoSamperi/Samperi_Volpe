@@ -363,4 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 #Virtual environment
-.venv
+
+venv/
+.vscode/
