@@ -24,7 +24,7 @@ def registrazione():
     print(result.text)
 
 def tratta():
-    email=input("\ninserisci la tua email")
+    email=input("\ninserisci la tua email: ")
     origine=input("inserisci aeroporto origine: ")
     destinazione=input("inserisci aeroporto destinazione: ")
     try:
@@ -38,7 +38,7 @@ def tratta():
     print (result.text)
 
 def aeroporto():
-    email=input("\ninserisci la tua email")
+    email=input("\ninserisci la tua email: ")
     origine=input("inserisci aeroporto origine: ")
     try:
         budget=int(input("inserisci il tuo budget: "))
@@ -51,7 +51,7 @@ def aeroporto():
     print(result.text)
 
 def disiscrivi_tratta():
-    email=input("\ninserisci la tua email")
+    email=input("\ninserisci la tua email: ")
     origine=input("inserisci aeroporto origine: ")
     destinazione=input("inserisci aeroporto destinazione: ")
     url='http://localhost:5000/Disiscrizione_tratta'
@@ -60,14 +60,14 @@ def disiscrivi_tratta():
     print(result.text)
 
 def disiscrivi_aeroporto():
-    email=input("\ninserisci la tua email")
+    email=input("\ninserisci la tua email: ")
     origine=input("inserisci aeroporto origine: ")
     url='http://localhost:5000/Disiscrizione_aeroporto'
     result = requests.post(url, json={'email':email, 'origine': origine})
     print(result.status_code)
     print(result.text)
 
-#TO-DO devo fare app run di flask o va bene così?1
+#TO-DO devo fare app run di flask o va bene così?
 def main():
     while True:
         scelta=None
