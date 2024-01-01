@@ -1,5 +1,5 @@
 from kafka import KafkaConsumer
-import sqlite3
+import time
 import json
 import requests
 import threading
@@ -14,11 +14,18 @@ def invioNotifier(notifiche):
 
 def leggi_topic_tratte():
     # Crea consumatore Kafka
-    consumer_tratta = KafkaConsumer('Tratte',
-                            bootstrap_servers=['localhost:29092'],
-                            group_id='grp1',
-                            enable_auto_commit=False,
-                            value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
+    while True:
+        try:
+            consumer_tratta = KafkaConsumer('Tratte',
+                                    bootstrap_servers=['localhost:29092'],
+                                    group_id='grp1',
+                                    enable_auto_commit=False,
+                                    value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
+            break
+        except Exception as error:
+            print("kafka non disponibile")
+            time.sleep(15)
+   
     notifiche = []
     for messages in consumer_tratta:
         # Ottieni il messaggio dal topic Kafka
@@ -47,11 +54,17 @@ def leggi_topic_tratte():
 
 def leggi_topic_aeroporti():
     # Crea consumatore Kafka
-    consumer_aeroporto = KafkaConsumer('Aeroporti',
-                            bootstrap_servers=['localhost:29092'],
-                            group_id='grp1',
-                            enable_auto_commit=False,
-                            value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
+    while True:
+        try:            
+            consumer_aeroporto = KafkaConsumer('Aeroporti',
+                                    bootstrap_servers=['localhost:29092'],
+                                    group_id='grp1',
+                                    enable_auto_commit=False,
+                                    value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
+            break
+        except Exception as error :
+            print("kafka non disponibile")
+            time.sleep(15)
     notifiche = []
     for messages in consumer_aeroporto:
         #msg = message.value

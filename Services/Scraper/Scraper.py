@@ -1,6 +1,7 @@
-from msilib import Control
+# from msilib import Control
 from amadeus import Client, ResponseError
 from kafka import KafkaProducer
+import kafka
 import json
 from flask import Flask, request
 import time
@@ -14,10 +15,13 @@ amadeus = Client(
     client_id='mO1GSbwraiZUlQ84AJWQPE6GkxINddt1',
     client_secret='ungA0GVVriDUeztB'
 )
-#TO-DO vanno controllati i parametri di configurazione kafka
-producer = KafkaProducer(bootstrap_servers='localhost:29092',value_serializer=lambda v: json.dumps(v).encode('utf-8')) #TO_DO ultimo valore da controllare, dovrebbe servire a inviare json
-
-# global incomes
+while True:
+    try:
+        producer = KafkaProducer(bootstrap_servers='localhost:29092',value_serializer=lambda v: json.dumps(v).encode('utf-8')) 
+        break
+    except Exception as error:
+        print("kafka non disponibile")
+        time.sleep(15)
 
 
 def inviotratta(data):

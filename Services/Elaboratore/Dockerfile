@@ -14,5 +14,4 @@ RUN python -m pip install -r requirements.txt
 WORKDIR /app
 COPY . .
 
-#forse si deve mettere la porta?
 CMD [ "python", "-m" ,  "Elaboratore" ]
