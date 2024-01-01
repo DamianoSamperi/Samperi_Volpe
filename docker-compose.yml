@@ -17,6 +17,7 @@ services:
       dockerfile: Dockerfile  
     depends_on:
       - kafka  
+      - scraper
     ports: 
       - 5010:5010
     network_mode: bridge
