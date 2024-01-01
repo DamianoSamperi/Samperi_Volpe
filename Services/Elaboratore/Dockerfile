@@ -14,4 +14,4 @@ RUN python -m pip install -r requirements.txt
 WORKDIR /app
 COPY . .
 
-CMD [ "python", "-m" ,  "Rules.py" ]
+CMD [ "python", "-m" ,  "Elaboratore.py" ]

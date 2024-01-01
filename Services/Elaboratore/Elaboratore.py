@@ -1,4 +1,3 @@
-
 from kafka import KafkaConsumer
 import sqlite3
 import json
