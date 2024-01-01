@@ -1,9 +1,8 @@
 from msilib import Control
 from amadeus import Client, ResponseError
-import socket
 from kafka import KafkaProducer
 import json
-from flask import Flask, jsonify, request
+from flask import Flask, request
 import time
 import requests
 import threading
@@ -30,20 +29,6 @@ def invioaeroporto(data):
     if data != []:
         producer.send('Aeroporti', data)
         producer.flush()
-
-#TO_DO questi nel caso vogliamo aggiornare ad ogni inserimento su daatabase di controller_tratte
-# @app.route('/recupero_tratte_scraper', methods=['POST']) 
-# def comunicazionepost():
-#     #incomes.append(request.get_json())
-#     global tratte 
-#     tratte = request.form['vet_tratte']
-
-# @app.route('/recupero_aeroporti_scraper', methods=['POST']) 
-# def comunicazionepost():
-#     #incomes.append(request.get_json())
-#     global aeroporti 
-#     aeroporti = request.form['vet_aeroporti']
-
 
 def trova_prezzo_tratta(response,origin,destination):
     tratte_speciali=[]   

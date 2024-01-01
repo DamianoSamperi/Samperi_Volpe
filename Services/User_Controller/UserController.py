@@ -150,8 +150,10 @@ def registra_client():
             return response.json()["message"]
         else:
             return "errore nella registrazione"
+    elif autenticato != None:
+        return "cliente già registrato"
     else:
-        return f"cliente già registrato "
+        return "Errore nella connessione"
 
 
 @app.route('/Insert_tratta', methods=['POST'])

@@ -1,7 +1,7 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
 FROM python:3.10-slim
 
-EXPOSE 5000
+EXPOSE 5001
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,4 +16,4 @@ RUN python -m pip install -r requirements.txt
 WORKDIR /app
 COPY . .
 
-CMD [ "python", "-m" , "flask", "--app" , "UserController" ,"run", "--host", "0.0.0.0", "--port","5000"]
+CMD [ "python", "-m" , "flask", "--app" , "UserInfo" ,"run", "--host", "0.0.0.0", "--port","5001"]

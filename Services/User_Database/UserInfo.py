@@ -53,6 +53,7 @@ def control_client(email):
         query="SELECT id FROM users WHERE email= ?"
         cursor.execute(query,(email,)) #TO_DO andrebbero messe delle stampe per vedere che stiamo facendo
         result=cursor.fetchone()
+        print("result ",result)
         if result != None:
             return result
         else:
