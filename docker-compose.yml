@@ -14,7 +14,9 @@ services:
   elaboratore:
     build: 
       context: Services/Elaboratore
-      dockerfile: Dockerfile    
+      dockerfile: Dockerfile  
+    depends_on:
+      - kafka  
     ports: 
       - 5010:5010
     network_mode: bridge
@@ -44,6 +46,7 @@ services:
   scraper:
     depends_on:
       - controller_tratta
+      - kafka
     build: 
       context: Services/Scraper
       dockerfile: Dockerfile
@@ -73,6 +76,26 @@ services:
     ports:
       - "5001:5001" #vedi, non lo so
     network_mode: bridge
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
 
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 # networks:
 #   my-network: bridge
