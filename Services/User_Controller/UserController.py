@@ -86,19 +86,16 @@ def autentica_client(email):
         print(f"An error occurred: {str(e)}")
 
 def trova_email_by_tratta(ori,dest,pr):
-    #users=Rules.get_users_by_tratta_and_budget(ori,dest,pr)
     url='http://localhost:5005/trova_email_by_tratta_rules'
     result = requests.post(url, json={'ori':ori, 'dest': dest,'pr': pr})
     print("result rules ",result.json())
     return result.json()
 
 def trova_email_by_offerte(ori):
-    #users=Rules.get_users_by_aeroporto(ori)
     url='http://localhost:5000/trova_email_by_aeroporti_rules'
     result = requests.post(url, json={'ori':ori,})
     return result
 
-#TO-DO vedi meglio
 def invia_tratta(origine, destinazione):
     url = 'http://localhost:5002/ricevi_tratte_usercontroller'
     payload = {'origine': origine, 'destinazione': destinazione}
@@ -108,7 +105,6 @@ def invia_tratta(origine, destinazione):
     print(response.status_code)
     print(response.text)
 
-#TO-DO vedi meglio
 def invia_aeroporto(aeroporto):
     url = 'http://localhost:5002/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
@@ -168,7 +164,6 @@ def inserisci_tratta():
         if len(origine)!=3 or len(destinazione)!=3:
             return "i codici degli aeroporti devono avere lunghezza 3"
         else:
-            #Rules.inserisci_tratta(user,origine,destinazione,budget)
             url = 'http://localhost:5005/ricevi_tratte_Rules'
             payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
             headers = {'Content-Type': 'application/json'}
@@ -195,7 +190,6 @@ def inserisci_aeroporto():
         if len(origine)!=3:
             return "i codici degli aeroporti devono avere lunghezza 3"
         else:
-            #Rules.inserisci_aeroporto(user,origine,budget)
             url = 'http://localhost:5005/ricevi_aeroporti_Rules'
             payload = {'userid': user[0], 'origine': origine, 'budget': budget}
             headers = {'Content-Type': 'application/json'}
@@ -209,8 +203,6 @@ def inserisci_aeroporto():
                 return "Errore durante l'iscrizione"   
     return "autenticazione fallita, si prega di registrarsi"
 
-
-#TO_DO Elena bisogna fare la disiscrizione o come nuova funziona oppure nelle funzione inserisce puoi controllare se gia inserito e in quel caso cancelli dal database e invi al controller solo se non ci sono utenti per quella tratta-aeroporto
 @app.route('/Disiscrizione_tratta', methods=['POST'])
 def disiscrizione_tratta():
     data= request.json
@@ -222,7 +214,6 @@ def disiscrizione_tratta():
         if len(origine)!=3 or len(destinazione)!=3:
             print("i codici degli aeroporti devono avere lunghezza 3")
         else:
-            #Rules.inserisci_tratta(user,origine,destinazione,budget)
             url = 'http://localhost:5005/elimina_tratte_Rules'
             payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
             headers = {'Content-Type': 'application/json'}
@@ -243,7 +234,6 @@ def disiscrizione_aeroporto():
         if len(origine)!=3:
             print("i codici degli aeroporti devono avere lunghezza 3")
         else:
-            #Rules.inserisci_tratta(user,origine,destinazione,budget)
             url = 'http://localhost:5005/elimina_aeroporto_Rules'
             payload = {'userid': user, 'origine': origine}
             headers = {'Content-Type': 'application/json'}
