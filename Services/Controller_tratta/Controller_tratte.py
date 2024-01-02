@@ -210,7 +210,7 @@ def comunicazioneUser_tratte():
     tratta= request.json
     response = scrivi_database_tratte(tratta)
     # tratte= leggi_database_tratte()
-    # response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_tratte':tratte})
+    # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_tratte':tratte})
     return response
 
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
@@ -218,7 +218,7 @@ def comunicazioneUser_aeroporto():
     aeroporto = request.json
     response = scrivi_database_aeroporti(aeroporto)
     # aeroporti=leggi_database_aeroporti()
-    # response = requests.post('http://localhost:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
+    # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
     return response
 
 if __name__ == "__main__":

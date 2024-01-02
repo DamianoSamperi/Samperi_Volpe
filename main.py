@@ -17,7 +17,7 @@ def registrazione():
     nome = input("\nInserisci il nome: ")
     cognome = input("Inserisci il cognome: ")
     email = input("Inserisci email: ")
-    url='http://localhost:5000/registrazione'
+    url='http://user_controller:5000/registrazione'
     result = requests.post(url, json={'email':email, 'nome': nome,'cognome': cognome})
     print(result.status_code)
     print(result.text)
@@ -31,7 +31,7 @@ def tratta():
     except ValueError:
             print("Inserisci un numero valido.")
             main()
-    url='http://localhost:5000/Insert_tratta'
+    url='http://user_controller:5000/Insert_tratta'
     result = requests.post(url, json={'email':email, 'origine': origine,'destinazione': destinazione, 'budget': budget})
     print(result.status_code)
     print (result.text)
@@ -44,7 +44,7 @@ def aeroporto():
     except ValueError:
             print("Inserisci un numero valido.")
             main()
-    url='http://localhost:5000/Insert_aeroporto'
+    url='http://user_controller:5000/Insert_aeroporto'
     result = requests.post(url, json={'email':email, 'origine': origine, 'budget': budget})
     print(result.status_code)
     print(result.text)
@@ -53,7 +53,7 @@ def disiscrivi_tratta():
     email=input("\ninserisci la tua email: ")
     origine=input("inserisci aeroporto origine: ")
     destinazione=input("inserisci aeroporto destinazione: ")
-    url='http://localhost:5000/Disiscrizione_tratta'
+    url='http://user_controller:5000/Disiscrizione_tratta'
     result = requests.post(url, json={'email':email, 'origine': origine,'destinazione': destinazione})
     print(result.status_code)
     print(result.text)
@@ -61,7 +61,7 @@ def disiscrivi_tratta():
 def disiscrivi_aeroporto():
     email=input("\ninserisci la tua email: ")
     origine=input("inserisci aeroporto origine: ")
-    url='http://localhost:5000/Disiscrizione_aeroporto'
+    url='http://user_controller:5000/Disiscrizione_aeroporto'
     result = requests.post(url, json={'email':email, 'origine': origine})
     print(result.status_code)
     print(result.text)

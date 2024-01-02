@@ -8,7 +8,7 @@ import threading
 def invioNotifier(notifiche):
     print(notifiche)
     while True:
-        response = requests.post('http://localhost:5003/recuperomail', json={'notifiche':notifiche})
+        response = requests.post('http://notifier:5003/recuperomail', json={'notifiche':notifiche})
         if response == 'ok':
             break
 
@@ -17,7 +17,7 @@ def leggi_topic_tratte():
     while True:
         try:
             consumer_tratta = KafkaConsumer('Tratte',
-                                    bootstrap_servers=['localhost:29092'],
+                                    bootstrap_servers=['kafka:9092'],
                                     group_id='grp1',
                                     enable_auto_commit=False,
                                     value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
@@ -31,7 +31,7 @@ def leggi_topic_tratte():
         # Ottieni il messaggio dal topic Kafka
         # msg = message.value
         for message in messages.value:
-            result = requests.post('http://localhost:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'] })
+            result = requests.post('http://user_controller:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'] })
         #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
             print("result ",result.json())
             emails=result.json()
@@ -57,7 +57,7 @@ def leggi_topic_aeroporti():
     while True:
         try:            
             consumer_aeroporto = KafkaConsumer('Aeroporti',
-                                    bootstrap_servers=['localhost:29092'],
+                                    bootstrap_servers=['kafka:9092'],
                                     group_id='grp1',
                                     enable_auto_commit=False,
                                     value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
@@ -69,7 +69,7 @@ def leggi_topic_aeroporti():
     for messages in consumer_aeroporto:
         #msg = message.value
         for message in messages.value:
-            result = requests.post('http://localhost:5000/trova_email_by_offerte', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price']})
+            result = requests.post('http://user_controller:5000/trova_email_by_offerte', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price']})
             emails=result.json()
             if emails is not None:
                 print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg

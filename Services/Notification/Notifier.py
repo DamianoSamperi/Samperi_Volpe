@@ -1,5 +1,6 @@
 from flask import Flask, request
 import smtplib
+from email.message import EmailMessage
 import json
 
 app = Flask(__name__)
@@ -25,9 +26,13 @@ def inviomail(notifiche):
             email=tupla['email']
             messaggio=json.dumps(tupla['message'])
             body = f"Caro {email} ,\n questa e' l'offerta da te richiesta\n {messaggio}"
-            print("mail ",email)
-            print("body ",body)
-            mail.sendmail("Notifier.dsbd@gmail.com", email, body)
+            msg = EmailMessage()
+            msg['Subject'] = 'Offerta Volo'
+            msg['From'] = "Notifier.dsbd@gmail.com"
+            msg['To'] = email
+            msg.set_content(body)
+            # mail.sendmail("Notifier.dsbd@gmail.com", email, body)
+            mail.send_message(msg)
         except smtplib.SMTPDataError as error:
             print(f"Errore durante l'esecuzione della query: {error}")
             return 'error'    

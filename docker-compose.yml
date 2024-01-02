@@ -8,8 +8,8 @@ services:
     ports:
       - "5002:5002" #vedi, non lo so
     #network_mode: bridge
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
 
   elaboratore:
     build:     
@@ -20,8 +20,8 @@ services:
     ports: 
       - 5010:5010
     #network_mode: bridge
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
 
   notifier:
     build:    
@@ -30,16 +30,16 @@ services:
     ports:
       - "5003:5003" #vedi, non lo so
     #network_mode: bridge
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
 
   rules:
     build:     
       context: Services/Rules_Database
       dockerfile: Dockerfile
     #network_mode: bridge
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
     ports:
       - "5005:5005" #vedi, non lo so
 
@@ -53,16 +53,16 @@ services:
     ports: 
      - 5012:5012
     #network_mode: bridge
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
     #ports:
 
   user_controller:
     build:     
       context: Services/User_controller
       dockerfile: Dockerfile
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
     ports:
       - "5000:5000" #vedi, non lo soù
     #network_mode: bridge
@@ -71,8 +71,8 @@ services:
     build:     
       context: Services/User_Database
       dockerfile: Dockerfile
-    networks:
-      - my-network
+   # networks:
+   #   - my-network
     ports:
       - "5001:5001" #vedi, non lo so
     #network_mode: bridge
@@ -98,5 +98,5 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-networks:
-  my-network: 
+# networks:
+#   my-network: 
