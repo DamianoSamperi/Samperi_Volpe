@@ -6,8 +6,6 @@ import json
 app = Flask(__name__)
 
 
-#TO_DO verifica invio mail, creazione account invio
-#TO-DO potrebbe essere necessario aggiungere un'eccezione per l'utilizzo di applicazioni esterne dalle impostazioni account di posta!
 def inviomail(notifiche):
     try:
         mail = smtplib.SMTP('smtp.gmail.com', 587)

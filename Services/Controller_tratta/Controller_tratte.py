@@ -193,7 +193,6 @@ def scrivi_database_aeroporti(data):
     # Chiudi la connessione
     #conn.close()
 
-#TO_DO oltre questo si possono inviare ogni volta che arriva un aggiornamento sulle tratte-aeroporti, bisogna considerare qual'è l'opzione migliore
 @app.route('/invio_Scraper', methods=['POST']) 
 def comunicazione_Scraper():
     richiesta= request.json
