@@ -94,7 +94,7 @@ def trova_email_by_tratta(ori,dest,pr):
 def trova_email_by_offerte(ori):
     url='http://rules:5005/trova_email_by_aeroporti_rules'
     result = requests.post(url, json={'ori':ori,})
-    return result
+    return result.json()
 
 def invia_tratta(origine, destinazione):
     url = 'http://controller_tratta:5002/ricevi_tratte_usercontroller'

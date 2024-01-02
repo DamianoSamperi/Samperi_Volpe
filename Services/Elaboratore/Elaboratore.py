@@ -65,7 +65,7 @@ def leggi_topic_aeroporti():
     for messages in consumer_aeroporto:
         #msg = message.value
         for message in messages.value:
-            result = requests.post('http://user_controller:5000/trova_email_by_offerte', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price']})
+            result = requests.post('http://user_controller:5000/trova_email_by_offerte', json={'ori':message['origin'], 'pr': message['price']})
             emails=result.json()
             if emails :
                 print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
