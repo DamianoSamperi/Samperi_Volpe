@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5002:5002" #vedi, non lo so
+    volumes:
+      - daticontrollertratte:/Services/Controller_tratta/controllertratte
     #network_mode: bridge
    # networks:
    #   - my-network
@@ -42,6 +44,8 @@ services:
    #   - my-network
     ports:
       - "5005:5005" #vedi, non lo so
+    volumes:
+      - datirules:/Services/Rules_Database/rules
 
   scraper:
     depends_on:
@@ -77,6 +81,9 @@ services:
     ports:
       - "5001:5001" #vedi, non lo so
     #network_mode: bridge
+    volumes:
+      - datiusers:/Services/User_Database/users
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -99,5 +106,9 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+volumes:
+  daticontrollertratte:
+  datirules:
+  datiusers:
 # networks:
 #   my-network: 

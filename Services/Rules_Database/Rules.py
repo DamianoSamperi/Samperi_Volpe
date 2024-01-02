@@ -130,7 +130,7 @@ def elimina_aeroporto(user_id,origine):
         #ritorna il numero di utenti iscritti a quell'aeroporto'
         query2="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query2,(origine,))
-        result=cursor.fetchall()
+        result=cursor.fetchone()
         return result
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
@@ -186,7 +186,7 @@ def elimina_tratte():
         return Count
     
 @app.route('/elimina_aeroporto_Rules', methods=['POST'])
-def elimina_aeroporto():
+def elimina_aeroporti():
     if request.method == 'POST': 
         data = request.json
         result=elimina_aeroporto(data['userid'][0],data['origine'])

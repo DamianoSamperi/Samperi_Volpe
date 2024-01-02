@@ -218,7 +218,7 @@ def disiscrizione_tratta():
     user=autentica_client(email) 
     if user != False:
         if len(origine)!=3 or len(destinazione)!=3:
-            print("i codici degli aeroporti devono avere lunghezza 3")
+            return "i codici degli aeroporti devono avere lunghezza 3"
         else:
             url = 'http://rules:5005/elimina_tratte_Rules'
             payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
@@ -238,7 +238,7 @@ def disiscrizione_aeroporto():
     user=autentica_client(email) 
     if user != False:
         if len(origine)!=3:
-            print("i codici degli aeroporti devono avere lunghezza 3")
+            return "i codici degli aeroporti devono avere lunghezza 3"
         else:
             url = 'http://rules:5005/elimina_aeroporto_Rules'
             payload = {'userid': user, 'origine': origine}
