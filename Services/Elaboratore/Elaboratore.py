@@ -23,7 +23,7 @@ def leggi_topic_tratte():
             print("kafka non disponibile")
             time.sleep(15)
    
-    notifiche = []
+    notifiche_tratta = []
     for messages in consumer_tratta:
         # Ottieni il messaggio dal topic Kafka
         # msg = message.value
@@ -34,7 +34,7 @@ def leggi_topic_tratte():
             if emails :
                 print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
                 for email in emails:
-                    notifiche.append({"email": email[0],"message":message})
+                    notifiche_tratta.append({"email": email[0],"message":message})
                 # invioNotifier(result,msg)
         try:
             # offset=messages.offset
@@ -43,8 +43,9 @@ def leggi_topic_tratte():
             consumer_tratta.commit(consumer_tratta.end_offsets.__dict__)
         except Exception as e:
             print("Commit failed due to : ", e)
-        if notifiche:    
-            invioNotifier(notifiche)
+        if notifiche_tratta:    
+            invioNotifier(notifiche_tratta)
+            notifiche_tratta=[]
 
 def leggi_topic_aeroporti():
     # Crea consumatore Kafka
@@ -72,13 +73,15 @@ def leggi_topic_aeroporti():
                     notifiche.append({"email": email[0],"message":message})
                 # invioNotifier(result,msg)
         try:
-            offset=messages.offset
-            offsets = {'Aeroporti': offset + 1} 
-            consumer_aeroporto.commit(offsets)
+            # offset=messages.offset
+            # offsets = {'Aeroporti': offset + 1} 
+            # consumer_aeroporto.commit(offsets)
+            consumer_aeroporto.commit(consumer_aeroporto.end_offsets.__dict__)
         except errors.CommitFailedError as e:
             print("Commit failed due to : ", e)
         if notifiche:
             invioNotifier(notifiche)
+            notifiche=[]
 
 
 if __name__ == "__main__":

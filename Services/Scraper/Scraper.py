@@ -115,6 +115,7 @@ while True:
     response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
     if  response.text != 'error':
         tratte = response.json()
+        print("ho ricevuto tratte da controller")
     for tratta in tratte:
         try:
             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
@@ -128,6 +129,7 @@ while True:
     response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
     if response.text != 'error':
         aeroporti = response.json()
+        print("ho ricevuto aeroporti da controller")
     for aeroporto in aeroporti:
         try:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],oneWay=True,nonStop=True, max=5)  
