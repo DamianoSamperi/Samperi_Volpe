@@ -37,10 +37,9 @@ def leggi_topic_tratte():
                     notifiche.append({"email": email[0],"message":message})
                 # invioNotifier(result,msg)
         try:
-            offset=messages.offset
-            # print("offset partition ",consumer_tratta.end_offsets)
-            offsets = {'Tratte': offset + 1}  
-            print("offset messages ",offsets)        
+            # offset=messages.offset
+            # offsets = {'Tratte': offset + 1}  
+            # print("offset messages ",offsets)        
             consumer_tratta.commit(consumer_tratta.end_offsets.__dict__)
         except Exception as e:
             print("Commit failed due to : ", e)
