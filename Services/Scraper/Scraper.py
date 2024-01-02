@@ -120,7 +120,7 @@ while True:
             response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=1, max=5) 
             data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"])
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0.1)
+            time.sleep(0.5)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
          

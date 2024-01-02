@@ -112,7 +112,7 @@ def elimina_tratta(user_id,origine,destinazione):
         conn.commit()
         
     except sqlite3.Error as e:
-        print(f"Errore durante l'esecuzione della query SELECT: {e}")
+        print(f"Errore durante l'esecuzione della query DELETE: {e}")
     try:
         #ritorna il numero di utenti iscritti a quella tratta
         query2="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
@@ -181,7 +181,7 @@ def email_by_aeroporti():
 def elimina_tratte():
     if request.method == 'POST': 
         data = request.json
-        result=elimina_tratta(data['userid'],data['origine'],data['destinazione'])
+        result=elimina_tratta(data['userid'][0],data['origine'],data['destinazione'])
         Count = {"count":result[0]}
         return Count
     
@@ -189,7 +189,7 @@ def elimina_tratte():
 def elimina_aeroporto():
     if request.method == 'POST': 
         data = request.json
-        result=elimina_aeroporto(data['userid'],data['origine'])
+        result=elimina_aeroporto(data['userid'][0],data['origine'])
         Count = {"count":result[0]}
         return Count
 
