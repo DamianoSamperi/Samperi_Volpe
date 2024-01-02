@@ -1,6 +1,6 @@
 # from msilib import Control
 from amadeus import Client, ResponseError
-from kafka import KafkaProducer
+from kafka import KafkaProducer,errors
 import kafka
 import json
 from flask import Flask, request
@@ -18,8 +18,9 @@ amadeus = Client(
 while True:
     try:
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8')) 
+        print("connesso al broker")
         break
-    except Exception as error:
+    except errors.NoBrokersAvailable as error:
         print("kafka non disponibile")
         time.sleep(15)
 

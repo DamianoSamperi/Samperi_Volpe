@@ -47,6 +47,7 @@ services:
     depends_on:
       - controller_tratta
       - kafka
+      - elaboratore
     build:     
       context: Services/Scraper
       dockerfile: Dockerfile

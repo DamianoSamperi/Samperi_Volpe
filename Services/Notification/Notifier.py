@@ -19,8 +19,8 @@ def inviomail(notifiche):
         print(f"Errore durante l'esecuzione della query: {error}")
         return 'error'
     for tupla in notifiche:
+        print("tutte le notifiche",notifiche)
         try:
-            print("la tupla completa ",tupla)
             email=tupla['email']
             messaggio=json.dumps(tupla['message'])
             body = f"Caro {email} ,\n questa e' l'offerta da te richiesta\n {messaggio}"
