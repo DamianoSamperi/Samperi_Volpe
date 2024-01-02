@@ -47,7 +47,7 @@ def trova_prezzo_aeroporto(data):
     aeroporti_speciali=[]
     for offer in response.data:
         prezzo= round(float(offer["price"]["total"]) * 0.91,2)
-        aeroporti_speciali.append({'origin':offer["origin"],'destination':offer["destination"], 'price':prezzo, "partenza": offer["itineraries"][0]["segments"][0]["departure"]["at"]})
+        aeroporti_speciali.append({'origin':offer["origin"],'destination':offer["destination"], 'price':prezzo, "partenza": offer["departureDate"]})
     return aeroporti_speciali
 
 #TO_DO Possibilità utilizzo thread
@@ -132,7 +132,7 @@ while True:
         print("ho ricevuto aeroporti da controller")
     for aeroporto in aeroporti:
         try:
-            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],oneWay=True,nonStop=True, max=5)  
+            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
             data = trova_prezzo_aeroporto(response)
             invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.1)
