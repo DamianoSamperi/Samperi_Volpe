@@ -159,7 +159,7 @@ def inserisci_tratta():
     origine = data["origine"]
     destinazione = data["destinazione"]
     budget = data["budget"]
-    if budget.isdigit():
+    if type(budget)== int or type(budget)==float: 
         user=autentica_client(email) 
         if user != False:
             if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
@@ -188,7 +188,7 @@ def inserisci_aeroporto():
     email = data["email"]
     origine = data["origine"]
     budget = data["budget"]
-    if budget.isdigit(): 
+    if type(budget)== int or type(budget)==float: 
         user=autentica_client(email)
         if user != False:
             if len(origine)!=3 or origine.isalpha == False:
