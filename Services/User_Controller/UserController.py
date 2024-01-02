@@ -159,24 +159,27 @@ def inserisci_tratta():
     origine = data["origine"]
     destinazione = data["destinazione"]
     budget = data["budget"]
-    user=autentica_client(email) 
-    if user != False:
-        if len(origine)!=3 or len(destinazione)!=3:
-            return "i codici degli aeroporti devono avere lunghezza 3"
-        else:
-            url = 'http://rules:5005/ricevi_tratte_Rules'
-            payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json=payload, headers=headers)
-            print("response count ",response.json()["count"]) 
-            if response.json()["count"]!=-1:
-                if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
-                    print("sto inviando")
-                    invia_tratta(origine,destinazione)
-                return "Iscrizione effettuata" 
+    if budget.isdigit():
+        user=autentica_client(email) 
+        if user != False:
+            if len(origine)!=3 or len(destinazione)!=3:
+                return "i codici degli aeroporti devono avere lunghezza 3"
             else:
-                return "Errore durante l'iscrizione"     
-    return "autenticazione fallita, si prega di registrarsi"
+                url = 'http://rules:5005/ricevi_tratte_Rules'
+                payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json=payload, headers=headers)
+                print("response count ",response.json()["count"]) 
+                if response.json()["count"]!=-1:
+                    if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
+                        print("sto inviando")
+                        invia_tratta(origine,destinazione)
+                    return "Iscrizione effettuata" 
+                else:
+                    return "Errore durante l'iscrizione"     
+        return "autenticazione fallita, si prega di registrarsi"
+    else:
+        return "inserire un budget valido"
 
 
 @app.route('/Insert_aeroporto', methods=['POST'])
@@ -185,23 +188,26 @@ def inserisci_aeroporto():
     email = data["email"]
     origine = data["origine"]
     budget = data["budget"]
-    user=autentica_client(email)
-    if user != False:
-        if len(origine)!=3:
-            return "i codici degli aeroporti devono avere lunghezza 3"
-        else:
-            url = 'http://rules:5005/ricevi_aeroporti_Rules'
-            payload = {'userid': user[0], 'origine': origine, 'budget': budget}
-            headers = {'Content-Type': 'application/json'}
-            response = requests.post(url, json=payload, headers=headers)
-            #print(response.status_code) forse devo controllare lo status_code
-            if response.json()["count"]!=-1:
-                if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
-                    invia_aeroporto(origine)
-                return "Iscrizione effettuata"
+    if budget.isdigit(): 
+        user=autentica_client(email)
+        if user != False:
+            if len(origine)!=3:
+                return "i codici degli aeroporti devono avere lunghezza 3"
             else:
-                return "Errore durante l'iscrizione"   
-    return "autenticazione fallita, si prega di registrarsi"
+                url = 'http://rules:5005/ricevi_aeroporti_Rules'
+                payload = {'userid': user[0], 'origine': origine, 'budget': budget}
+                headers = {'Content-Type': 'application/json'}
+                response = requests.post(url, json=payload, headers=headers)
+                #print(response.status_code) forse devo controllare lo status_code
+                if response.json()["count"]!=-1:
+                    if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
+                        invia_aeroporto(origine)
+                    return "Iscrizione effettuata"
+                else:
+                    return "Errore durante l'iscrizione"   
+        return "autenticazione fallita, si prega di registrarsi"
+    else:
+        return "inserire un budget valido"
 
 @app.route('/Disiscrizione_tratta', methods=['POST'])
 def disiscrizione_tratta():
