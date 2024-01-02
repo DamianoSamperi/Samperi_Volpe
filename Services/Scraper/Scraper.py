@@ -134,7 +134,7 @@ while True:
         try:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
             data = trova_prezzo_aeroporto(response)
-            invioaeroporto(response) #funzione che permette di inviare al topic kafka la tratta ottenuta
+            invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.1)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
