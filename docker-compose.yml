@@ -6,12 +6,9 @@ services:
       context: Services/Controller_tratta
       dockerfile: Dockerfile
     ports:
-      - "5002:5002" #vedi, non lo so
+      - "5002:5002"
     volumes:
       - daticontrollertratte:/Services/Controller_tratta/controllertratte
-    #network_mode: bridge
-   # networks:
-   #   - my-network
 
   elaboratore:
     build:     
@@ -21,29 +18,20 @@ services:
       - kafka  
     ports: 
       - 5010:5010
-    #network_mode: bridge
-   # networks:
-   #   - my-network
 
   notifier:
     build:    
       context: Services/Notification
       dockerfile: Dockerfile
     ports:
-      - "5003:5003" #vedi, non lo so
-    #network_mode: bridge
-   # networks:
-   #   - my-network
+      - "5003:5003"
 
   rules:
     build:     
       context: Services/Rules_Database
       dockerfile: Dockerfile
-    #network_mode: bridge
-   # networks:
-   #   - my-network
     ports:
-      - "5005:5005" #vedi, non lo so
+      - "5005:5005"
     volumes:
       - datirules:/Services/Rules_Database/rules
 
@@ -57,30 +45,20 @@ services:
       dockerfile: Dockerfile
     ports: 
      - 5012:5012
-    #network_mode: bridge
-   # networks:
-   #   - my-network
-    #ports:
 
   user_controller:
     build:     
       context: Services/User_controller
       dockerfile: Dockerfile
-   # networks:
-   #   - my-network
     ports:
-      - "5000:5000" #vedi, non lo soù
-    #network_mode: bridge
+      - "5000:5000"
 
   users:
     build:     
       context: Services/User_Database
       dockerfile: Dockerfile
-   # networks:
-   #   - my-network
     ports:
-      - "5001:5001" #vedi, non lo so
-    #network_mode: bridge
+      - "5001:5001"
     volumes:
       - datiusers:/Services/User_Database/users
 
@@ -110,5 +88,3 @@ volumes:
   daticontrollertratte:
   datirules:
   datiusers:
-# networks:
-#   my-network: 
