@@ -38,15 +38,21 @@ except sqlite3.Error as e:
  
 def inserisci_tratta(user_id,origine,destinazione,budget):
     try:
+        #vedo se l'utente è già iscritto alla tratta
         query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ? AND budget =?"
-        cursor.execute(query,(user_id, origine, destinazione, budget)) #vedi meglio
+        cursor.execute(query,(user_id, origine, destinazione, budget))
         Count=cursor.fetchone()
+        #se non è iscritto lo inserisco, sennò non lo inserisco
         if Count[0]==0:
             query="INSERT INTO tratte (user_id, origine, destinazione, budget) VALUES(?, ?, ?, ?)"
             cursor.execute(query, (user_id, origine, destinazione, budget))
             conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        return Count[0]+1
+        #return Count[0]+1
+        query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
+        cursor.execute(query,(origine, destinazione))
+        result=cursor.fetchone()
+        return result[0]
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
@@ -54,14 +60,21 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
 def inserisci_aeroporto(user_id,origine,budget):
     try:
         query="SELECT COUNT(*) FROM aeroporti WHERE user_id = ? AND origine= ?"
+        #vedo se l'utente è già iscritto a questo aeroporto
         cursor.execute(query,(user_id,origine))
         Count=cursor.fetchone()
+        #se non è iscritto lo inserisco
         if Count[0]==0:
             query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?)"
             cursor.execute(query, (user_id, origine, budget))
             conn.commit()
-        #ritorna il numero di utenti iscritti a quell'aeroporto
-        return Count[0]+1
+        #che senso ha? tu devi ritornare il numero di utenti iscritti a quella tratta,
+        #NON di quell'unico utente
+        #return Count[0]+1
+        query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
+        cursor.execute(query,(origine,))
+        result=cursor.fetchone()
+        return result[0]
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
