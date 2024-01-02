@@ -48,7 +48,6 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
             cursor.execute(query, (user_id, origine, destinazione, budget))
             conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        #return Count[0]+1
         query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
         cursor.execute(query,(origine, destinazione))
         result=cursor.fetchone()
@@ -68,9 +67,7 @@ def inserisci_aeroporto(user_id,origine,budget):
             query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?)"
             cursor.execute(query, (user_id, origine, budget))
             conn.commit()
-        #che senso ha? tu devi ritornare il numero di utenti iscritti a quella tratta,
-        #NON di quell'unico utente
-        #return Count[0]+1
+        #ritorna il numero di utenti iscritti a quell'aeroporto
         query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query,(origine,))
         result=cursor.fetchone()
