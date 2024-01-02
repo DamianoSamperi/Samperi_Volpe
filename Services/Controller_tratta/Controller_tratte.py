@@ -199,7 +199,7 @@ def comunicazione_Scraper():
     if richiesta['request']=='tratta':
         tratte= leggi_database_tratte()
         return tratte
-    elif richiesta['request'] == 'aroporto':
+    elif richiesta['request'] == 'aeroporto':
         aeroporti=leggi_database_aeroporti()
         return aeroporti
     return "error"
