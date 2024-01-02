@@ -104,14 +104,14 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
     print("result info",result.json())
     return result.json()
 
-def get_users_by_aeroporto(aeroporto):
+def get_users_by_aeroporto(aeroporto,prezzo):
     try:
-        query=" SELECT user_id FROM aeroporti WHERE origine= ?"
-        cursor.execute(query,(aeroporto,))
+        query=" SELECT user_id FROM aeroporti WHERE origine= ? AND budget>= ?"
+        cursor.execute(query,(aeroporto,prezzo))
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
-    url='http://user_controller:5000/trova_email_by_user_id'
+    url='http://users:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
     return result
 
@@ -191,7 +191,7 @@ def email_by_tratta():
 def email_by_aeroporti():
     if request.method == 'POST': 
         data = request.json
-        result=get_users_by_aeroporto(data['ori'])
+        result=get_users_by_aeroporto(data['ori'],data['pr'])
         return result
     
 @app.route('/elimina_tratte_Rules', methods=['POST'])

@@ -91,9 +91,9 @@ def trova_email_by_tratta(ori,dest,pr):
     print("result rules ",result.json())
     return result.json()
 
-def trova_email_by_offerte(ori):
+def trova_email_by_offerte(ori,pr):
     url='http://rules:5005/trova_email_by_aeroporti_rules'
-    result = requests.post(url, json={'ori':ori,})
+    result = requests.post(url, json={'ori':ori,'pr':pr})
     return result.json()
 
 def invia_tratta(origine, destinazione):
@@ -128,7 +128,7 @@ def trova_email_tratta():
 def trova_email_offerte():
     if request.method == 'POST':
         data = request.json
-        result=trova_email_by_offerte(data["ori"])
+        result=trova_email_by_offerte(data["ori"],data["pr"])
         return result
     
 @app.route('/registrazione', methods=['POST'])
