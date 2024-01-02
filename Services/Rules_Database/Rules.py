@@ -109,6 +109,7 @@ def elimina_tratta(user_id,origine,destinazione):
     try:
         query1="DELETE FROM tratte WHERE user_id= ? AND origine= ? AND destinazione= ?"
         cursor.execute(query1,(user_id,origine,destinazione))
+        trovati=cursor.rowcount #numero di righe eliminate
         conn.commit()
         
     except sqlite3.Error as e:
@@ -119,6 +120,8 @@ def elimina_tratta(user_id,origine,destinazione):
         cursor.execute(query2,(origine,destinazione))
         result=cursor.fetchone()
         return result
+        #return [trovati,result]
+        #return json.dumps({"trovati": trovati, "count": result[0]})
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query SELECT: {e}")
 
@@ -126,12 +129,16 @@ def elimina_aeroporto(user_id,origine):
     try:
         query1="DELETE FROM aeroporti WHERE user_id= ? AND origine= ?"
         cursor.execute(query1,(user_id,origine))
+        trovati=cursor.rowcount #numero di righe eliminate
+        #print(trovati)
         conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto'
         query2="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query2,(origine,))
         result=cursor.fetchone()
         return result
+        #return [trovati,result]
+        #return json.dumps({"trovati": trovati, "count": result[0]})
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
