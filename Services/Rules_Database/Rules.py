@@ -113,7 +113,7 @@ def get_users_by_aeroporto(aeroporto,prezzo):
         print(f"Errore durante l'esecuzione della query: {e}")
     url='http://users:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
-    return result
+    return result.json()
 
 def elimina_tratta(user_id,origine,destinazione):
     try:
