@@ -162,8 +162,8 @@ def inserisci_tratta():
     if budget.isdigit():
         user=autentica_client(email) 
         if user != False:
-            if len(origine)!=3 or len(destinazione)!=3:
-                return "i codici degli aeroporti devono avere lunghezza 3"
+            if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
+                return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
             else:
                 url = 'http://rules:5005/ricevi_tratte_Rules'
                 payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
@@ -191,8 +191,8 @@ def inserisci_aeroporto():
     if budget.isdigit(): 
         user=autentica_client(email)
         if user != False:
-            if len(origine)!=3:
-                return "i codici degli aeroporti devono avere lunghezza 3"
+            if len(origine)!=3 or origine.isalpha == False:
+                return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
             else:
                 url = 'http://rules:5005/ricevi_aeroporti_Rules'
                 payload = {'userid': user[0], 'origine': origine, 'budget': budget}
@@ -217,8 +217,8 @@ def disiscrizione_tratta():
     destinazione = data["destinazione"]
     user=autentica_client(email) 
     if user != False:
-        if len(origine)!=3 or len(destinazione)!=3:
-            return "i codici degli aeroporti devono avere lunghezza 3"
+        if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
+            return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
             url = 'http://rules:5005/elimina_tratte_Rules'
             payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
@@ -237,8 +237,8 @@ def disiscrizione_aeroporto():
     origine = data["origine"]
     user=autentica_client(email) 
     if user != False:
-        if len(origine)!=3:
-            return "i codici degli aeroporti devono avere lunghezza 3"
+        if len(origine)!=3 or origine.isalpha == False:
+            return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
             url = 'http://rules:5005/elimina_aeroporto_Rules'
             payload = {'userid': user, 'origine': origine}
