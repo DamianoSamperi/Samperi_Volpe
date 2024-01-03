@@ -58,9 +58,9 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
 
 def inserisci_aeroporto(user_id,origine,budget):
     try:
-        query="SELECT COUNT(*) FROM aeroporti WHERE user_id = ? AND origine= ?"
+        query="SELECT COUNT(*) FROM aeroporti WHERE user_id = ? AND origine= ? AND budget = ?"
         #vedo se l'utente è già iscritto a questo aeroporto
-        cursor.execute(query,(user_id,origine))
+        cursor.execute(query,(user_id,origine,budget))
         Count=cursor.fetchone()
         #se non è iscritto lo inserisco
         if Count[0]==0:

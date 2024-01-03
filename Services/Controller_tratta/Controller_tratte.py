@@ -127,7 +127,6 @@ def scrivi_database_tratte(data):
     
 
         # Esegui la query SQL con i valori passati come parametri
-        print("origine ",data['origine'])
         cursor.execute(query, (data['origine'], data['destinazione']))
         count = cursor.fetchone()
         
