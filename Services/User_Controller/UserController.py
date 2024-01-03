@@ -226,8 +226,11 @@ def disiscrizione_tratta():
             response = requests.post(url, json=payload, headers=headers)
             #print(response.status_code) forse devo controllare lo status_code
             #return response.json()
-            if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-                invia_tratta(origine,destinazione)
+            if response.json()["count"]!=-1:
+                if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+                    invia_tratta(origine,destinazione)
+            else:
+                return "Utente non registrato a questa tratta" 
             #if response.json()[0]==0:
             #    return "nessuna tratta corrispondente trovata"
             return "Disiscrizione effettuata"
@@ -248,8 +251,11 @@ def disiscrizione_aeroporto():
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
             #print(response.status_code) forse devo controllare lo status_code
-            if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-                invia_aeroporto(origine)   
+            if response.json()["count"]!=-1:
+                if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
+                    invia_aeroporto(origine)  
+            else:
+                return "Utente non registrato a questo aeroporto" 
             #if response.json()["trovati"]==0:
             #    return "nessun aeroporto corrispondente trovato"    
             return "Disiscrizione effettuata"
