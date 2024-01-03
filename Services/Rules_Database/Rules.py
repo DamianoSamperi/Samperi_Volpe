@@ -71,7 +71,7 @@ def inserisci_aeroporto(user_id,origine,budget):
         query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query,(origine,))
         result=cursor.fetchone()
-        return result[0]
+        return result[0]+Count[0]
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
