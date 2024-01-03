@@ -39,8 +39,8 @@ except sqlite3.Error as e:
 def inserisci_tratta(user_id,origine,destinazione,budget):
     try:
         #vedo se l'utente è già iscritto alla tratta
-        query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ? AND budget =?"
-        cursor.execute(query,(user_id, origine, destinazione, budget))
+        query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ?"
+        cursor.execute(query,(user_id, origine, destinazione))
         Count=cursor.fetchone()
         #se non è iscritto lo inserisco, sennò non lo inserisco
         if Count[0]==0:
