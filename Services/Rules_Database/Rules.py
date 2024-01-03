@@ -122,7 +122,7 @@ def elimina_tratta(user_id,origine,destinazione):
         trovati=cursor.rowcount #numero di righe eliminate
         conn.commit()
         if trovati==0:
-            return -1
+            return [-1]
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query DELETE: {e}")
     try:
@@ -144,7 +144,7 @@ def elimina_aeroporto(user_id,origine):
         #print(trovati)
         conn.commit()
         if trovati==0:
-            return -1
+            return [-1]
         #ritorna il numero di utenti iscritti a quell'aeroporto'
         query2="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
         cursor.execute(query2,(origine,))
