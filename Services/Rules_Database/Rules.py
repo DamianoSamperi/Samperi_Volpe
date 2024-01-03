@@ -51,7 +51,7 @@ def inserisci_tratta(user_id,origine,destinazione,budget):
         query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
         cursor.execute(query,(origine, destinazione))
         result=cursor.fetchone()
-        return result[0]
+        return result[0]+Count[0]
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
