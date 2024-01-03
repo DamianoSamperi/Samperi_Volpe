@@ -221,7 +221,7 @@ def disiscrizione_tratta():
             return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
             url = 'http://rules:5005/elimina_tratte_Rules'
-            payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
+            payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
             #print(response.status_code) forse devo controllare lo status_code
@@ -247,7 +247,7 @@ def disiscrizione_aeroporto():
             return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
             url = 'http://rules:5005/elimina_aeroporto_Rules'
-            payload = {'userid': user, 'origine': origine}
+            payload = {'userid': user[0], 'origine': origine}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
             #print(response.status_code) forse devo controllare lo status_code

@@ -201,7 +201,7 @@ def email_by_aeroporti():
 def elimina_tratte():
     if request.method == 'POST': 
         data = request.json
-        result=elimina_tratta(data['userid'][0],data['origine'],data['destinazione'])
+        result=elimina_tratta(data['userid'],data['origine'],data['destinazione'])
         Count = {"count":result[0]}
         return Count
     
@@ -209,7 +209,7 @@ def elimina_tratte():
 def elimina_aeroporti():
     if request.method == 'POST': 
         data = request.json
-        result=elimina_aeroporto(data['userid'][0],data['origine'])
+        result=elimina_aeroporto(data['userid'],data['origine'])
         Count = {"count":result[0]}
         return Count
 
