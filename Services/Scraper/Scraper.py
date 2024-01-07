@@ -12,8 +12,8 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 amadeus = Client(
-    client_id='mO1GSbwraiZUlQ84AJWQPE6GkxINddt1',
-    client_secret='ungA0GVVriDUeztB'
+    client_id='VGSEQ2nHW7nHDGB1oBOMSsmXBYwWMEkQ',
+    client_secret='qtXqxyhlSA4lMrO'+'d'
 )
 while True:
     try:
