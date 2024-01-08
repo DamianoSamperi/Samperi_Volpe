@@ -8,6 +8,7 @@ import time
 import requests
 import threading
 from datetime import datetime, timedelta
+from circuitbreaker import circuit
 
 app = Flask(__name__)
 
@@ -107,6 +108,7 @@ def trova_prezzo_aeroporto(data):
 
 aeroporti = {}
 tratte = {}
+#TO_DO implementiamo circuit breaker qui, ho già importato la libreria
 while True:
     #tratte,aeroporti=richiesta_tratte()
     domani = datetime.now() + timedelta(days=1) 
