@@ -23,7 +23,8 @@ try:
         CREATE TABLE IF NOT EXISTS tratte_salvate (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             origine TEXT NOT NULL,
-            destinazione TEXT NOT NULL
+            destinazione TEXT NOT NULL,
+            adulti INTEGER
         )
     ''') #tu avevi messo tratte
 except sqlite3.Error as e:
@@ -89,7 +90,7 @@ def leggi_database_tratte():
 
     # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
-        tratte.append({"origine": tupla[1] , "destinazione" : tupla[2]})
+        tratte.append({"origine": tupla[1] , "destinazione" : tupla[2], "adulti": tupla[3]}) #TO_DO Damiano credo sia giusto ma vedi tu
 
 
     # Stampa l'array di stringhe
@@ -123,11 +124,11 @@ def leggi_database_aeroporti():
 def scrivi_database_tratte(data):
     try:
         # Prepara la query SQL
-        query = "SELECT COUNT(*) FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
+        query = "SELECT COUNT(*) FROM tratte_salvate WHERE origine = ? AND destinazione = ? AND adulti= ?" #aggiunti adulti
     
 
         # Esegui la query SQL con i valori passati come parametri
-        cursor.execute(query, (data['origine'], data['destinazione']))
+        cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
         count = cursor.fetchone()
         
         # Esegui il commit delle modifiche
@@ -137,8 +138,8 @@ def scrivi_database_tratte(data):
     print("Count ",count[0])
     if count[0]==0:
         try:
-            query = "INSERT INTO tratte_salvate ( origine, destinazione ) VALUES (?, ? )" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor.execute(query, (data['origine'], data['destinazione']))
+            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (?, ?, ?)" #aggiunti adulti
+            cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
         except sqlite3.Error as e:
@@ -146,8 +147,8 @@ def scrivi_database_tratte(data):
             return e
     else:
         try:
-            query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ?" #TO_DO da modificare se vogliamo aggiungere adults
-            cursor.execute(query, (data['origine'], data['destinazione']))
+            query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ? AND adulti= ?" #aggiunti adulti
+            cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
         except sqlite3.Error as e:

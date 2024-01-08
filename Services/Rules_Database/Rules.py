@@ -18,7 +18,8 @@ try:
             user_id INTEGER NOT NULL,
             origine TEXT NOT NULL,
             destinazione TEXT NOT NULL,
-            budget INTEGER
+            budget INTEGER,
+            adulti INTEGER
         )
     ''')
 except sqlite3.Error as e:
@@ -36,20 +37,20 @@ except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
  
  
-def inserisci_tratta(user_id,origine,destinazione,budget):
+def inserisci_tratta(user_id,origine,destinazione,budget,adulti):
     try:
         #vedo se l'utente è già iscritto alla tratta
-        query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ?"
-        cursor.execute(query,(user_id, origine, destinazione))
+        query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ? AND adulti= ?"
+        cursor.execute(query,(user_id, origine, destinazione, adulti))
         Count=cursor.fetchone()
         #se non è iscritto lo inserisco, sennò non lo inserisco
         if Count[0]==0:
-            query="INSERT INTO tratte (user_id, origine, destinazione, budget) VALUES(?, ?, ?, ?)"
-            cursor.execute(query, (user_id, origine, destinazione, budget))
+            query="INSERT INTO tratte (user_id, origine, destinazione, budget, adulti) VALUES(?, ?, ?, ?, ?)"
+            cursor.execute(query, (user_id, origine, destinazione, budget, adulti))
             conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ?"
-        cursor.execute(query,(origine, destinazione))
+        query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ? AND adulti= ?"
+        cursor.execute(query,(origine, destinazione, adulti))
         result=cursor.fetchone()
         return result[0]+Count[0]
     except sqlite3.Error as e:
@@ -92,10 +93,10 @@ def get_aeroporti():
         print(f"Errore durante l'esecuzione della query: {e}")
     return result 
 
-def get_users_by_tratta_and_budget(origine,destinazione,prezzo):
+def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
     try:
-        query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ?"
-        cursor.execute(query,(origine, destinazione, prezzo))
+        query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ? AND adulti= ?"
+        cursor.execute(query,(origine, destinazione, prezzo, adulti))
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
@@ -169,7 +170,7 @@ def crash():
 def ricevi_tratte():
     if request.method == 'POST': 
         data = request.json 
-        result=inserisci_tratta(data["userid"],data["origine"],data["destinazione"],data["budget"])
+        result=inserisci_tratta(data["userid"],data["origine"],data["destinazione"],data["budget"],data["adulti"])
         Count = {"count":result}
         return Count
   
@@ -186,7 +187,7 @@ def email_by_tratta():
     if request.method == 'POST': 
         data = request.json
         print("data rules",data)
-        result=get_users_by_tratta_and_budget(data['ori'],data['dest'],data['pr'])
+        result=get_users_by_tratta_and_budget(data['ori'],data['dest'],data['pr'],data['adulti'])
         print("result",result)
         return result
     

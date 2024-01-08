@@ -85,9 +85,9 @@ def autentica_client(email):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-def trova_email_by_tratta(ori,dest,pr):
+def trova_email_by_tratta(ori,dest,pr,adulti):
     url='http://rules:5005/trova_email_by_tratta_rules'
-    result = requests.post(url, json={'ori':ori, 'dest': dest,'pr': pr})
+    result = requests.post(url, json={'ori':ori, 'dest': dest,'pr': pr, 'adulti':adulti}) #aggiunti adulti
     print("result rules ",result.json())
     return result.json()
 
@@ -96,9 +96,9 @@ def trova_email_by_offerte(ori,pr):
     result = requests.post(url, json={'ori':ori,'pr':pr})
     return result.json()
 
-def invia_tratta(origine, destinazione):
+def invia_tratta(origine, destinazione, adulti):
     url = 'http://controller_tratta:5002/ricevi_tratte_usercontroller'
-    payload = {'origine': origine, 'destinazione': destinazione}
+    payload = {'origine': origine, 'destinazione': destinazione, 'adulti': adulti} #aggiunti adulti
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
@@ -120,7 +120,7 @@ def trova_email_tratta():
     if request.method == 'POST':
         data = request.json 
         print("data normali",data)
-        result=trova_email_by_tratta(data["ori"],data["dest"],data["pr"])
+        result=trova_email_by_tratta(data["ori"],data["dest"],data["pr"],data["adulti"]) #aggiunti adulti
         print("result normali",result)
         return result
     
@@ -159,25 +159,29 @@ def inserisci_tratta():
     origine = data["origine"]
     destinazione = data["destinazione"]
     budget = data["budget"]
+    adulti= data["adulti"] #aggiunti adulti
     if type(budget)== int or type(budget)==float: 
-        user=autentica_client(email) 
-        if user != False:
-            if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
-                return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
-            else:
-                url = 'http://rules:5005/ricevi_tratte_Rules'
-                payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget}
-                headers = {'Content-Type': 'application/json'}
-                response = requests.post(url, json=payload, headers=headers)
-                print("response count ",response.json()["count"]) 
-                if response.json()["count"]!=-1:
-                    if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
-                        print("sto inviando")
-                        invia_tratta(origine,destinazione)
-                    return "Iscrizione effettuata" 
+        if(int(adulti)>0):
+            user=autentica_client(email) 
+            if user != False:
+                if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
+                    return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
                 else:
-                    return "Errore durante l'iscrizione"     
-        return "autenticazione fallita, si prega di registrarsi"
+                    url = 'http://rules:5005/ricevi_tratte_Rules'
+                    payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget, 'adulti': adulti} #aggiunti adulti
+                    headers = {'Content-Type': 'application/json'}
+                    response = requests.post(url, json=payload, headers=headers)
+                    print("response count ",response.json()["count"]) 
+                    if response.json()["count"]!=-1:
+                        if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
+                            print("sto inviando")
+                            invia_tratta(origine,destinazione,adulti)
+                        return "Iscrizione effettuata" 
+                    else:
+                        return "Errore durante l'iscrizione"     
+            return "autenticazione fallita, si prega di registrarsi"
+        else:
+            return "inserire un numero di adulti valido"
     else:
         return "inserire un budget valido"
 
