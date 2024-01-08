@@ -104,11 +104,37 @@ def trova_prezzo_aeroporto(data):
 # t2.start()
 
 
-            
+#prova circuit breaker, dovremmo fare in modo che se la funzione crasha troppe volte
+#(di default è 5), allora fa le richieste ad amadeus con le tratte/aeroporti del
+#giorno precedente, le funzioni devono lanciare un eccezione nel caso in cui
+#la richiesta non vada a buon fine
+'''
+@circuit(failure_treshold=3,reset_timeout=43200)
+def chiedi_tratte_controller_tratte():
+    domani = datetime.now() + timedelta(days=1) 
+    data_domani = domani.strftime('%Y-%m-%d')
+
+    response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
+    if  response.text != 'error':
+        tratte = response.json()
+        print("ho ricevuto tratte da controller")
+        return tratte
+'''
+'''
+ @circuit(failure_treshold=3,reset_timeout=43200)
+ def chiedi_aeroporti_controller_tratte():
+    domani = datetime.now() + timedelta(days=1) 
+    data_domani = domani.strftime('%Y-%m-%d')
+
+    response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
+    if response.text != 'error':
+        aeroporti = response.json()
+        print("ho ricevuto aeroporti da controller")
+        return aeroporti
+'''         
 
 aeroporti = {}
 tratte = {}
-#TO_DO implementiamo circuit breaker qui, ho già importato la libreria
 while True:
     #tratte,aeroporti=richiesta_tratte()
     domani = datetime.now() + timedelta(days=1) 
