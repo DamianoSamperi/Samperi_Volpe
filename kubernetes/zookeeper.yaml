@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+spec:
+  serviceName: zookeeper
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper #TO_DO immagine del nostro zookeeper
+        ports:
+        - containerPort: 2181
+        volumeMounts:
+        - name: zookeeper-data
+          mountPath: /data
+
+  volumeClaimTemplates:
+  - metadata:
+      name: zookeeper-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

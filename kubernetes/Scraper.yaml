@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scraper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scraper
+  template:
+    metadata:
+      labels:
+        app: scraper
+    spec:
+      containers:
+      - name: scraper-container
+        image: samperi_volpe-scraper #TO_DO nome immagine + versione
+        ports:
+        - containerPort: 5012
+        # Aggiungi le variabili d'ambiente se necessario
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scraper-service
+  labels: #non so se serve
+    app: scraper
+spec:
+  selector:
+    app: scraper
+  ports:
+    #- protocol: TCP
+    - port: 5012
+      targetPort: 5012

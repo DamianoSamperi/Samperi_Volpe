@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: confluentinc/cp-kafka #TO_DO immagine del nostro kafka
+        ports:
+        - containerPort: 29092
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /data
+
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi

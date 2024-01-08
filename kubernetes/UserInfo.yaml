@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users
+  template:
+    metadata:
+      labels:
+        app: users
+    spec:
+      containers:
+      - name: users-container
+        image: samperi_volpe-users #TO_DO nome immagine + versione
+        ports:
+        - containerPort: 5001
+        # Aggiungi le variabili d'ambiente se necessario
+      volumeMounts:
+        - name: users-data
+          mountPath: /path/to/database/data #TO_DO percorso database
+
+    volumes:
+    - name: users-data
+      persistentVolumeClaim:
+        claimName: users-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: users-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Imposta la dimensione del tuo volume persistente
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+  labels: #non so se serve
+    app: users
+spec:
+  selector:
+    app: users
+  ports:
+    #- protocol: TCP
+    - port: 5001
+      targetPort: 5001

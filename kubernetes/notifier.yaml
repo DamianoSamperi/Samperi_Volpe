@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifier
+  template:
+    metadata:
+      labels:
+        app: notifier
+    spec:
+      containers:
+      - name: notifier-container
+        image: samperi_volpe-notifier #TO_DO nome immagine + versione
+        ports:
+        - containerPort: 5003
+        # Aggiungi le variabili d'ambiente se necessario
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifier-service
+  labels: #non so se serve
+    app: notifier
+spec:
+  selector:
+    app: notifier
+  ports:
+    #- protocol: TCP
+    - port: 5003
+      targetPort: 5003

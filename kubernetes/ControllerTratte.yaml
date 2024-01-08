@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller_tratta
+spec:
+  replicas: 1 #scegliamo numero di repliche
+  selector:
+    matchLabels:
+      app: controller_tratta
+  template:
+    metadata:
+      labels:
+        app: controller_tratta
+    spec:
+      containers:
+      - name: controller_tratta-container
+        image: samperi_volpe-controller_tratta #TO_DO nome immagine + versione
+        ports:
+        - containerPort: 5002
+        # Aggiungi le variabili d'ambiente se necessario
+        volumeMounts:
+        - name: controller_tratta-data
+          mountPath: /path/to/database/data #TO_DO percorso database
+
+    volumes:
+    - name: controller_tratta-data
+      persistentVolumeClaim:
+        claimName: controller_tratta-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: controller_tratta-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Imposta la dimensione del tuo volume persistente
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: controller_tratta-service
+  labels: #non so se serve
+    app: controller_tratta
+spec:
+  selector:
+    app: controller_tratta
+  ports:
+    #- protocol: TCP
+    - port: 5002
+      targetPort: 5002

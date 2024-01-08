@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elaboratore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elaboratore
+  template:
+    metadata:
+      labels:
+        app: elaboratore
+    spec:
+      containers:
+      - name: elaboratore-container
+        image: samperi_volpe-elaboratore #TO_DO nome immagine + versione
+        ports:
+        - containerPort: 5010
+        # Aggiungi le variabili d'ambiente se necessario
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elaboratore-service
+  labels: #non so se serve
+    app: elaboratore
+spec:
+  selector:
+    app: elaboratore
+  ports:
+    #- protocol: TCP
+    - port: 5010
+      targetPort: 5010

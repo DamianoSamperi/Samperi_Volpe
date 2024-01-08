@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rules
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rules
+  template:
+    metadata:
+      labels:
+        app: rules
+    spec:
+      containers:
+      - name: rules-container
+        image: samperi_volpe-rules #TO_DO nome immagine + versione
+        ports:
+        - containerPort: 5005
+        # Aggiungi le variabili d'ambiente se necessario
+        volumeMounts:
+        - name: rules-data
+          mountPath: /path/to/database/data #TO_DO percorso database
+
+    volumes:
+    - name: rules-data
+      persistentVolumeClaim:
+        claimName: rules-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rules-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Imposta la dimensione del tuo volume persistente
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rules-service
+  labels: #non so se serve
+    app: rules
+spec:
+  selector:
+    app: rules
+  ports:
+    #- protocol: TCP
+    - port: 5005
+      targetPort: 5005
