@@ -28,7 +28,7 @@ def leggi_topic_tratte():
         # Ottieni il messaggio dal topic Kafka
         # msg = message.value
         for message in messages.value:
-            result = requests.post('http://user_controller:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'] })
+            result = requests.post('http://user_controller:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'],'adulti': message['adulti'] }) #aggiunti adulti
         #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
             emails=result.json()
             if emails :

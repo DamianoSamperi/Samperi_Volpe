@@ -36,11 +36,11 @@ def invioaeroporto(data):
         producer.send('Aeroporti', data)
         producer.flush()
 
-def trova_prezzo_tratta(response,origin,destination):
+def trova_prezzo_tratta(response,origin,destination,adulti):
     tratte_speciali=[]   
     for offer in response.data:
             prezzo= round(float(offer["price"]["total"]) * 0.91,2)
-            tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo, "partenza": offer["itineraries"][0]["segments"][0]["departure"]["at"]})
+            tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo, 'adulti': adulti, "partenza": offer["itineraries"][0]["segments"][0]["departure"]["at"]}) #aggiunti adulti
     # prezzo= response.data[00]["price"]["total"] * 0.91
     return tratte_speciali
 
@@ -121,8 +121,8 @@ while True:
     for tratta in tratte:
         try:
             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
-            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=1, max=5) 
-            data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"])
+            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
+            data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.5)
         except ResponseError as error:
