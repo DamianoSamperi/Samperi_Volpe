@@ -161,7 +161,7 @@ def inserisci_tratta():
     budget = data["budget"]
     adulti= data["adulti"] #aggiunti adulti
     if type(budget)== int or type(budget)==float: 
-        if(int(adulti)>0):
+        if(adulti>0):
             user=autentica_client(email) 
             if user != False:
                 if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
@@ -219,20 +219,21 @@ def disiscrizione_tratta():
     email = data["email"]
     origine = data["origine"]
     destinazione = data["destinazione"]
+    adulti= data["adulti"]
     user=autentica_client(email) 
     if user != False:
         if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
             return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
             url = 'http://rules:5005/elimina_tratte_Rules'
-            payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione}
+            payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
             #print(response.status_code) forse devo controllare lo status_code
             #return response.json()
             if response.json()["count"]!=-1:
                 if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-                    invia_tratta(origine,destinazione)
+                    invia_tratta(origine,destinazione,adulti)
             else:
                 return "Utente non registrato a questa tratta" 
             #if response.json()[0]==0:
