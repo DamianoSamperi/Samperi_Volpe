@@ -109,40 +109,42 @@ def trova_prezzo_aeroporto(data):
 #giorno precedente, le funzioni devono lanciare un eccezione nel caso in cui
 #la richiesta non vada a buon fine
 '''
-@circuit(failure_treshold=3,reset_timeout=43200)
+@circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_tratte_controller_tratte():
-    domani = datetime.now() + timedelta(days=1) 
-    data_domani = domani.strftime('%Y-%m-%d')
+    try:
+        domani = datetime.now() + timedelta(days=1) 
+        data_domani = domani.strftime('%Y-%m-%d')
 
-    response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
-    if  response.text != 'error':
-        tratte = response.json()
-        print("ho ricevuto tratte da controller")
-        return tratte
+        response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
+        if  response.text != 'error':
+            tratte = response.json()
+            print("ho ricevuto tratte da controller")
+            return tratte
+    except Exception as e:
+        print(f"Errore durante la richiesta delle tratte: {e}")
+        raise
 '''
 '''
- @circuit(failure_treshold=3,reset_timeout=43200)
+ @circuit(failure_treshold=5,reset_timeout=43200)
  def chiedi_aeroporti_controller_tratte():
-    domani = datetime.now() + timedelta(days=1) 
-    data_domani = domani.strftime('%Y-%m-%d')
+    try:
+        domani = datetime.now() + timedelta(days=1) 
+        data_domani = domani.strftime('%Y-%m-%d')
 
-    response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
-    if response.text != 'error':
-        aeroporti = response.json()
-        print("ho ricevuto aeroporti da controller")
-        return aeroporti
+        response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
+        if response.text != 'error':
+            aeroporti = response.json()
+            print("ho ricevuto aeroporti da controller")
+            return aeroporti
+    except Exception as e:
+        print(f"Errore durante la richiesta delgli aeroporti: {e}")
+        raise
 '''         
 
 aeroporti = {}
 tratte = {}
 while True:
     #tratte,aeroporti=richiesta_tratte()
-    '''
-    try:
-        tratte=chiedi_tratte_controller_tratte()
-    except Exception as e:
-        print("errore durante la richiesta: {e}")
-    '''
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
 
@@ -159,13 +161,7 @@ while True:
             time.sleep(0.5)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
-
-    '''
-    try:
-        aeroporti=chiedi_aeroporti_controller_tratte()
-    except Exception as e:
-        print("errore durante la richiesta: {e}")
-    '''     
+    
     response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
     if response.text != 'error':
         aeroporti = response.json()
@@ -181,3 +177,33 @@ while True:
     time.sleep(86400)
 
     
+'''
+while True:
+    try:
+        tratte=chiedi_tratte_controller_tratte()
+    except Exception as e:
+        print("errore durante la richiesta: {e}")
+    for tratta in tratte:
+        try:
+            # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
+            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
+            data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
+            inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+            time.sleep(0.5)
+        except ResponseError as error:
+            print(f"Errore durante l'esecuzione della chiamata API: {error}")
+
+    try:
+        aeroporti=chiedi_aeroporti_controller_tratte()
+    except Exception as e:
+        print("errore durante la richiesta: {e}")  
+    for aeroporto in aeroporti:
+        try:
+            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
+            data = trova_prezzo_aeroporto(response)
+            invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+            time.sleep(0.1)
+        except ResponseError as error:
+            print(f"Errore durante l'esecuzione della chiamata API: {error}")
+    time.sleep(86400)
+'''
