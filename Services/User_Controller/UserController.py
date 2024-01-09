@@ -97,6 +97,7 @@ def trova_email_by_offerte(ori,pr):
     return result.json()
 
 def invia_tratta(origine, destinazione, adulti):
+    #url = 'http://orchestrator:5013/invia_tratte_controller_tratte'
     url = 'http://controller_tratta:5002/ricevi_tratte_usercontroller'
     payload = {'origine': origine, 'destinazione': destinazione, 'adulti': adulti} #aggiunti adulti
     headers = {'Content-Type': 'application/json'}
@@ -106,6 +107,7 @@ def invia_tratta(origine, destinazione, adulti):
     print(response.text)
 
 def invia_aeroporto(aeroporto):
+    #url = 'http://orchestrator:5013/invia_aeroporti_controller_tratte'
     url = 'http://controller_tratta:5002/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
     headers = {'Content-Type': 'application/json'}
@@ -168,6 +170,7 @@ def inserisci_tratta():
                     return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
                 else:
                     url = 'http://rules:5005/ricevi_tratte_Rules'
+                    #url = 'http://orchestrator:5013/ricevi_tratte'
                     payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget, 'adulti': adulti} #aggiunti adulti
                     headers = {'Content-Type': 'application/json'}
                     response = requests.post(url, json=payload, headers=headers)
@@ -199,6 +202,7 @@ def inserisci_aeroporto():
                 return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
             else:
                 url = 'http://rules:5005/ricevi_aeroporti_Rules'
+                #url = 'http://orchestrator:5013/ricevi_aeroporti'
                 payload = {'userid': user[0], 'origine': origine, 'budget': budget}
                 headers = {'Content-Type': 'application/json'}
                 response = requests.post(url, json=payload, headers=headers)
