@@ -137,6 +137,12 @@ aeroporti = {}
 tratte = {}
 while True:
     #tratte,aeroporti=richiesta_tratte()
+    '''
+    try:
+        tratte=chiedi_tratte_controller_tratte()
+    except Exception as e:
+        print("errore durante la richiesta: {e}")
+    '''
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
 
@@ -153,7 +159,13 @@ while True:
             time.sleep(0.5)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
-         
+
+    '''
+    try:
+        aeroporti=chiedi_aeroporti_controller_tratte()
+    except Exception as e:
+        print("errore durante la richiesta: {e}")
+    '''     
     response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
     if response.text != 'error':
         aeroporti = response.json()
