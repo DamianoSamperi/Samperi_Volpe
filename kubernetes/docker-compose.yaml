@@ -3,7 +3,7 @@ version: '1.2'
 services:
   controller_tratta:
     build:     
-      context: Services/Controller_tratta
+      context: ../Services/Controller_tratta
       dockerfile: Dockerfile
     ports:
       - "5002:5002"
@@ -12,7 +12,7 @@ services:
 
   elaboratore:
     build:     
-      context: Services/Elaboratore
+      context: ../Services/Elaboratore
       dockerfile: Dockerfile  
     depends_on:
       - kafka  
@@ -21,14 +21,14 @@ services:
 
   notifier:
     build:    
-      context: Services/Notification
+      context: ../Services/Notification
       dockerfile: Dockerfile
     ports:
       - "5003:5003"
 
   rules:
     build:     
-      context: Services/Rules_Database
+      context: ../Services/Rules_Database
       dockerfile: Dockerfile
     ports:
       - "5005:5005"
@@ -41,21 +41,21 @@ services:
       - kafka
       - elaboratore
     build:     
-      context: Services/Scraper
+      context: ../Services/Scraper
       dockerfile: Dockerfile
     ports: 
      - 5012:5012
 
   user_controller:
     build:     
-      context: Services/User_controller
+      context: ../Services/User_controller
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
 
   users:
     build:     
-      context: Services/User_Database
+      context: ../Services/User_Database
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
