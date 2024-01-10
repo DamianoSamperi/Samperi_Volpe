@@ -44,7 +44,8 @@ def trova_prezzo_tratta(response,origin,destination,adulti):
     # prezzo= response.data[00]["price"]["total"] * 0.91
     return tratte_speciali
 
-def trova_prezzo_aeroporto(data):
+#TO_DO non so perchè chiedeva data quando doveva essere response, sarà cambiato con un conflitto di merge
+def trova_prezzo_aeroporto(response):
     aeroporti_speciali=[]
     for offer in response.data:
         prezzo= round(float(offer["price"]["total"]) * 0.91,2)
@@ -108,13 +109,10 @@ def trova_prezzo_aeroporto(data):
 #(di default è 5), allora fa le richieste ad amadeus con le tratte/aeroporti del
 #giorno precedente, le funzioni devono lanciare un eccezione nel caso in cui
 #la richiesta non vada a buon fine
-'''
+"""
 @circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_tratte_controller_tratte():
     try:
-        domani = datetime.now() + timedelta(days=1) 
-        data_domani = domani.strftime('%Y-%m-%d')
-
         response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
         if  response.text != 'error':
             tratte = response.json()
@@ -122,15 +120,12 @@ def chiedi_tratte_controller_tratte():
             return tratte
     except Exception as e:
         print(f"Errore durante la richiesta delle tratte: {e}")
-        raise
-'''
-'''
- @circuit(failure_treshold=5,reset_timeout=43200)
- def chiedi_aeroporti_controller_tratte():
+        raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
+"""
+"""
+@circuit(failure_treshold=5,reset_timeout=43200)
+def chiedi_aeroporti_controller_tratte():
     try:
-        domani = datetime.now() + timedelta(days=1) 
-        data_domani = domani.strftime('%Y-%m-%d')
-
         response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
         if response.text != 'error':
             aeroporti = response.json()
@@ -138,8 +133,8 @@ def chiedi_tratte_controller_tratte():
             return aeroporti
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
-        raise
-'''         
+        raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
+"""      
 
 aeroporti = {}
 tratte = {}
@@ -177,8 +172,10 @@ while True:
     time.sleep(86400)
 
     
-'''
+"""
 while True:
+    domani = datetime.now() + timedelta(days=1) 
+    data_domani = domani.strftime('%Y-%m-%d')
     try:
         tratte=chiedi_tratte_controller_tratte()
     except Exception as e:
@@ -202,8 +199,8 @@ while True:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
             data = trova_prezzo_aeroporto(response)
             invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0.1)
+            time.sleep(0.5)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
     time.sleep(86400)
-'''
+"""
