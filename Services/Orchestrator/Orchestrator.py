@@ -28,7 +28,7 @@ def compensa_registrazione_aeroporto_rules(data): #qui viene eliminato l'aeropor
     if Count!=-1:
         return "errore durante l'inserimento dell'aeroporto, riprova"
 
-def compensa_eliminazione_aeroporti_rules(data):
+def compensa_eliminazione_aeroporto_rules(data):
     url = 'http://rules:5005/ricevi_aeroporti_Rules'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=data, headers=headers)

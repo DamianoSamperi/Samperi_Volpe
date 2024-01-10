@@ -93,7 +93,7 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml #TO_DO sistemiamo il path
-      - "./rules.yml:/etc/prometheus/rules.yml"
+      - ./rules.yml:/etc/prometheus/rules.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml' #TO_DO sistemiamo il path
 
