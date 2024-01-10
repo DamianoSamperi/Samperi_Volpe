@@ -4,7 +4,8 @@ import requests
 
 app = Flask(__name__)
 
-def compensa_registrazione_tratta_rules(data): #qui viene eliminata la tratta non riuscita
+#funzione che elimina la tratta non riuscita ad inviare a controller tratte
+def compensa_registrazione_tratta_rules(data):
     url = 'http://rules:5005/elimina_tratte_rules'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=data, headers=headers)
@@ -12,6 +13,7 @@ def compensa_registrazione_tratta_rules(data): #qui viene eliminata la tratta no
     if Count!=-1:
         return "errore durante l'inserimento della tratta, riprova"
 
+#funzione che riaggiunge la tratta non riuscita ad eliminare da controller tratte
 def compensa_eliminazione_tratta_rules(data):
     url = 'http://rules:5005/ricevi_tratte_rules'
     headers = {'Content-Type': 'application/json'}
@@ -20,7 +22,8 @@ def compensa_eliminazione_tratta_rules(data):
     if Count!=0:
         return "errore durante l'eliminazione della tratta, riprova"  
 
-def compensa_registrazione_aeroporto_rules(data): #qui viene eliminato l'aeroporto' non riuscito
+#funzione che elimina l'aeroporto non riuscito ad inviare a controller tratte
+def compensa_registrazione_aeroporto_rules(data):
     url = 'http://rules:5005/elimina_aeroporto_rules'
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=data, headers=headers)
@@ -28,6 +31,7 @@ def compensa_registrazione_aeroporto_rules(data): #qui viene eliminato l'aeropor
     if Count!=-1:
         return "errore durante l'inserimento dell'aeroporto, riprova"
 
+#funzione che riaggiunge l'aeroporto non riuscito ad eliminare da controller tratte
 def compensa_eliminazione_aeroporto_rules(data):
     url = 'http://rules:5005/ricevi_aeroporti_Rules'
     headers = {'Content-Type': 'application/json'}
@@ -62,8 +66,10 @@ def invia_tratte_controller_tratte():
             errors = json.loads(response.text)
             # Controlla se c'è un campo di errore nella risposta
             if 'error' in errors:
+                #se c'è stato un errore durante l'eliminazione
                 if errors["error"] == "delete error":
                     compensa_eliminazione_tratta_rules(data)
+                #se c'è stato un errore durante l'inserimento
                 elif errors["error"] == "insert error":
                     compensa_registrazione_tratta_rules(data)
 
@@ -92,8 +98,10 @@ def invia_tratte_controller_tratte():
             errors = json.loads(response.text)
             # Controlla se c'è un campo di errore nella risposta
             if 'error' in errors:
+                #se c'è stato un errore in eliminazione
                 if errors["error"] == "delete error":
                     compensa_eliminazione_aeroporto_rules(data)
+                #se c'è stato un errore in inserimento
                 elif errors["error"] == "insert error":
                     compensa_registrazione_aeroporto_rules(data)
         
