@@ -4,16 +4,24 @@ metadata:
   name: prometheus-config
 data:
   prometheus.yml: |- #TO_DO in questo caso ho fatto per node-exporter, ma lo possiamo modificare
-    global:
-      scrape_interval: 15s
+global:
+  scrape_interval: 15s
+  evalutation_interval: 15s  #aggiunto evalutation inerval, rules, alerting
+rule_files:
+  -rules.yml
+alerting:
+  alertmanager:
+  -static_configs:
+    - targets:
+      - alert-manager:9093
 
-    scrape_configs:
-      - job_name: 'prometheus'
-        static_configs:
-          - targets: ['localhost:9090']
-      - job_name: 'node-exporter'
-        static_configs:
-          - targets: ['node-exporter:9100']
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
 
 ---
 apiVersion: apps/v1

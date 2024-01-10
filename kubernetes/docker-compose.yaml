@@ -93,6 +93,7 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml #TO_DO sistemiamo il path
+      - "./rules.yml:/etc/prometheus/rules.yml"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml' #TO_DO sistemiamo il path
 
@@ -109,7 +110,13 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-
+  #inserisco alert manager
+  alert-manager:
+    image: prom/alertmanager
+  volumes:
+    - "./alertmanager.yml:/alertmanager/alertmanager.yml"
+  port:
+    9093:9093
 volumes:
   daticontrollertratte:
   datirules:
