@@ -36,7 +36,47 @@ try:
 except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
  
- 
+def get_tratte():
+    try:
+        cursor.execute(" SELECT * from tratte")
+        result=cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+    return result
+
+def get_aeroporti():
+    try:
+        cursor.execute(" SELECT * from aeroporti")
+        result=cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+    return result 
+
+
+def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
+    try:
+        query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ? AND adulti= ?"
+        cursor.execute(query,(origine, destinazione, prezzo, adulti))
+        users=cursor.fetchall() #insieme di userid interessati in quella tratta
+    except sqlite3.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+    url='http://users:5001/trova_email_by_user_id'
+    result = requests.post(url, json=json.dumps(users))
+    print("result info",result.json())
+    return result.json()
+
+def get_users_by_aeroporto(aeroporto,prezzo):
+    try:
+        query=" SELECT user_id FROM aeroporti WHERE origine= ? AND budget>= ?"
+        cursor.execute(query,(aeroporto,prezzo))
+        users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
+    except sqlite3.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+    url='http://users:5001/trova_email_by_user_id'
+    result = requests.post(url, json=json.dumps(users))
+    return result.json()
+
+
 def inserisci_tratta(user_id,origine,destinazione,budget,adulti):
     try:
         #vedo se l'utente è già iscritto alla tratta
@@ -77,44 +117,6 @@ def inserisci_aeroporto(user_id,origine,budget):
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
 
-def get_tratte():
-    try:
-        cursor.execute(" SELECT * from tratte")
-        result=cursor.fetchall()
-    except sqlite3.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
-    return result
-
-def get_aeroporti():
-    try:
-        cursor.execute(" SELECT * from aeroporti")
-        result=cursor.fetchall()
-    except sqlite3.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
-    return result 
-
-def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
-    try:
-        query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ? AND adulti= ?"
-        cursor.execute(query,(origine, destinazione, prezzo, adulti))
-        users=cursor.fetchall() #insieme di userid interessati in quella tratta
-    except sqlite3.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
-    url='http://users:5001/trova_email_by_user_id'
-    result = requests.post(url, json=json.dumps(users))
-    print("result info",result.json())
-    return result.json()
-
-def get_users_by_aeroporto(aeroporto,prezzo):
-    try:
-        query=" SELECT user_id FROM aeroporti WHERE origine= ? AND budget>= ?"
-        cursor.execute(query,(aeroporto,prezzo))
-        users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
-    except sqlite3.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
-    url='http://users:5001/trova_email_by_user_id'
-    result = requests.post(url, json=json.dumps(users))
-    return result.json()
 
 def elimina_tratta(user_id,origine,destinazione,adulti):
     try:

@@ -11,7 +11,15 @@ def compensa_registrazione_tratta_rules(data): #qui viene eliminata la tratta no
     Count = {"count":response}
     if Count!=-1:
         return "errore durante l'inserimento della tratta, riprova"
-    
+
+def compensa_eliminazione_tratta_rules(data):
+    url = 'http://rules:5005/ricevi_tratte_rules'
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, json=data, headers=headers)
+    Count = {"count":response}
+    if Count!=0:
+        return "errore durante l'eliminazione della tratta, riprova"  
+
 def compensa_registrazione_aeroporto_rules(data): #qui viene eliminato l'aeroporto' non riuscito
     url = 'http://rules:5005/elimina_aeroporto_rules'
     headers = {'Content-Type': 'application/json'}
@@ -19,7 +27,15 @@ def compensa_registrazione_aeroporto_rules(data): #qui viene eliminato l'aeropor
     Count = {"count":response}
     if Count!=-1:
         return "errore durante l'inserimento dell'aeroporto, riprova"
-    
+
+def compensa_eliminazione_aeroporti_rules(data):
+    url = 'http://rules:5005/ricevi_aeroporti_Rules'
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, json=data, headers=headers)
+    Count = {"count":response}
+    if Count!=0:
+        return "errore durante l'eliminazione della tratta, riprova"  
+  
 
 #FLASK---------------------------------------------------------------------------------
 @app.route('/ricevi_tratte', methods=['POST'])
@@ -43,7 +59,14 @@ def invia_tratte_controller_tratte():
             response = requests.post(url, json=data, headers=headers)
         except Exception as e:
             #se succede qualcosa compensa l'azione precedente
-            compensa_registrazione_tratta_rules(data)
+            errors = json.loads(response.text)
+            # Controlla se c'è un campo di errore nella risposta
+            if 'error' in errors:
+                if errors["error"] == "delete error":
+                    compensa_eliminazione_tratta_rules(data)
+                elif errors["error"] == "insert error":
+                    compensa_registrazione_tratta_rules(data)
+
 
 @app.route('/ricevi_aeroporti', methods=['POST'])
 def ricevi_tratte():
@@ -66,7 +89,13 @@ def invia_tratte_controller_tratte():
             response = requests.post(url, json=data, headers=headers)
         except Exception as e:
             #se succede qualcosa compensa l'azione precedente
-            compensa_registrazione_aeroporto_rules(data)
+            errors = json.loads(response.text)
+            # Controlla se c'è un campo di errore nella risposta
+            if 'error' in errors:
+                if errors["error"] == "delete error":
+                    compensa_eliminazione_aeroporto_rules(data)
+                elif errors["error"] == "insert error":
+                    compensa_registrazione_aeroporto_rules(data)
         
 
 if __name__ == "__main__":

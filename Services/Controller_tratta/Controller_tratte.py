@@ -134,8 +134,7 @@ def scrivi_database_tratte(data):
         # Esegui il commit delle modifiche
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
-        return e
-    print("Count ",count[0])
+        raise "errore connesione"
     if count[0]==0:
         try:
             query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (?, ?, ?)" #aggiunti adulti
@@ -144,7 +143,7 @@ def scrivi_database_tratte(data):
             return 'ok'
         except sqlite3.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
-            return e
+            raise "insert error"
     else:
         try:
             query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ? AND adulti= ?" #aggiunti adulti
@@ -153,7 +152,7 @@ def scrivi_database_tratte(data):
             return 'ok'
         except sqlite3.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
-            return e
+            raise "delete error"
 
     # Chiudi la connessione
     #conn.close()
@@ -171,6 +170,7 @@ def scrivi_database_aeroporti(data):
         conn.commit()
     except sqlite3.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        raise "errore connesione"
     if count[0] == 0:
         try:
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
@@ -179,7 +179,7 @@ def scrivi_database_aeroporti(data):
             return 'ok'
         except sqlite3.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
-            return e
+            raise "insert error"
     else:
         try:
             query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
@@ -188,7 +188,7 @@ def scrivi_database_aeroporti(data):
             return 'ok'
         except sqlite3.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
-            return e
+            raise "delete error"
 
     # Chiudi la connessione
     #conn.close()
@@ -206,19 +206,34 @@ def comunicazione_Scraper():
 
 @app.route('/ricevi_tratte_usercontroller', methods=['POST']) 
 def comunicazioneUser_tratte():
-    tratta= request.json
-    response = scrivi_database_tratte(tratta)
-    # tratte= leggi_database_tratte()
-    # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_tratte':tratte})
-    return response
-
+    try:
+        tratta= request.json
+        response = scrivi_database_tratte(tratta)
+        # tratte= leggi_database_tratte()
+        # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_tratte':tratte})
+        return response
+    except Exception as e:
+        if e == "delete error":
+            return jsonify(error="delete error"), 500
+        elif e == "insert error":
+            return jsonify(error="insert error"), 500
+        else:
+            return jsonify(error="connession error"), 500
 @app.route('/ricevi_aeroporto_usercontroller', methods=['POST']) 
 def comunicazioneUser_aeroporto():
     aeroporto = request.json
-    response = scrivi_database_aeroporti(aeroporto)
-    # aeroporti=leggi_database_aeroporti()
-    # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
-    return response
+    try:
+        response = scrivi_database_aeroporti(aeroporto)
+        # aeroporti=leggi_database_aeroporti()
+        # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
+        return response
+    except Exception as e:
+        if e == "delete error":
+            return jsonify(error="delete error"), 500
+        elif e == "insert error":
+            return jsonify(error="insert error"), 500
+        else:
+            return jsonify(error="connession error"), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5002, debug=True, threaded=True)
