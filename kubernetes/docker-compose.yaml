@@ -92,8 +92,8 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml #TO_DO sistemiamo il path
-      - ./rules.yml:/etc/prometheus/rules.yml
+      - ./prometheus:/etc/prometheus/prometheus.yaml #TO_DO sistemiamo il path
+      - ./prometheus:/etc/prometheus/rules.yml # prima invece di prometheus era rules
     command:
       - '--config.file=/etc/prometheus/prometheus.yml' #TO_DO sistemiamo il path
 
@@ -114,7 +114,7 @@ services:
   alert-manager:
     image: prom/alertmanager
     volumes:
-      - "./alertmanager.yml:/alertmanager/alertmanager.yml"
+      - "./alertmanager:/etc/alertmanager/alertmanager"
     ports:
       - 9093:9093
 volumes:
