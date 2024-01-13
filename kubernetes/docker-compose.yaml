@@ -117,7 +117,19 @@ services:
       - "./alertmanager:/etc/alertmanager/alertmanager"
     ports:
       - 9093:9093
+
+  #inserisco SLAmanager
+  SLAmanager:
+    build:     
+      context: ../Services/SLAmanager
+      dockerfile: Dockerfile
+    ports:
+      - "5014:5014"
+    #volumes:
+      #- datiusers:/Services/SLAmanager/metriche
+
 volumes:
   daticontrollertratte:
   datirules:
   datiusers:
+  #metriche:
