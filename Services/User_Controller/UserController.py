@@ -2,70 +2,7 @@ from flask import Flask, request, jsonify
 import json
 import requests
 
-app = Flask(__name__)  
-
-
-# def registra_client(nome,cognome,email):
-#     #prima controllo se era già registrato
-#     if autentica_client(email) == False:
-#         url = 'http://user_controller:5000/registra_utente'
-#         payload = {'email': email, 'nome': nome, 'cognome': cognome}
-#         headers = {'Content-Type': 'application/json'}
-#         response = requests.post(url, json=payload, headers=headers)
-#         # Stampa la risposta ricevuta dal servizio
-#         print(response.status_code)
-#         print(response.json())
-#     else:
-#         print("cliente già registrato")
-
-# def inserisci_tratta(email, origine, destinazione, budget):
-#     user=autentica_client(email) 
-#     if user != False:
-#         #Rules.inserisci_tratta(user,origine,destinazione,budget)
-#         url = 'http://user_controller:5000/ricevi_tratte_Rules'
-#         payload = {'userid': user, 'origine': origine, 'destinazione': destinazione, 'budget': budget}
-#         headers = {'Content-Type': 'application/json'}
-#         response = requests.post(url, json=payload, headers=headers)
-#         #print(response.status_code) forse devo controllare lo status_code
-#         if response==1: #la invia solo è il primo cliente ad averla chiesta
-#             invia_tratta(origine,destinazione)
-
-# def inserisci_aeroporto(email,origine,budget):
-#     user=autentica_client(email)
-#     if user != False:
-#         #Rules.inserisci_aeroporto(user,origine,budget)
-#         url = 'http://user_controller:5000/ricevi_aeroporti_Rules'
-#         payload = {'userid': user, 'origine': origine, 'budget': budget}
-#         headers = {'Content-Type': 'application/json'}
-#         response = requests.post(url, json=payload, headers=headers)
-#         #print(response.status_code) forse devo controllare lo status_code
-#         if response==1: #la invia solo se è il primo cliente ad averla chiesta
-#             invia_aeroporto(origine)
-
-# #TO_DO Elena bisogna fare la disiscrizione o come nuova funziona oppure nelle funzione inserisce puoi controllare se gia inserito e in quel caso cancelli dal database e invi al controller solo se non ci sono utenti per quella tratta-aeroporto
-# def disiscrizione_tratta(email, origine, destinazione):
-#     user=autentica_client(email) 
-#     if user != False:
-#         #Rules.inserisci_tratta(user,origine,destinazione,budget)
-#         url = 'http://user_controller:5000/elimina_tratte_Rules'
-#         payload = {'userid': user, 'origine': origine, 'destinazione': destinazione}
-#         headers = {'Content-Type': 'application/json'}
-#         response = requests.post(url, json=payload, headers=headers)
-#         #print(response.status_code) forse devo controllare lo status_code
-#         if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-#             invia_tratta(origine,destinazione)
-
-# def disiscrizione_aeroporto(email, origine):  
-#     user=autentica_client(email) 
-#     if user != False:
-#         #Rules.inserisci_tratta(user,origine,destinazione,budget)
-#         url = 'http://user_controller:5000/elimina_aeroporto_Rules'
-#         payload = {'userid': user, 'origine': origine}
-#         headers = {'Content-Type': 'application/json'}
-#         response = requests.post(url, json=payload, headers=headers)
-#         #print(response.status_code) forse devo controllare lo status_code
-#         if response==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-#             invia_aeroporto(origine)       
+app = Flask(__name__)         
 
 def autentica_client(email):
     url = 'http://users:5001/controlla_utente'
