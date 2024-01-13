@@ -119,7 +119,7 @@ services:
       - 9093:9093
 
   #inserisco SLAmanager
-  SLAmanager:
+  sla-manager:
     build:     
       context: ../Services/SLAmanager
       dockerfile: Dockerfile
