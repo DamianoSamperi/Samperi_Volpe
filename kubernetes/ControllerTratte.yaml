@@ -1,36 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: controller_tratta
+  name: controllertratta
 spec:
   replicas: 1 #scegliamo numero di repliche
   selector:
     matchLabels:
-      app: controller_tratta
+      app: controllertratta
   template:
     metadata:
       labels:
-        app: controller_tratta
+        app: controllertratta
     spec:
       containers:
-      - name: controller_tratta-container
+      - name: controllertratta-container
         image: samperi_volpe-controller_tratta #TO_DO nome immagine + versione
         ports:
         - containerPort: 5002
         # Aggiungi le variabili d'ambiente se necessario
         volumeMounts:
-        - name: controller_tratta-data
-          mountPath: /path/to/database/data #TO_DO percorso database
+          - name: controllertratta-data
+            mountPath: /path/to/database/data #TO_DO percorso database
 
-        volumes:
-        - name: controller_tratta-data
+      volumes:
+        - name: controllertratta-data
           persistentVolumeClaim:
-            claimName: controller_tratta-pvc
+            claimName: controllertratta-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: controller_tratta-pvc
+  name: controllertratta-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -42,7 +42,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: controller_tratta-service
+  name: controllertratta-service
   labels: #non so se serve
     app: controller_tratta
 spec:
