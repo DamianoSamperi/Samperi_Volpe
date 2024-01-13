@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 
+  name: orchestratore
 spec:
   replicas: 1
   selector:
@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: orchestrator
+        app: orchestratore
     spec:
       containers:
       - name: orchestrator-container

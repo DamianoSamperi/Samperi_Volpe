@@ -22,10 +22,10 @@ spec:
         - name: rules-data
           mountPath: /path/to/database/data #TO_DO percorso database
 
-    volumes:
-    - name: rules-data
-      persistentVolumeClaim:
-        claimName: rules-pvc
+      volumes:
+        - name: rules-data
+          persistentVolumeClaim:
+            claimName: rules-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

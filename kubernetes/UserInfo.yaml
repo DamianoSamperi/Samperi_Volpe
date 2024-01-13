@@ -18,14 +18,14 @@ spec:
         ports:
         - containerPort: 5001
         # Aggiungi le variabili d'ambiente se necessario
-      volumeMounts:
-        - name: users-data
-          mountPath: /path/to/database/data #TO_DO percorso database
+        volumeMounts:
+          - name: users-data
+            mountPath: /path/to/database/data #TO_DO percorso database
 
-    volumes:
-    - name: users-data
-      persistentVolumeClaim:
-        claimName: users-pvc
+      volumes:
+        - name: users-data
+          persistentVolumeClaim:
+            claimName: users-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

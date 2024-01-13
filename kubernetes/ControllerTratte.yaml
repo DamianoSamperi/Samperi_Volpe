@@ -22,10 +22,10 @@ spec:
         - name: controller_tratta-data
           mountPath: /path/to/database/data #TO_DO percorso database
 
-    volumes:
-    - name: controller_tratta-data
-      persistentVolumeClaim:
-        claimName: controller_tratta-pvc
+        volumes:
+        - name: controller_tratta-data
+          persistentVolumeClaim:
+            claimName: controller_tratta-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
