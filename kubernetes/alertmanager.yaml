@@ -1,0 +1,10 @@
+global:
+  smtp_smarthost: 'smtp:587'
+  smtp_from: 'Notifier.dsbd@gmail.com'
+route:
+  receiver: alert-email
+  group_by: [alertname]
+receivers:
+ - name: alert-email
+   email_configs:
+    - to: 'prova_notifier@hotmail.com'
