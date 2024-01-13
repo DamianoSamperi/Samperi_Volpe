@@ -1,8 +1,28 @@
 from prometheus_client import CollectorRegistry, Gauge, write_to_textfile
 from flask import Flask, jsonify, request
 import requests
+import sqlite3
 
 app=Flask(__name__)
+
+try:
+    conn = sqlite3.connect('metrics.db',check_same_thread=False)
+    cursor = conn.cursor()
+except sqlite3.Error as e:
+    print(f"Errore durante la connessione al database: {e}")
+
+try:
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS metriche (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tipo TEXT NOT NULL,
+            valore TEXT NOT NULL,
+            soglia TEXT NOT NULL,
+            desiderato TEXT NOT NULL
+        )
+    ''')
+except sqlite3.Error as e:
+    print(f"Errore durante l'esecuzione della query: {e}")
 
 def fetch_prometheus_metrics():
     node_exporter_url = "http://localhost:9100" #si deve mettere il nome del container
