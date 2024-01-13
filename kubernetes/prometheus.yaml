@@ -12,17 +12,28 @@ data:
       - rules.yml
     alerting:
       alertmanagers:
-      - static_configs:
+      - scheme: http
+        static_configs:
         - targets:
-          - alertmanager:9093
-
+          - "alertmanager.monitoring.svc:9093"
     scrape_configs:
       - job_name: 'prometheus'
         static_configs:
           - targets: ['localhost:9090']
       - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_endpoints_name]
+            regex: 'node-exporter'
+            action: keep
+      - job_name: 'kube-state-metrics'
         static_configs:
-          - targets: ['node-exporter:9100']
+          - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+      
+#        static_configs:
+#          - targets: ['node-exporter:9100']
+          
   #     - job_name: 'k8apiserver'
   #     kubernetes_sd_configs:  #TO_DO per l'API server
   #     - role: endpoints
@@ -35,6 +46,8 @@ data:
   #  - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
   #       action: keep
   #       regex: default;kubernetes;https
+
+  
 
 ---
 apiVersion: apps/v1
@@ -57,6 +70,9 @@ spec:
       containers:
         - name: prometheus
           image: prom/prometheus
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
           ports:
             - containerPort: 9090
           volumeMounts:
@@ -74,6 +90,9 @@ kind: Service
 metadata:
   name: prometheus-service
   namespace: monitoring
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port:   '9090'
 spec:
   selector:
     app: prometheus
