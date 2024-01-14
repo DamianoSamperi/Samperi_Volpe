@@ -22,11 +22,11 @@ data:
           - targets: ['localhost:9090']
       - job_name: 'node-exporter'
         kubernetes_sd_configs:
-        - role: endpoints
+          - role: endpoints
         relabel_configs:
-        - source_labels: [__meta_kubernetes_pod_label_app]
+        - source_labels: [__meta_kubernetes_endpoints_name]
+          regex: 'node-exporter'
           action: keep
-          regex: node-exporter
       - job_name: 'kube-state-metrics'
         static_configs:
           - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
