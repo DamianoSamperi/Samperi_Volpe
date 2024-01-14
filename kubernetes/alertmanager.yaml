@@ -1,55 +1,55 @@
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: alertmanager-config
-#   namespace: monitoring
-# data:
-#   config.yml: |-
-# global:
-#   smtp_smarthost: 'smtp:587'
-#   smtp_from: 'Notifier.dsbd@gmail.com'
-# route:
-#   receiver: alert-email
-#   group_by: [alertname]
-# receivers:
-# - name: alert-email
-#   email_configs:
-#     - to: 'prova_notifier@hotmail.com'
-kind: ConfigMap
 apiVersion: v1
+kind: ConfigMap
 metadata:
   name: alertmanager-config
   namespace: monitoring
 data:
   config.yml: |-
     global:
-    templates:
-    - '/etc/alertmanager/*.tmpl'
+      smtp_smarthost: 'smtp:587'
+      smtp_from: 'Notifier.dsbd@gmail.com'
     route:
-      receiver: alert-emailer
-      group_by: ['alertname', 'priority']
-      group_wait: 10s
-      repeat_interval: 30m
-      routes:
-        - receiver: slack_demo
-        # Send severity=slack alerts to slack.
-          match:
-            severity: slack
-          group_wait: 10s
-          repeat_interval: 1m
- 
+      receiver: alert-email
+      group_by: [alertname]
     receivers:
-    - name: alert-emailer
+    - name: alert-email
       email_configs:
-      - to: demo@devopscube.com
-        send_resolved: false
-        from: from-email@email.com
-        smarthost: smtp.eample.com:25
-        require_tls: false
-    - name: slack_demo
-      slack_configs:
-      - api_url: https://hooks.slack.com/services/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sz4Qk
-        channel: '#devopscube-demo'
+        - to: 'prova_notifier@hotmail.com'
+# kind: ConfigMap
+# apiVersion: v1
+# metadata:
+#   name: alertmanager-config
+#   namespace: monitoring
+# data:
+#   config.yml: |-
+#     global:
+#     templates:
+#     - '/etc/alertmanager/*.tmpl'
+#     route:
+#       receiver: alert-emailer
+#       group_by: ['alertname', 'priority']
+#       group_wait: 10s
+#       repeat_interval: 30m
+#       routes:
+#         - receiver: slack_demo
+#         # Send severity=slack alerts to slack.
+#           match:
+#             severity: slack
+#           group_wait: 10s
+#           repeat_interval: 1m
+ 
+#     receivers:
+#     - name: alert-emailer
+#       email_configs:
+#       - to: demo@devopscube.com
+#         send_resolved: false
+#         from: from-email@email.com
+#         smarthost: smtp.eample.com:25
+#         require_tls: false
+#     - name: slack_demo
+#       slack_configs:
+#       - api_url: https://hooks.slack.com/services/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sz4Qk
+#         channel: '#devopscube-demo'
 ---
 apiVersion: apps/v1
 kind: Deployment
