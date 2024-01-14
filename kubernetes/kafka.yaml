@@ -98,6 +98,13 @@ spec:
       securityContext:
         fsGroup: 1000
       enableServiceLinks: false
+      volumes:
+      - name: kafka-log4j-config
+        configMap:
+          name: kafka-log4j-config
+          items:
+          - key: log4j.properties
+            path: log4j.properties
       containers:
       - name: kafka
         imagePullPolicy: IfNotPresent
@@ -124,6 +131,8 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/kafka/
             name: kafka-data
+          - name: kafka-log4j-config
+            mountPath: /etc/kafka/log4j
       hostname: kafka
       restartPolicy: Always
   volumeClaimTemplates:
