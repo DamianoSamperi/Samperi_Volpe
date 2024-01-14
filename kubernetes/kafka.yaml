@@ -28,11 +28,21 @@ spec:
       labels:
         app: kafka
     spec:
+      volumes:
+      - name: kafka-log4j-config
+        configMap:
+          name: kafka-log4j-config
+          items:
+          - key: log4j.properties
+            path: log4j.properties
       containers:
       - name: kafka
         image: confluentinc/cp-kafka:7.0.1
         ports:
         - containerPort: 9092
+        volumeMounts:
+        - name: kafka-log4j-config
+          mountPath: /etc/kafka/log4j
         env:
         - name: KAFKA_BROKER_ID
           value: "1"
@@ -48,6 +58,8 @@ spec:
           value: "1"
         - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
           value: "1"
+        - name: KAFKA_LOG4J_OPTS
+          value: "-Dlog4j.configuration=file:/etc/kafka/log4j/log4j.properties"
 
 # apiVersion: apps/v1
 # kind: StatefulSet
