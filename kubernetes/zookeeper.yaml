@@ -1,94 +1,143 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: c:\Users\damih\AppData\Roaming\Code\User\globalStorage\othy1010.kompose\kompose.exe convert --out=c:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\prova --file=c:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\prova\docker-compose.yaml
-    kompose.version: 1.31.2 (a92241f79)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: zookeeper
-  name: zookeeper
+  name: zookeeper-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: zookeeper
-  strategy: {}
+      component: zookeeper
   template:
     metadata:
-      annotations:
-        kompose.cmd: c:\Users\damih\AppData\Roaming\Code\User\globalStorage\othy1010.kompose\kompose.exe convert --out=c:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\prova --file=c:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\prova\docker-compose.yaml
-        kompose.version: 1.31.2 (a92241f79)
-      creationTimestamp: null
       labels:
-        io.kompose.network/prova-default: "true"
-        io.kompose.service: zookeeper
+        component: zookeeper
     spec:
       containers:
-        - env:
-            - name: ZOOKEEPER_CLIENT_PORT
-              value: "2181"
-            - name: ZOOKEEPER_TICK_TIME
-              value: "2000"
-          image: confluentinc/cp-zookeeper:latest
-          name: zookeeper
-          ports:
-            - containerPort: 2181
-              hostPort: 2181
-              protocol: TCP
-          resources: {}
-      restartPolicy: Always
-status: {}
+      - name: zookeeper
+        image: pharosproduction/zookeeper_k8s:v4        
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+        ports:
+          - containerPort: 2181
+        tty: true
+        livenessProbe:
+          exec:
+            command:
+              - /opt/check.sh
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+              - /opt/check.sh
+          initialDelaySeconds: 30
+          periodSeconds: 5
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: c:\Users\damih\AppData\Roaming\Code\User\globalStorage\othy1010.kompose\kompose.exe convert --out=c:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\prova --file=c:\Users\damih\Desktop\Samperi_volpe\Samperi_Volpe\prova\docker-compose.yaml
-    kompose.version: 1.31.2 (a92241f79)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: zookeeper
-  name: zookeeper
+  name: zookeeper-ip-service
 spec:
-  ports:
-    - name: "2181"
-      port: 2181
-      targetPort: 2181
+  type: ClusterIP 
   selector:
-    io.kompose.service: zookeeper
-status:
-  loadBalancer: {}
+    component: zookeeper
+  ports:
+  - name: zookeeper
+    port: 2181
+    targetPort: 2181
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  serviceName: zookeeper
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      initContainers:
+        - command:
+            - /bin/sh
+            - -c
+            - |-
+              set -ex;
+              mkdir -p "$ZOO_DATA_LOG_DIR" "$ZOO_DATA_DIR" "$ZOO_CONF_DIR";
+              if [[ ! -f "$ZOO_DATA_DIR/myid" ]]; then
+                IDX="$(echo $HOSTNAME| rev | cut -d "-" -f1 | rev)"
+                SVR_INDEX=$((IDX+1))
+                echo $SVR_INDEX > "$ZOO_DATA_DIR/myid"
+              fi
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: zookeeper-config
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          name: zookeeper-init
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      containers:
+        - image: zookeeper
+          imagePullPolicy: Always
+          name: zookeeper
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: server
+            - containerPort: 3888
+              name: leader-election
+          resources: {}
+          envFrom:
+            - configMapRef:
+                name: zookeeper-config
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /datalog
+              name: datalog
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: nfs-client
+        resources:
+          requests:
+            storage: 100Mi
+    - metadata:
+        name: datalog
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: nfs-client
+        resources:
+          requests:
+            storage: 100Mi
 
-# apiVersion: apps/v1
-# kind: StatefulSet
-# metadata:
-#   name: zookeeper
-# spec:
-#   serviceName: zookeeper
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       app: zookeeper
-#   template:
-#     metadata:
-#       labels:
-#         app: zookeeper
-#     spec:
-#       containers:
-#       - name: zookeeper
-#         image: confluentinc/cp-zookeeper #TO_DO immagine del nostro zookeeper
-#         ports:
-#         - containerPort: 2181
-#         volumeMounts:
-#         - name: zookeeper-data
-#           mountPath: /data
-
-#   volumeClaimTemplates:
-#   - metadata:
-#       name: zookeeper-data
-#     spec:
-#       accessModes: [ "ReadWriteOnce" ]
-#       resources:
-#         requests:
-#           storage: 1Gi
+  
