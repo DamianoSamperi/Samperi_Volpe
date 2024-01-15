@@ -30,6 +30,7 @@ try:
 except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
+#prende il valore attuale delle metriche
 def fetch_prometheus_metrics():
     #query a prometheus con la lista di metriche
     query = ', '.join(metric_list)
