@@ -1,9 +1,15 @@
-from prometheus_client import CollectorRegistry, Gauge, write_to_textfile
+from prometheus_api_client import PrometheusConnect
 from flask import Flask, jsonify, request
 import requests
 import sqlite3
 
 app=Flask(__name__)
+#lista delle metriche d'interesse
+#TO_DO da selezionare valori desiderati e valori soglia e inserire tutto nel database
+metric_list=['node_network_receive_errs_total', 'node_network_transmit_errs_total',
+                  'node_memory_MemAvailable_bytes', 'node_ipvs_connection_total',
+                  'node_ipvs_incoming_bytes_total', 'node_ipvs_incoming_packets_total',
+                  'node_ipvs_outgoing_bytes_total', 'node_ipvs_outgoing_packets_total']
 
 try:
     conn = sqlite3.connect('metrics.db',check_same_thread=False)
@@ -15,7 +21,7 @@ try:
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS metriche (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            tipo TEXT NOT NULL,
+            nome TEXT NOT NULL,
             valore TEXT NOT NULL,
             soglia TEXT NOT NULL,
             desiderato TEXT NOT NULL
@@ -25,33 +31,29 @@ except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
 def fetch_prometheus_metrics():
-    node_exporter_url = "http://localhost:9100" #si deve mettere il nome del container
-    output_file_path = "metrics.txt" #noi dobbiamo inserirli in un database
-    # URL dell'endpoint di Node Exporter che esporta le metriche
-    metrics_url = f"{node_exporter_url}/metrics"
-
-    # Effettua una richiesta HTTP per ottenere le metriche
-    response = requests.get(metrics_url)
-
-    if response.status_code == 200:
-        # Crea un oggetto `CollectorRegistry` per registrare le metriche
-        registry = CollectorRegistry()
-
-        #esempio con cpu_usage, noi non dobbiamo usare questo
-        cpu_usage = Gauge('cpu_usage', 'CPU Usage Percentage', registry=registry)
-        for line in response.text.split('\n'):
-            if line.startswith('cpu_usage'):
-                cpu_usage.set(float(line.split()[1]))
-
-        # Scrivi le metriche su un file di testo nel formato Prometheus
-        write_to_textfile(output_file_path, registry)
-        print(f"Metriche scritte su {output_file_path}")
-    else:
-        print(f"Errore durante il recupero delle metriche. Codice di stato: {response.status_code}")
+    #query a prometheus con la lista di metriche
+    query = ', '.join(metric_list)
+    prometheus_url="http://prometheus:9090"
+    # Crea un'istanza di PrometheusConnect con l'URL del tuo server Prometheus
+    prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
+    # Esegui la query per ottenere le metriche specifiche
+    result = prom.custom_query(query)
+    # Restituisci i risultati della query
+    return result
 
 #aggiunge o rimuove metriche ad SLA
 def aggiorna_metriche():
-    return
+    print("Ecco le metriche attuali del SLA \n")
+    print(metric_list)
+    scelta=int(input("Inserisci 1 se vuoi eliminare una metrica, 2 se vuoi aggiungerla, qualsiasi altro numero se vuoi uscire "))
+    if scelta==1:
+        elimina=input("Scrivi la metrica da eliminare ")
+        #funzione che elimina
+    elif scelta==2:
+        inserisci=input("Scrivi la metrica da aggiungere ")
+        #funzione che aggiunge
+    else:
+        return "Non hai eliminato nè aggiunto niente"
 
 #ritorna i valori desiderati delle metriche
 def get_valori_desiderati():
