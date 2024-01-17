@@ -15,6 +15,7 @@ spec:
       containers:
       - name: orchestrator-container
         image: samperi_volpe-orchestrator #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
         # Aggiungi le variabili d'ambiente se necessario

@@ -15,6 +15,7 @@ spec:
       containers:
       - name: user-controller-container
         image: samperi_volpe-user_controller #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
         # Aggiungi le variabili d'ambiente se necessario

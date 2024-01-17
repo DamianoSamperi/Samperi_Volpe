@@ -15,6 +15,7 @@ spec:
       containers:
       - name: elaboratore-container
         image: samperi_volpe-elaboratore #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5010
         # Aggiungi le variabili d'ambiente se necessario

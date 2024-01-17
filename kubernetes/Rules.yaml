@@ -15,6 +15,7 @@ spec:
       containers:
       - name: rules-container
         image: samperi_volpe-rules #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5005
         # Aggiungi le variabili d'ambiente se necessario

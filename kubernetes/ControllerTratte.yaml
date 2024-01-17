@@ -15,6 +15,7 @@ spec:
       containers:
       - name: controllertratta-container
         image: samperi_volpe-controller_tratta #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5002
         # Aggiungi le variabili d'ambiente se necessario

@@ -15,6 +15,7 @@ spec:
       containers:
       - name: scraper-container
         image: samperi_volpe-scraper #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5012
         # Aggiungi le variabili d'ambiente se necessario

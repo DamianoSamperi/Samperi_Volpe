@@ -15,6 +15,7 @@ spec:
       containers:
       - name: notifier-container
         image: samperi_volpe-notifier #TO_DO nome immagine + versione
+        imagePullPolicy: Never
         ports:
         - containerPort: 5003
         # Aggiungi le variabili d'ambiente se necessario
