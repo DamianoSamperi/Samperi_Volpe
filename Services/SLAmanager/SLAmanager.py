@@ -24,7 +24,8 @@ try:
             nome TEXT NOT NULL,
             valore TEXT NOT NULL,
             soglia TEXT NOT NULL,
-            desiderato TEXT NOT NULL
+            desiderato TEXT NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 except sqlite3.Error as e:
