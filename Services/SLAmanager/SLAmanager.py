@@ -3,6 +3,8 @@ from flask import Flask, jsonify, request
 import requests
 import sqlite3
 
+#tempo di risposta di ogni api e consumo di risorse
+#response time e consumo di cpu
 app=Flask(__name__)
 #lista delle metriche d'interesse
 #TO_DO da selezionare valori desiderati e valori soglia e inserire tutto nel database
@@ -10,6 +12,8 @@ metric_list=['node_network_receive_errs_total', 'node_network_transmit_errs_tota
                   'node_memory_MemAvailable_bytes', 'node_ipvs_connection_total',
                   'node_ipvs_incoming_bytes_total', 'node_ipvs_incoming_packets_total',
                   'node_ipvs_outgoing_bytes_total', 'node_ipvs_outgoing_packets_total']
+
+#misura a rules
 
 try:
     conn = sqlite3.connect('metrics.db',check_same_thread=False)
@@ -24,7 +28,8 @@ try:
             nome TEXT NOT NULL,
             valore TEXT NOT NULL,
             soglia TEXT NOT NULL,
-            desiderato TEXT NOT NULL
+            desiderato TEXT NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 except sqlite3.Error as e:

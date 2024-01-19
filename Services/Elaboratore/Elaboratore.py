@@ -35,6 +35,7 @@ while True:
 def invioNotifier(notifiche):
     response = requests.post('http://notifier:5003/recuperomail', json={'notifiche':notifiche})
 
+#istanzio il consumer una sola volta
 def leggi_topic_tratte():
     notifiche_tratta = []
     for messages in consumer_tratta:
