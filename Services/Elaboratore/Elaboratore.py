@@ -4,25 +4,38 @@ import json
 import requests
 import threading
 
+# Crea consumatore Kafka per tratte
+while True:
+    try:
+        consumer_tratta = KafkaConsumer('Tratte',
+                                bootstrap_servers=['kafka:9092'],
+                                group_id='grp1',
+                                enable_auto_commit=False,
+                                value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
+        print("connesso a broker")
+        break
+    except errors.NoBrokersAvailable as error:
+        print("kafka non disponibile")
+        time.sleep(15)
+
+# Crea consumatore Kafka per aeroporti
+while True:
+    try:            
+        consumer_aeroporto = KafkaConsumer('Aeroporti',
+                                bootstrap_servers=['kafka:9092'],
+                                group_id='grp1',
+                                enable_auto_commit=False,
+                                value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
+        print("connesso al broker")
+        break
+    except errors.NoBrokersAvailable as error :
+        print("kafka non disponibile")
+        time.sleep(15)
 
 def invioNotifier(notifiche):
     response = requests.post('http://notifier:5003/recuperomail', json={'notifiche':notifiche})
 
 def leggi_topic_tratte():
-    # Crea consumatore Kafka
-    while True:
-        try:
-            consumer_tratta = KafkaConsumer('Tratte',
-                                    bootstrap_servers=['kafka:9092'],
-                                    group_id='grp1',
-                                    enable_auto_commit=False,
-                                    value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
-            print("connesso a broker")
-            break
-        except errors.NoBrokersAvailable as error:
-            print("kafka non disponibile")
-            time.sleep(15)
-   
     notifiche_tratta = []
     for messages in consumer_tratta:
         # Ottieni il messaggio dal topic Kafka
@@ -48,19 +61,6 @@ def leggi_topic_tratte():
             notifiche_tratta=[]
 
 def leggi_topic_aeroporti():
-    # Crea consumatore Kafka
-    while True:
-        try:            
-            consumer_aeroporto = KafkaConsumer('Aeroporti',
-                                    bootstrap_servers=['kafka:9092'],
-                                    group_id='grp1',
-                                    enable_auto_commit=False,
-                                    value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
-            print("connesso al broker")
-            break
-        except errors.NoBrokersAvailable as error :
-            print("kafka non disponibile")
-            time.sleep(15)
     notifiche = []
     for messages in consumer_aeroporto:
         #msg = message.value
