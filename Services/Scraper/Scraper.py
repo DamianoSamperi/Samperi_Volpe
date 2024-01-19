@@ -9,6 +9,8 @@ import requests
 import threading
 from datetime import datetime, timedelta
 from circuitbreaker import circuit
+import mysql.connector
+import os
 
 app = Flask(__name__)
 
@@ -16,6 +18,13 @@ amadeus = Client(
     client_id='VGSEQ2nHW7nHDGB1oBOMSsmXBYwWMEkQ',
     client_secret='qtXqxyhlSA4lMrO'+'d'
 )
+try:
+    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='scraper')
+    cursor = conn.cursor()
+except mysql.connector.errors as e:
+    print(f"Errore durante l'esecuzione della query: {e}")
+
+    
 while True:
     try:
         producer = KafkaProducer(bootstrap_servers=['kafka:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8')) 
@@ -51,6 +60,58 @@ def trova_prezzo_aeroporto(response):
         prezzo= round(float(offer["price"]["total"]) * 0.91,2)
         aeroporti_speciali.append({'origin':offer["origin"],'destination':offer["destination"], 'price':prezzo, "partenza": offer["departureDate"]})
     return aeroporti_speciali
+
+def recupero_tratte():
+    try:
+        # Esegui una query SQL
+        cursor.execute("SELECT * FROM tratte_salvate")
+
+        # Ottieni i risultati
+        risultati = cursor.fetchall()
+    except mysql.connector.errors as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+        return "error"
+
+
+
+    # Chiudi la connessione
+    # conn1.close()
+
+    # Inizializza un array vuoto
+    tratte = []
+
+    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
+    for tupla in risultati:
+        tratte.append({"origine": tupla[1] , "destinazione" : tupla[2], "adulti": tupla[3]}) #TO_DO Damiano credo sia giusto ma vedi tu
+
+
+    # Stampa l'array di stringhe
+    return tratte
+def recupero_aeroporti():
+    try:
+        # Esegui una query SQL
+        cursor.execute("SELECT * FROM aeroporti_salvati")
+
+        # Ottieni i risultati
+        risultati = cursor.fetchall()
+    except mysql.connector.errors as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+        return "error"
+
+
+    # Chiudi la connessione
+    # conn1.close()
+
+    # Inizializza un array vuoto
+    aeroporti = []
+
+    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
+    for tupla in risultati:
+        aeroporti.append({"origine": tupla[1] })
+
+    # Stampa l'array di stringhe
+    return aeroporti
+
 
 #TO_DO Possibilità utilizzo thread
 # lock = threading.Lock()
@@ -109,20 +170,24 @@ def trova_prezzo_aeroporto(response):
 #(di default è 5), allora fa le richieste ad amadeus con le tratte/aeroporti del
 #giorno precedente, le funzioni devono lanciare un eccezione nel caso in cui
 #la richiesta non vada a buon fine
-"""
+
 @circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_tratte_controller_tratte():
     try:
         response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
         if  response.text != 'error':
-            tratte = response.json()
+            data = response.json()
             print("ho ricevuto tratte da controller")
-            return tratte
+            # return tratte
+            cursor.execute("TRUNCATE TABLE tratte_salvate")
+            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (?, ?, ?)" #aggiunti adulti
+            cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
+            conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delle tratte: {e}")
         raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
-"""
-"""
+
+        
 @circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_aeroporti_controller_tratte():
     try:
@@ -130,56 +195,61 @@ def chiedi_aeroporti_controller_tratte():
         if response.text != 'error':
             aeroporti = response.json()
             print("ho ricevuto aeroporti da controller")
-            return aeroporti
+            # return aeroporti
+            cursor.execute("TRUNCATE TABLE aeroporti_salvati")
+            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
+            cursor.execute(query, (data['aeroporto'],))
+            conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
         raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
-"""  
 
-#aggiungere un altro database
-aeroporti = {}
-tratte = {}
-while True:
-    #tratte,aeroporti=richiesta_tratte()
-    domani = datetime.now() + timedelta(days=1) 
-    data_domani = domani.strftime('%Y-%m-%d')
 
-    #mettere le url come variabili d'ambiente
-    response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
-    if  response.text != 'error':
-        tratte = response.json()
-        print("ho ricevuto tratte da controller")
-    for tratta in tratte:
-        try:
-            # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
-            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
-            data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
-            inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0.5)
-        except ResponseError as error:
-            print(f"Errore durante l'esecuzione della chiamata API: {error}")
+# #aggiungere un altro database
+# aeroporti = {}
+# tratte = {}
+# while True:
+#     #tratte,aeroporti=richiesta_tratte()
+#     domani = datetime.now() + timedelta(days=1) 
+#     data_domani = domani.strftime('%Y-%m-%d')
+
+#     #mettere le url come variabili d'ambiente
+#     response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
+#     if  response.text != 'error':
+#         tratte = response.json()
+#         print("ho ricevuto tratte da controller")
+#     for tratta in tratte:
+#         try:
+#             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
+#             response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
+#             data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
+#             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+#             time.sleep(0.5)
+#         except ResponseError as error:
+#             print(f"Errore durante l'esecuzione della chiamata API: {error}")
     
-    response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
-    if response.text != 'error':
-        aeroporti = response.json()
-        print("ho ricevuto aeroporti da controller")
-    for aeroporto in aeroporti:
-        try:
-            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
-            data = trova_prezzo_aeroporto(response)
-            invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0.1)
-        except ResponseError as error:
-            print(f"Errore durante l'esecuzione della chiamata API: {error}")
-    time.sleep(86400)
+#     response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
+#     if response.text != 'error':
+#         aeroporti = response.json()
+#         print("ho ricevuto aeroporti da controller")
+#     for aeroporto in aeroporti:
+#         try:
+#             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
+#             data = trova_prezzo_aeroporto(response)
+#             invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+#             time.sleep(0.1)
+#         except ResponseError as error:
+#             print(f"Errore durante l'esecuzione della chiamata API: {error}")
+#     time.sleep(86400)
 
     
-"""
+
 while True:
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
     try:
-        tratte=chiedi_tratte_controller_tratte()
+        chiedi_tratte_controller_tratte()
+        tratte=recupero_tratte()
     except Exception as e:
         print("errore durante la richiesta: {e}")
     for tratta in tratte:
@@ -193,7 +263,8 @@ while True:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
 
     try:
-        aeroporti=chiedi_aeroporti_controller_tratte()
+        chiedi_aeroporti_controller_tratte()
+        aeroporti=recupero_aeroporti
     except Exception as e:
         print("errore durante la richiesta: {e}")  
     for aeroporto in aeroporti:
@@ -205,4 +276,3 @@ while True:
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
     time.sleep(86400)
-"""
