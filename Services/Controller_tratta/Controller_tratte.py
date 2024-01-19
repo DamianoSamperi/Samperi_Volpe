@@ -1,43 +1,49 @@
 import socket
 import json
-import sqlite3
+# import sqlite3
+import mysql.connector
 from flask import Flask, jsonify, request
 import requests
 
 app = Flask(__name__)
 
-try:
-    conn=sqlite3.connect('controllertratte.db',check_same_thread=False)
-    #conn1 = sqlite3.connect('tratte_salvate.db')
-    #conn2 = sqlite3.connect('aeroporti_salvati.db')
+# try:
+#     conn=sqlite3.connect('controllertratte.db',check_same_thread=False)
+#     #conn1 = sqlite3.connect('tratte_salvate.db')
+#     #conn2 = sqlite3.connect('aeroporti_salvati.db')
 
-    # Creazione di un cursore per eseguire le query SQL
-    #cursor1 = conn1.cursor()
-    #cursor2 = conn2.cursor()
-    cursor=conn.cursor()
-except sqlite3.Error as e:
-    print(f"Errore durante la connessione al database: {e}")
+#     # Creazione di un cursore per eseguire le query SQL
+#     #cursor1 = conn1.cursor()
+#     #cursor2 = conn2.cursor()
+#     cursor=conn.cursor()
+# except sqlite3.Error as e:
+#     print(f"Errore durante la connessione al database: {e}")
 
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tratte_salvate (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            origine TEXT NOT NULL,
-            destinazione TEXT NOT NULL,
-            adulti INTEGER
-        )
-    ''') #tu avevi messo tratte
-except sqlite3.Error as e:
-    print(f"Errore durante l'esecuzione della query: {e}")
+# try:
+#     cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS tratte_salvate (
+#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             origine TEXT NOT NULL,
+#             destinazione TEXT NOT NULL,
+#             adulti INTEGER
+#         )
+#     ''') #tu avevi messo tratte
+# except sqlite3.Error as e:
+#     print(f"Errore durante l'esecuzione della query: {e}")
 
+# try:
+#     cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS aeroporti_salvati (
+#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             origine TEXT NOT NULL
+#         )
+#     ''') #tu avevi messo aeroporti
+# except sqlite3.Error as e:
+#     print(f"Errore durante l'esecuzione della query: {e}")
 try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS aeroporti_salvati (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            origine TEXT NOT NULL
-        )
-    ''') #tu avevi messo aeroporti
-except sqlite3.Error as e:
+    conn = mysql.connector.connect(user='tuo_username', password='tua_password', host='localhost', database='controllertratte')
+    cursor = conn.cursor()
+except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
     
@@ -49,7 +55,7 @@ def leggi_database():
         cursor.execute("SELECT * FROM aeroporti_salvati")
         risultati2 = cursor.fetchall()
 
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 
@@ -76,7 +82,7 @@ def leggi_database_tratte():
 
         # Ottieni i risultati
         risultati = cursor.fetchall()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
@@ -103,7 +109,7 @@ def leggi_database_aeroporti():
 
         # Ottieni i risultati
         risultati = cursor.fetchall()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
@@ -132,7 +138,7 @@ def scrivi_database_tratte(data):
         count = cursor.fetchone()
         
         # Esegui il commit delle modifiche
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         raise "errore connesione"
     if count[0]==0:
@@ -141,7 +147,7 @@ def scrivi_database_tratte(data):
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
-        except sqlite3.Error as e:
+        except mysql.connector.errors as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "insert error"
     else:
@@ -150,7 +156,7 @@ def scrivi_database_tratte(data):
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
-        except sqlite3.Error as e:
+        except mysql.connector.errors as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "delete error"
 
@@ -168,7 +174,7 @@ def scrivi_database_aeroporti(data):
 
         # Esegui il commit delle modifiche
         conn.commit()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         raise "errore connesione"
     if count[0] == 0:
@@ -177,7 +183,7 @@ def scrivi_database_aeroporti(data):
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
             return 'ok'
-        except sqlite3.Error as e:
+        except mysql.connector.errors as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "insert error"
     else:
@@ -186,7 +192,7 @@ def scrivi_database_aeroporti(data):
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
             return 'ok'
-        except sqlite3.Error as e:
+        except mysql.connector.errors as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "delete error"
 
