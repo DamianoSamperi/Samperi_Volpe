@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slamanager
+spec:
+  replicas: 1 #scegliamo numero di repliche
+  selector:
+    matchLabels:
+      app: slamanager
+  template:
+    metadata:
+      labels:
+        app: slamanager
+    spec:
+      containers:
+      - name: slamanager-container
+        image: samperi_volpe-slamanager #TO_DO nome immagine + versione
+        imagePullPolicy: Never
+        env: #TO_DO l'ho inserito per vedere se posso usare la variabile di ambiente nel service
+        - name: MYSQL_ROOT_PASSWORD #TO_DO An environment variable named “MYSQL_ROOT_PASSWORD.”
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password #TO_DO dove salviamo la nostra password nel secret
+        ports:
+        - containerPort: 5014
+        # Aggiungi le variabili d'ambiente se necessario
+        volumeMounts:
+          - name: slamanager-data
+            mountPath: /path/to/database/data #TO_DO percorso database
+
+      volumes:
+        - name: slamanager-data
+          persistentVolumeClaim:
+            claimName: slamanager-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: slamanager-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi  # Imposta la dimensione del tuo volume persistente
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slamanager-service
+  labels: #non so se serve
+    app: slamanager
+spec:
+  selector:
+    app: slamanager
+  ports:
+    #- protocol: TCP
+    - port: 5014
+      targetPort: 5014
