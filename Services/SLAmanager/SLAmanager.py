@@ -25,12 +25,10 @@ metric_list=['node_network_receive_errs_total', 'node_network_transmit_errs_tota
 # try:
 #     cursor.execute('''
 #         CREATE TABLE IF NOT EXISTS metriche (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             nome TEXT NOT NULL,
+#             nome TEXT PRIMARY KEY NOT NULL,
 #             valore TEXT NOT NULL,
 #             soglia TEXT NOT NULL,
-#             desiderato TEXT NOT NULL,
-#             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#             desiderato TEXT NOT NULL
 #         )
 #     ''')
 # except sqlite3.Error as e:
@@ -68,11 +66,32 @@ def aggiorna_metriche():
 
 #ritorna i valori desiderati delle metriche
 def get_valori_desiderati():
-    return
+    try:
+        query="SELECT nome, desiderato FROM metriche"
+        cursor.execute(query)
+        metriche = cursor.fetchall()
+    except mysql.connector.errors as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+        return e
+    return metriche #in teoria va bene così, non penso che devo creare un dizionario
 
 #ritorna se c'è stata violazione o no per ogni metrica
-def get_violazioni():
-    return
+def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna prometheus
+    violazioni={}
+    valori=fetch_prometheus_metrics()
+    for valore in valori:
+        try:
+            query="SELECT soglia FROM metriche WHERE nome= ?"
+            cursor.execute(query, (valore['nome'],))
+            value = cursor.fetchone()
+            if valore['value']>value:
+                violazioni[valore['nome']]=True
+            else:
+                violazioni[valore['nome']]=False
+        except mysql.connector.errors as e:
+            print(f"Errore durante l'esecuzione della query: {e}")
+            return e
+    return violazioni #forse meglio tornare un json?
 
 #ritorna il numero di violazioni in un arco di tempo
 def get_violazioni_tempo():
