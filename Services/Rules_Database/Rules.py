@@ -1,48 +1,56 @@
-import sqlite3
+# import sqlite3
 from flask import Flask, request
 import json
 import requests
+import mysql.connector
+import os
 
 app = Flask(__name__)
 
-try:
-    conn=sqlite3.connect('rules.db',check_same_thread=False)
-    cursor=conn.cursor()
-except sqlite3.Error as e:
-    print(f"Errore durante la connessione al database: {e}")
+# try:
+#     conn=sqlite3.connect('rules.db',check_same_thread=False)
+#     cursor=conn.cursor()
+# except sqlite3.Error as e:
+#     print(f"Errore durante la connessione al database: {e}")
 
 #fare creazione delle tabelle a parte
+# try:
+#     cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS tratte (
+#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             user_id INTEGER NOT NULL,
+#             origine TEXT NOT NULL,
+#             destinazione TEXT NOT NULL,
+#             budget INTEGER,
+#             adulti INTEGER
+#         )
+#     ''')
+# except sqlite3.Error as e:
+#     print(f"Errore durante l'esecuzione della query: {e}")
+
+# try:
+#     cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS aeroporti (
+#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             user_id INTEGER NOT NULL,
+#             origine TEXT NOT NULL,
+#             budget INTEGER
+#         )
+#     ''')
+# except sqlite3.Error as e:
+#     print(f"Errore durante l'esecuzione della query: {e}")
 try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tratte (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            origine TEXT NOT NULL,
-            destinazione TEXT NOT NULL,
-            budget INTEGER,
-            adulti INTEGER
-        )
-    ''')
-except sqlite3.Error as e:
+    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='rules')
+    cursor = conn.cursor()
+except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS aeroporti (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            origine TEXT NOT NULL,
-            budget INTEGER
-        )
-    ''')
-except sqlite3.Error as e:
-    print(f"Errore durante l'esecuzione della query: {e}")
  
 def get_tratte():
     try:
         cursor.execute(" SELECT * from tratte")
         result=cursor.fetchall()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     return result
 
@@ -50,7 +58,7 @@ def get_aeroporti():
     try:
         cursor.execute(" SELECT * from aeroporti")
         result=cursor.fetchall()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     return result 
 
@@ -60,7 +68,7 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
         query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ? AND adulti= ?"
         cursor.execute(query,(origine, destinazione, prezzo, adulti))
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     url='http://users:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
@@ -72,7 +80,7 @@ def get_users_by_aeroporto(aeroporto,prezzo):
         query=" SELECT user_id FROM aeroporti WHERE origine= ? AND budget>= ?"
         cursor.execute(query,(aeroporto,prezzo))
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     url='http://users:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
@@ -95,7 +103,7 @@ def inserisci_tratta(user_id,origine,destinazione,budget,adulti):
         cursor.execute(query,(origine, destinazione, adulti))
         result=cursor.fetchone()
         return result[0]+Count[0]
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
 
@@ -115,7 +123,7 @@ def inserisci_aeroporto(user_id,origine,budget):
         cursor.execute(query,(origine,))
         result=cursor.fetchone()
         return result[0]+Count[0]
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
 
@@ -128,7 +136,7 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
         conn.commit()
         if trovati==0:
             return [-1]
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query DELETE: {e}")
     try:
         #ritorna il numero di utenti iscritti a quella tratta
@@ -138,7 +146,7 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
         return result
         #return [trovati,result]
         #return json.dumps({"trovati": trovati, "count": result[0]})
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query SELECT: {e}")
 
 def elimina_aeroporto(user_id,origine):
@@ -157,7 +165,7 @@ def elimina_aeroporto(user_id,origine):
         return result
         #return [trovati,result]
         #return json.dumps({"trovati": trovati, "count": result[0]})
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 #la chiamo solo se crasha qualcosa 
@@ -166,7 +174,7 @@ def crash():
         #conn1.close()
         #conn2.close()
         conn.close()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------

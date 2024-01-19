@@ -1,27 +1,33 @@
-import sqlite3
+# import sqlite3
 from flask import Flask, request, jsonify
 import json
+import mysql.connector
+import os
 
 app = Flask(__name__)
 
+# try:
+#     conn = sqlite3.connect('users.db',check_same_thread=False)
+#     cursor = conn.cursor()
+# except sqlite3.Error as e:
+#     print(f"Errore durante la connessione al database: {e}")
+
+# try:
+#     cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS users (
+#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             nome TEXT NOT NULL,
+#             cognome TEXT NOT NULL,
+#             email TEXT NOT NULL
+#         )
+#     ''')
+# except sqlite3.Error as e:
+#     print(f"Errore durante l'esecuzione della query: {e}")
 try:
-    conn = sqlite3.connect('users.db',check_same_thread=False)
+    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='users')
     cursor = conn.cursor()
-except sqlite3.Error as e:
-    print(f"Errore durante la connessione al database: {e}")
-
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            cognome TEXT NOT NULL,
-            email TEXT NOT NULL
-        )
-    ''')
-except sqlite3.Error as e:
+except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
-
 
 
 def inserisci_client(nome,cognome,email):
@@ -32,7 +38,7 @@ def inserisci_client(nome,cognome,email):
         ''', (nome, cognome, email))
         conn.commit()
         return 'ok'
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return e
 
@@ -44,7 +50,7 @@ def get_email_by_userid(*ids):
             cursor.execute(query, (id[0],))
             user = cursor.fetchall()
             users.append(user[0])
-        except sqlite3.Error as e:
+        except mysql.connector.errors as e:
             print(f"Errore durante l'esecuzione della query: {e}")
     return users
 
@@ -58,7 +64,7 @@ def control_client(email):
             return result
         else:
             return False
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
    
 
@@ -66,7 +72,7 @@ def control_client(email):
 def crash():
     try:
         conn.close()
-    except sqlite3.Error as e:
+    except mysql.connector.errors as e:
         print(f"Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------

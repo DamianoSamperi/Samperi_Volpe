@@ -2,7 +2,8 @@ from prometheus_api_client import PrometheusConnect
 from flask import Flask, jsonify, request
 import requests
 import sqlite3
-
+import mysql.connector
+import os
 #tempo di risposta di ogni api e consumo di risorse
 #response time e consumo di cpu
 app=Flask(__name__)
@@ -15,26 +16,30 @@ metric_list=['node_network_receive_errs_total', 'node_network_transmit_errs_tota
 
 #misura a rules
 
+# try:
+#     conn = sqlite3.connect('metrics.db',check_same_thread=False)
+#     cursor = conn.cursor()
+# except sqlite3.Error as e:
+#     print(f"Errore durante la connessione al database: {e}")
+
+# try:
+#     cursor.execute('''
+#         CREATE TABLE IF NOT EXISTS metriche (
+#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             nome TEXT NOT NULL,
+#             valore TEXT NOT NULL,
+#             soglia TEXT NOT NULL,
+#             desiderato TEXT NOT NULL,
+#             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#         )
+#     ''')
+# except sqlite3.Error as e:
+#     print(f"Errore durante l'esecuzione della query: {e}")
 try:
-    conn = sqlite3.connect('metrics.db',check_same_thread=False)
+    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='metrics')
     cursor = conn.cursor()
-except sqlite3.Error as e:
-    print(f"Errore durante la connessione al database: {e}")
-
-try:
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS metriche (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            valore TEXT NOT NULL,
-            soglia TEXT NOT NULL,
-            desiderato TEXT NOT NULL,
-            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-except sqlite3.Error as e:
+except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
-
 #prende il valore attuale delle metriche
 def fetch_prometheus_metrics():
     #query a prometheus con la lista di metriche
