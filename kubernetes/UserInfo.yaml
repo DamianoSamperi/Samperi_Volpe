@@ -16,6 +16,12 @@ spec:
       - name: users-container
         image: samperi_volpe-users #TO_DO nome immagine + versione
         imagePullPolicy: Never
+        env: #TO_DO l'ho inserito per vedere se posso usare la variabile di ambiente nel service
+        - name: MYSQL_ROOT_PASSWORD #TO_DO An environment variable named “MYSQL_ROOT_PASSWORD.”
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password #TO_DO dove salviamo la nostra password nel secret
         ports:
         - containerPort: 5001
         # Aggiungi le variabili d'ambiente se necessario
