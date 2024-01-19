@@ -1,3 +1,4 @@
+import os
 import socket
 import json
 # import sqlite3
@@ -41,7 +42,7 @@ app = Flask(__name__)
 # except sqlite3.Error as e:
 #     print(f"Errore durante l'esecuzione della query: {e}")
 try:
-    conn = mysql.connector.connect(user='tuo_username', password='tua_password', host='localhost', database='controllertratte')
+    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='controllertratte')
     cursor = conn.cursor()
 except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
