@@ -134,8 +134,9 @@ def chiedi_aeroporti_controller_tratte():
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
         raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
-"""      
+"""  
 
+#aggiungere un altro database
 aeroporti = {}
 tratte = {}
 while True:
@@ -143,6 +144,7 @@ while True:
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
 
+    #mettere le url come variabili d'ambiente
     response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
     if  response.text != 'error':
         tratte = response.json()

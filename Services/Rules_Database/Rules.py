@@ -11,6 +11,7 @@ try:
 except sqlite3.Error as e:
     print(f"Errore durante la connessione al database: {e}")
 
+#fare creazione delle tabelle a parte
 try:
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS tratte (
@@ -24,6 +25,7 @@ try:
     ''')
 except sqlite3.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
+
 try:
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS aeroporti (
