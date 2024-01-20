@@ -1,26 +1,33 @@
 apiVersion: networking.k8s.io/v1
-# apiVersion: apps/v1
 kind: Ingress
 metadata:
   name: ingress
-  #namespace: your-namespace
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.org/rewrites: "serviceName=user-controller-service rewrite=/"
+
+  # namespace: ingress
 spec:
+  ingressClassName: nginx
   rules:
-  - host: localhost #TO_DO vedi
+  - host: myapp #TO_DO vedi, se vogliamo cambiarlo tipo con myapp.com bisogna inserire l'ip nella configurazione windows
     http:
       paths:
-      - path: /user/* #TO_DO vedi
-        pathType: Prefix
+      - path:  /user(/|$)(.*)  #TO_DO vedi
+        # pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: user-controller-service
             port:
               number: 5000
-      - path: /slamanager/* #TO_DO vedi
-        pathType: Prefix
-        backend:
-          service:
-            name: slamanager-service
-            port:
-              number: 5014
+
+      # - path: /slamanagerr(/|$)(.*)  #TO_DO vedi
+      #   pathType: Prefix
+      #   backend:
+      #     service:
+      #       name: slamanager-service
+      #       port:
+      #         number: 5014
 
