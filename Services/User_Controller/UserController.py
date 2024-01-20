@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)         
 
 def autentica_client(email):
-    url = 'http://users:5001/controlla_utente'
+    url = 'http://users-service:5001/controlla_utente'
     params = {'email': email}
     try:
         response = requests.get(url, params=params)
@@ -23,18 +23,18 @@ def autentica_client(email):
         print(f"An error occurred: {str(e)}")
 
 def trova_email_by_tratta(ori,dest,pr,adulti):
-    url='http://rules:5005/trova_email_by_tratta_rules'
+    url='http://rules-service:5005/trova_email_by_tratta_rules'
     result = requests.post(url, json={'ori':ori, 'dest': dest,'pr': pr, 'adulti':adulti}) #aggiunti adulti
     print("result rules ",result.json())
     return result.json()
 
 def trova_email_by_offerte(ori,pr):
-    url='http://rules:5005/trova_email_by_aeroporti_rules'
+    url='http://rules-service:5005/trova_email_by_aeroporti_rules'
     result = requests.post(url, json={'ori':ori,'pr':pr})
     return result.json()
 
 def invia_tratta(origine, destinazione, adulti):
-    url = 'http://controller_tratta:5002/ricevi_tratte_usercontroller'
+    url = 'http://controllertratta-service:5002/ricevi_tratte_usercontroller'
     payload = {'origine': origine, 'destinazione': destinazione, 'adulti': adulti} #aggiunti adulti
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
@@ -43,7 +43,7 @@ def invia_tratta(origine, destinazione, adulti):
     print(response.text)
 
 def invia_aeroporto(aeroporto):
-    url = 'http://controller_tratta:5002/ricevi_aeroporto_usercontroller'
+    url = 'http://controllertratta-service:5002/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
@@ -74,7 +74,7 @@ def registra_client():
     #prima controllo se era già registrato
     autenticato =autentica_client(data["email"])
     if  autenticato == False:
-        url = 'http://users:5001/registra_utente'
+        url = 'http://users-service:5001/registra_utente'
         payload = {'email': data["email"], 'nome': data["nome"], 'cognome': data["cognome"]}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
@@ -104,7 +104,7 @@ def inserisci_tratta():
                 if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
                     return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
                 else:
-                    url = 'http://rules:5005/ricevi_tratte_Rules'
+                    url = 'http://rules-service:5005/ricevi_tratte_Rules'
                     payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'budget': budget, 'adulti': adulti} #aggiunti adulti
                     headers = {'Content-Type': 'application/json'}
                     response = requests.post(url, json=payload, headers=headers)
@@ -135,7 +135,7 @@ def inserisci_aeroporto():
             if len(origine)!=3 or origine.isalpha == False:
                 return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
             else:
-                url = 'http://rules:5005/ricevi_aeroporti_Rules'
+                url = 'http://rules-service:5005/ricevi_aeroporti_Rules'
                 payload = {'userid': user[0], 'origine': origine, 'budget': budget}
                 headers = {'Content-Type': 'application/json'}
                 response = requests.post(url, json=payload, headers=headers)
@@ -162,7 +162,7 @@ def disiscrizione_tratta():
         if len(origine)!=3 or len(destinazione)!=3 or origine.isalpha == False or destinazione.isalpha == False:
             return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
-            url = 'http://rules:5005/elimina_tratte_Rules'
+            url = 'http://rules-service:5005/elimina_tratte_Rules'
             payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
@@ -188,7 +188,7 @@ def disiscrizione_aeroporto():
         if len(origine)!=3 or origine.isalpha == False:
             return "i codici degli aeroporti devono avere lunghezza 3 e devono essere letterali"
         else:
-            url = 'http://rules:5005/elimina_aeroporto_Rules'
+            url = 'http://rules-service:5005/elimina_aeroporto_Rules'
             payload = {'userid': user[0], 'origine': origine}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
