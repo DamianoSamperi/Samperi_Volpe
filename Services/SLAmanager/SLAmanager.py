@@ -4,6 +4,7 @@ import requests
 import sqlite3
 import mysql.connector
 import os
+from datetime import datetime, timedelta
 #tempo di risposta di ogni api e consumo di risorse
 #response time e consumo di cpu
 #misura a rules
@@ -15,6 +16,7 @@ try:
 except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
+prometheus_url="http://prometheus:9090"
 #da sistemare le soglie
 metrics = [
     {'nome': 'node_network_receive_errs_total', 'soglia': 10, 'desiderato': 5},
@@ -39,9 +41,12 @@ for metric in metrics:
 
 #ritorna la lista dei nomi delle metriche
 def get_metrics_list():
-    query="SELECT nome FROM metriche"
-    cursor.execute(query)
-    metriche = cursor.fetchall()
+    try:
+        query="SELECT nome FROM metriche"
+        cursor.execute(query)
+        metriche = cursor.fetchall()
+    except mysql.connector.errors as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
     return metriche
 
 #prende il valore attuale delle metriche
@@ -50,7 +55,6 @@ def fetch_prometheus_metrics():
     #query a prometheus con la lista di metriche
     metrics_list=get_metrics_list()
     query = ', '.join(metrics_list) #sistema
-    prometheus_url="http://prometheus:9090"
     # Crea un'istanza di PrometheusConnect con l'URL del tuo server Prometheus
     prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
     # Esegui la query per ottenere le metriche specifiche
@@ -90,8 +94,30 @@ def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna promethe
     return violazioni #forse meglio tornare un json?
 
 #ritorna il numero di violazioni in un arco di tempo
+@app.route('/get_violazioni_tempo', methods=['POST'])
 def get_violazioni_tempo():
-    return
+    if request.method == 'POST': 
+        data = request.json #viene passato come argomento le ore desiderate
+        violazioni={}
+        # Connessione a Prometheus
+        prom = PrometheusConnect(url=prometheus_url)
+        end_time=datetime.utcnow()
+        start_time=end_time-timedelta(hours=data['ore']) #vedi se è giusto data["ore"]
+        try:
+            query="SELECT nome, soglia FROM metriche"
+            cursor.execute(query)
+            metriche = cursor.fetchall()
+        except mysql.connector.errors as e:
+            print(f"Errore durante l'esecuzione della query: {e}")
+        for metrica in metriche:
+            # Costruzione della query per ottenere il conteggio delle violazioni
+            query = f'count_over_time({metrica["nome"]} > {metrica["soglia"]})'
+            result = prom.custom_query(query, start=start_time, end=end_time, step='1h')
+            # Estrazione del valore dalla risposta
+            count = result[0]['values'][0][1]
+            violazioni[metrica["nome"]]=count
+        return violazioni
+
 
 #ritorna la probabilità che ci sia una violazione nel prossimo intervallo di tempo x
 def get_probabilità_violazioni():
