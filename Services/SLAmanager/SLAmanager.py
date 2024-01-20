@@ -16,7 +16,7 @@ try:
 except mysql.connector.errors as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
-prometheus_url="http://prometheus:9090"
+prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie
 metrics = [
     {'nome': 'node_network_receive_errs_total', 'soglia': 10, 'desiderato': 5},
