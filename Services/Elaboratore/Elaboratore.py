@@ -33,7 +33,7 @@ while True:
         time.sleep(15)
 
 def invioNotifier(notifiche):
-    response = requests.post('http://notifier:5003/recuperomail', json={'notifiche':notifiche})
+    response = requests.post('http://notifier-service :5003/recuperomail', json={'notifiche':notifiche})
 
 #istanzio il consumer una sola volta
 def leggi_topic_tratte():
@@ -42,7 +42,7 @@ def leggi_topic_tratte():
         # Ottieni il messaggio dal topic Kafka
         # msg = message.value
         for message in messages.value:
-            result = requests.post('http://user_controller:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'],'adulti': message['adulti'] }) #aggiunti adulti
+            result = requests.post('http://user-controller-service:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'],'adulti': message['adulti'] }) #aggiunti adulti
         #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
             emails=result.json()
             if emails :
@@ -66,7 +66,7 @@ def leggi_topic_aeroporti():
     for messages in consumer_aeroporto:
         #msg = message.value
         for message in messages.value:
-            result = requests.post('http://user_controller:5000/trova_email_by_offerte', json={'ori':message['origin'], 'pr': message['price']})
+            result = requests.post('http://user-controller-service:5000/trova_email_by_offerte', json={'ori':message['origin'], 'pr': message['price']})
             emails=result.json()
             if emails :
                 print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg

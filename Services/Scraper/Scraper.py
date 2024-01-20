@@ -128,7 +128,7 @@ def recupero_aeroporti():
 #     domani = datetime.now() + timedelta(days=1) 
 #     data_domani = domani.strftime('%Y-%m-%d')
 
-#     response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
+#     response=requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'tratta'})
 #     if  response != 'error':
 #       tratte = response
 #     for tratta in tratte:
@@ -143,7 +143,7 @@ def recupero_aeroporti():
 # def Richiesta_API_Aeroporto():
 #     domani = datetime.now() + timedelta(days=1) 
 #     data_domani = domani.strftime('%Y-%m-%d')
-#     response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
+#     response = requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'aeroporto'})
 #     if response != 'error':
 #         aeroporti = response
 #     for aeroporto in aeroporti:
@@ -174,7 +174,7 @@ def recupero_aeroporti():
 @circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_tratte_controller_tratte():
     try:
-        response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
+        response=requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'tratta'})
         if  response.text != 'error':
             data = response.json()
             print("ho ricevuto tratte da controller")
@@ -191,7 +191,7 @@ def chiedi_tratte_controller_tratte():
 @circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_aeroporti_controller_tratte():
     try:
-        response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
+        response = requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'aeroporto'})
         if response.text != 'error':
             aeroporti = response.json()
             print("ho ricevuto aeroporti da controller")
@@ -214,7 +214,7 @@ def chiedi_aeroporti_controller_tratte():
 #     data_domani = domani.strftime('%Y-%m-%d')
 
 #     #mettere le url come variabili d'ambiente
-#     response=requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'tratta'})
+#     response=requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'tratta'})
 #     if  response.text != 'error':
 #         tratte = response.json()
 #         print("ho ricevuto tratte da controller")
@@ -228,7 +228,7 @@ def chiedi_aeroporti_controller_tratte():
 #         except ResponseError as error:
 #             print(f"Errore durante l'esecuzione della chiamata API: {error}")
     
-#     response = requests.post('http://controller_tratta:5002/invio_Scraper', json={'request':'aeroporto'})
+#     response = requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'aeroporto'})
 #     if response.text != 'error':
 #         aeroporti = response.json()
 #         print("ho ricevuto aeroporti da controller")

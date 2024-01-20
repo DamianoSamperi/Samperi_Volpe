@@ -217,7 +217,7 @@ def comunicazioneUser_tratte():
         tratta= request.json
         response = scrivi_database_tratte(tratta)
         # tratte= leggi_database_tratte()
-        # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_tratte':tratte})
+        # response = requests.post('http://user-controller-service:5000/recuperodati_scraper', {'vet_tratte':tratte})
         return response
     except Exception as e:
         if e == "delete error":
@@ -232,7 +232,7 @@ def comunicazioneUser_aeroporto():
     try:
         response = scrivi_database_aeroporti(aeroporto)
         # aeroporti=leggi_database_aeroporti()
-        # response = requests.post('http://user_controller:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
+        # response = requests.post('http://user-controller-service:5000/recuperodati_scraper', {'vet_aroporti':aeroporti})
         return response
     except Exception as e:
         if e == "delete error":

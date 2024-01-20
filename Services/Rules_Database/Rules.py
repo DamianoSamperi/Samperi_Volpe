@@ -70,7 +70,7 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
-    url='http://users:5001/trova_email_by_user_id'
+    url='http://users-service:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
     print("result info",result.json())
     return result.json()
@@ -82,7 +82,7 @@ def get_users_by_aeroporto(aeroporto,prezzo):
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
     except mysql.connector.errors as e:
         print(f"Errore durante l'esecuzione della query: {e}")
-    url='http://users:5001/trova_email_by_user_id'
+    url='http://users-service:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
     return result.json()
 
