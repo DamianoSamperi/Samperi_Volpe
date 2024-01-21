@@ -1,4 +1,4 @@
-version: '1'
+version: '3.9'
 
 services:
   controller_tratta:
@@ -63,8 +63,8 @@ services:
       - datiusers:/Services/User_Database/users
   db-controller_tratte:
     build:
-      context: .
-      dockerfile: Dockerfile.mysql
+      context: ../Services/mysql
+      dockerfile: Dockerfile
     restart: always
     environment:
       MYSQL_DATABASE: 'controllertratte'
@@ -81,8 +81,8 @@ services:
       - my-db:/var/lib/mysql
   db-scraper:
     build:
-      context: .
-      dockerfile: Dockerfile.mysql
+      context: ../Services/mysql
+      dockerfile: Dockerfile
     restart: always
     environment:
       MYSQL_DATABASE: 'scraper'
@@ -99,8 +99,8 @@ services:
       - my-db:/var/lib/mysql
   db-rules:
     build:
-      context: .
-      dockerfile: Dockerfile.mysql
+      context: ../Services/mysql
+      dockerfile: Dockerfile
     restart: always
     environment:
       MYSQL_DATABASE: 'rules'
@@ -117,8 +117,8 @@ services:
       - my-db:/var/lib/mysql
   db-metrics:
     build:
-      context: .
-      dockerfile: Dockerfile.mysql
+      context: ../Services/mysql
+      dockerfile: Dockerfile
     restart: always
     environment:
       MYSQL_DATABASE: 'metrics'
@@ -135,8 +135,8 @@ services:
       - my-db:/var/lib/mysql
   db-users:
     build:
-      context: .
-      dockerfile: Dockerfile.mysql
+      context: ../Services/mysql
+      dockerfile: Dockerfile
     restart: always
     environment:
       MYSQL_DATABASE: 'users'
@@ -223,4 +223,5 @@ volumes:
   daticontrollertratte:
   datirules:
   datiusers:
+  my-db:
   #metriche:

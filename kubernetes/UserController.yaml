@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: user-controller-container
-        image: samperi_volpe-user_controller #TO_DO nome immagine + versione
+        # image: samperi_volpe-user_controller #TO_DO nome immagine + versione
+        image: kubernetes-user_controller
         imagePullPolicy: Never
         ports:
         - containerPort: 5000

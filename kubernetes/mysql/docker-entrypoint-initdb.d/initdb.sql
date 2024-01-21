@@ -1,4 +1,4 @@
-CREATE DATABASE controllertratte;
+CREATE DATABASE IF NOT EXISTS controllertratte;
 
 USE controllertratte;
 
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS aeroporti_salvati (
         origine VARCHAR(3) NOT NULL
 );
 
-CREATE DATABASE rules;
+CREATE DATABASE IF NOT EXISTS rules;
 
 USE rules;
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS aeroporti (
         budget INT
 );
 
-CREATE DATABASE scraper;
+CREATE DATABASE IF NOT EXISTS scraper;
 
 USE scraper;
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS aeroporti_salvati (
         origine VARCHAR(3) NOT NULL
 );
 
-CREATE DATABASE metrics;
+CREATE DATABASE IF NOT EXISTS metrics;
 
 USE metrics;
 
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS metrica (
         soglia FLOAT UNSIGNED
 );
 
-CREATE DATABASE users;
+CREATE DATABASE IF NOT EXISTS users;
 
 USE users;
 
