@@ -62,7 +62,9 @@ services:
     volumes:
       - datiusers:/Services/User_Database/users
   db:
-    image: mysql:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
     restart: always
     environment:
       MYSQL_DATABASE: 'db'
