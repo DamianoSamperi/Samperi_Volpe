@@ -5,6 +5,8 @@ import sqlite3
 import mysql.connector
 import os
 from datetime import datetime, timedelta
+import numpy as np
+from scipy.stats import norm
 #tempo di risposta di ogni api e consumo di risorse
 #response time e consumo di cpu
 #misura a rules
@@ -120,8 +122,37 @@ def get_violazioni_tempo():
 
 
 #ritorna la probabilità che ci sia una violazione nel prossimo intervallo di tempo x
+@app.route('/get_probabilità_violazioni', methods=['POST'])
 def get_probabilità_violazioni():
-    return
+    if request.method == 'POST': 
+        data = request.json
+        end_time=datetime.utcnow()
+        start_time=end_time-timedelta(minutes=30) #TO_DO vedi se così è giusto
+        #chiedo a prometheus i valori delle metriche negli ultimi 30 minuti
+        metrics=get_metrics_list()
+        query = ', '.join(metrics)
+        prom = PrometheusConnect(url=prometheus_url)
+        response=prom.custom_query_range(query, start=start_time, end=end_time, step="60s")
+        metric_data = response['data']['result']
+        #calcolo le probabilità di violazioni in base a ciò che ho ottenuto
+        probabilities = {}
+        for entry in metric_data:
+            values = [value[1] for value in entry['values']]
+            mean = np.mean(values) #media
+            std_dev = np.std(values) #deviazione standard
+            try:
+                query="SELECT soglia FROM metriche WHERE nome= ?"
+                cursor.execute(query, (entry['name'],)) #TO_DO vedi se è name
+                threshold = cursor.fetchone()
+            except mysql.connector.errors as e:
+                print(f"Errore durante l'esecuzione della query: {e}")
+                return e
+            z_score = (threshold - mean) / std_dev #z-score per la soglia
+            #probabilità di violazione usando la distribuzione normale
+            probability = norm.cdf(z_score)
+            probability_next_interval = 1 - (1 - probability) ** data['minuti']
+            probabilities[entry['name']]=probability_next_interval
+        return probabilities
 
 @app.route('/elimina_metrica', methods=['POST'])
 def elimina_metrica():
