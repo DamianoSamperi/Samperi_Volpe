@@ -15,7 +15,7 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 app=Flask(__name__)
 
 try:
-    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='metrics')
+    conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
     cursor = conn.cursor()
 except mysql.connector.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
