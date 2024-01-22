@@ -1,12 +1,14 @@
-from prometheus_api_client import PrometheusConnect
+from prometheus_api_client import PrometheusConnect, MetricRangeDataFrame
 from flask import Flask, jsonify, request
-import requests
-import sqlite3
 import mysql.connector
 import os
 from datetime import datetime, timedelta
-import numpy as np
-from scipy.stats import norm
+#import numpy as np
+#from scipy.stats import norm
+#from statsmodels.tsa.arima.model import ARIMA
+import pandas as pd
+#import matplotlib.pyplot as plt
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 #tempo di risposta di ogni api e consumo di risorse
 #response time e consumo di cpu
 #misura a rules
@@ -64,6 +66,34 @@ def fetch_prometheus_metrics():
     # Restituisci i risultati della query
     return result
 
+@app.route('/elimina_metrica', methods=['POST'])
+def elimina_metrica():
+    if request.method == 'POST': 
+        data = request.json
+        try:
+            query="DELETE FROM metriche WHERE nome=?"
+            cursor.execute(query,(data['nome'],))
+            conn.commit()
+        except mysql.connector.errors as e:
+            print(f"Errore durante l'esecuzione della query: {e}")
+            return e
+        return "metrica eliminata"
+    
+@app.route('/aggiungi_metrica', methods=['POST'])
+def aggiungi_metrica():
+    if request.method == 'POST': 
+        data = request.json
+        try:
+            cursor.execute('''
+            INSERT INTO metriche (nome, soglia, desiderato)
+            VALUES (?, ?, ?)
+            ''', (data['nome'], data['soglia'], data['desiderato']))
+            conn.commit()
+        except mysql.connector.errors as e:
+            print(f"Errore durante l'esecuzione della query: {e}")
+            return e
+        return "metrica aggiunta"
+
 #ritorna i valori desiderati delle metriche
 @app.route('/get_valori_desiderati', methods=['POST'])
 def get_valori_desiderati():
@@ -119,21 +149,134 @@ def get_violazioni_tempo():
             count = result[0]['values'][0][1]
             violazioni[metrica["nome"]]=count
         return violazioni
-
-
+'''
+def calculate_probability(predictions, threshold):
+    exceeding_values = predictions[predictions > threshold]
+    probability = len(exceeding_values) / len(predictions)
+    return probability
+'''
 #ritorna la probabilità che ci sia una violazione nel prossimo intervallo di tempo x
 @app.route('/get_probabilità_violazioni', methods=['POST'])
 def get_probabilità_violazioni():
+    probabilities={}
     if request.method == 'POST': 
         data = request.json
         end_time=datetime.utcnow()
-        start_time=end_time-timedelta(minutes=30) #TO_DO vedi se così è giusto
+        start_time=end_time-timedelta(minutes=10) #TO_DO vedi se così è giusto
         #chiedo a prometheus i valori delle metriche negli ultimi 30 minuti
         metrics=get_metrics_list()
         query = ', '.join(metrics)
         prom = PrometheusConnect(url=prometheus_url)
-        response=prom.custom_query_range(query, start=start_time, end=end_time, step="60s")
+        response=prom.custom_query_range(query, start=start_time, end=end_time, step="5s")
         metric_data = response['data']['result']
+
+        for entry in metric_data:
+            #modo con ExponentialSmoothing
+            metric_name = entry['metric']['__name__']
+            # Estraggo i dati specifici per la metrica corrente
+            metric_values = entry['values']
+            # Converti i dati delle metriche in un DataFrame pandas
+            df = pd.DataFrame(metric_values, columns=['timestamp', 'value'])
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df.set_index('timestamp', inplace=True)
+            # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+            df.sort_index(inplace=True)
+            # Applico ExponentialSmoothing
+            tsmodel = ExponentialSmoothing(df['value'].interpolate(),trend='add', seasonal='add', seasonal_periods=5).fit()
+            # Fai previsioni per i prossimi n periodi
+            forecast_steps = round((data['minuti']*60) / 5)
+            forecast = tsmodel.forecast(steps=forecast_steps)
+            #prendo la soglia della data metrica
+            try:
+                query="SELECT soglia FROM metriche WHERE nome= ?"
+                cursor.execute(query, (metric_name,)) #vedi se è giusto
+                threshold = cursor.fetchone()
+            except mysql.connector.errors as e:
+                print(f"Errore durante l'esecuzione della query: {e}")
+                return e
+            #calcolo la probabilità
+            treshold=treshold[0]
+            violations = sum(forecast > threshold)
+            probability_of_violation = violations / len(forecast)
+            #lo aggiungo al dizionario di probabilities
+            probabilities[metric_name]=probability_of_violation
+        #finito per ogni metrica ritorno il dizionario
+        return probabilities
+
+        # Visualizza i dati originali e le previsioni
+        '''
+        plt.plot(df.index, df['value'], label='Original Data')
+        plt.plot(pd.date_range(df.index[-1], periods=forecast_steps+1, freq='60s')[1:], forecast, label='Forecast', color='red')
+        plt.legend()
+        plt.show()
+        '''
+        #Elio
+        '''
+        dictPred={}
+        metrics=get_metrics_list()
+        for name in metrics:
+            #rappresenta una query response come un data frame
+            #metric_df = MetricRangeDataFrame(Metrics[name])
+
+            data= metric_data.resample(rule='5s').mean(numeric_only="True")
+
+            tsmodel = ExponentialSmoothing(data['value'].interpolate(), trend='add', seasonal='add',seasonal_periods=5).fit()
+            
+            prediction = tsmodel.forecast(steps=round((10*60)/5))
+
+            # plt.figure(figsize=(24,10))
+            # plt.ylabel('Values', fontsize=14)
+            # plt.xlabel('Time', fontsize=14)
+            # plt.title('Values over time', fontsize=16)
+            
+            # plt.plot(data, "-", label = 'train')
+            # plt.plot(prediction,"--",label = 'pred')
+            # plt.legend(title='Series')
+            # # plt.show()
+            # plt.savefig(fname=name)
+
+            dictPred[name]={"max": prediction.max(),
+                        "min": prediction.min(),
+                        "avg": prediction.mean()}
+        return dictPred
+        '''
+
+        #modo con ARIMA
+        '''
+        # Creo un DataFrame pandas con i dati della metrica
+        df = pd.DataFrame(columns=['timestamp'] + metrics)
+        for entry in metric_data:
+            timestamp = pd.to_datetime(entry['value'][0])
+            values = [float(entry['value'][1])]  # Assumendo che il valore della metrica sia un numero
+            df = pd.concat([df, pd.DataFrame([timestamp] + values, columns=['timestamp'] + metrics)])
+
+        # Addestramento del modello ARIMA
+        for metric in metrics:
+            train_data = df[metric]
+            model = ARIMA(train_data, order=(1, 1, 1))  # Sostituisci con i tuoi parametri
+            fitted_model = model.fit()
+
+            # Previsioni per i prossimi 5 minuti (modifica in base alle tue esigenze)
+            forecast_steps = data['minuti']
+            future_timestamps = pd.date_range(end_time, periods=forecast_steps+1, freq='60s')[1:]
+            predictions = fitted_model.forecast(steps=forecast_steps)
+
+            try:
+                query="SELECT soglia FROM metriche WHERE nome= ?"
+                cursor.execute(query, (metric,))
+                threshold = cursor.fetchone()
+            except mysql.connector.errors as e:
+                print(f"Errore durante l'esecuzione della query: {e}")
+                return e            
+            # Calcolo della probabilità di violazione della soglia
+            probability = calculate_probability(predictions, threshold)
+
+            probabilities[metric]=probability
+        return probabilities
+        '''
+    
+        #modo con media e deviazione standard
+        '''
         #calcolo le probabilità di violazioni in base a ciò che ho ottenuto
         probabilities = {}
         for entry in metric_data:
@@ -153,34 +296,7 @@ def get_probabilità_violazioni():
             probability_next_interval = 1 - (1 - probability) ** data['minuti']
             probabilities[entry['name']]=probability_next_interval
         return probabilities
-
-@app.route('/elimina_metrica', methods=['POST'])
-def elimina_metrica():
-    if request.method == 'POST': 
-        data = request.json
-        try:
-            query="DELETE FROM metriche WHERE nome=?"
-            cursor.execute(query,(data['nome'],))
-            conn.commit()
-        except mysql.connector.Error as e:
-            print(f"Errore durante l'esecuzione della query: {e}")
-            return e
-        return "metrica eliminata"
-    
-@app.route('/aggiungi_metrica', methods=['POST'])
-def aggiungi_metrica():
-    if request.method == 'POST': 
-        data = request.json
-        try:
-            cursor.execute('''
-            INSERT INTO metriche (nome, soglia, desiderato)
-            VALUES (?, ?, ?)
-            ''', (data['nome'], data['soglia'], data['desiderato']))
-            conn.commit()
-        except mysql.connector.Error as e:
-            print(f"Errore durante l'esecuzione della query: {e}")
-            return e
-        return "metrica aggiunta"
+        '''
 
 #con menu, ma dovrebbe essere più giusto con la route, come sopra
 '''
