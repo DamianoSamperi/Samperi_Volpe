@@ -114,7 +114,7 @@ def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna promethe
     valori=fetch_prometheus_metrics()
     for valore in valori:
         try:
-            query="SELECT soglia FROM metriche WHERE nome= ?"
+            query="SELECT soglia FROM metriche WHERE nome=%s"
             cursor.execute(query, (valore['nome'],))
             value = cursor.fetchone()
             if valore['value']>value:
