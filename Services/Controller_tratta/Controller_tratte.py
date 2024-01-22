@@ -131,7 +131,7 @@ def leggi_database_aeroporti():
 def scrivi_database_tratte(data):
     try:
         # Prepara la query SQL
-        query = "SELECT COUNT(*) FROM tratte_salvate WHERE origine = ? AND destinazione = ? AND adulti= ?" #aggiunti adulti
+        query = "SELECT COUNT(*) FROM tratte_salvate WHERE origine = %s AND destinazione = %s AND adulti= %s" #aggiunti adulti
     
 
         # Esegui la query SQL con i valori passati come parametri
@@ -144,7 +144,7 @@ def scrivi_database_tratte(data):
         raise "errore connesione"
     if count[0]==0:
         try:
-            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (?, ?, ?)" #aggiunti adulti
+            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (%s, %s, %s)" #aggiunti adulti
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
@@ -153,7 +153,7 @@ def scrivi_database_tratte(data):
             raise "insert error"
     else:
         try:
-            query = "DELETE FROM tratte_salvate WHERE origine = ? AND destinazione = ? AND adulti= ?" #aggiunti adulti
+            query = "DELETE FROM tratte_salvate WHERE origine = %s AND destinazione = %s AND adulti= %s" #aggiunti adulti
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
@@ -167,7 +167,7 @@ def scrivi_database_tratte(data):
 def scrivi_database_aeroporti(data):
     try:
         # Prepara la query SQL
-        query = "SELECT COUNT(*) FROM aeroporti_salvati WHERE origine = ?" 
+        query = "SELECT COUNT(*) FROM aeroporti_salvati WHERE origine = %s" 
     
         # Esegui la query SQL con i valori passati come parametri
         cursor.execute(query, (data['aeroporto'],)) 
@@ -180,7 +180,7 @@ def scrivi_database_aeroporti(data):
         raise "errore connesione"
     if count[0] == 0:
         try:
-            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
+            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (%s )" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
             return 'ok'
@@ -189,7 +189,7 @@ def scrivi_database_aeroporti(data):
             raise "insert error"
     else:
         try:
-            query = "DELETE FROM aeroporti_salvati WHERE origine = ?" #TO_DO da modificare se vogliamo aggiungere adults
+            query = "DELETE FROM aeroporti_salvati WHERE origine = %s" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
             return 'ok'

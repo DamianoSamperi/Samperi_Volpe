@@ -37,7 +37,7 @@ for metric in metrics:
     try:
         cursor.execute('''
         INSERT INTO metriche (nome, soglia, desiderato)
-        VALUES (?, ?, ?)
+        VALUES (%s, %s, %s)
         ''', (metric['nome'], metric['soglia'], metric['desiderato']))
         conn.commit()
     except mysql.connector.Error as e:
@@ -71,7 +71,7 @@ def elimina_metrica():
     if request.method == 'POST': 
         data = request.json
         try:
-            query="DELETE FROM metriche WHERE nome=?"
+            query="DELETE FROM metriche WHERE nome=%s"
             cursor.execute(query,(data['nome'],))
             conn.commit()
         except mysql.connector.errors as e:
@@ -86,7 +86,7 @@ def aggiungi_metrica():
         try:
             cursor.execute('''
             INSERT INTO metriche (nome, soglia, desiderato)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
             ''', (data['nome'], data['soglia'], data['desiderato']))
             conn.commit()
         except mysql.connector.errors as e:
@@ -188,7 +188,7 @@ def get_probabilità_violazioni():
             forecast = tsmodel.forecast(steps=forecast_steps)
             #prendo la soglia della data metrica
             try:
-                query="SELECT soglia FROM metriche WHERE nome= ?"
+                query="SELECT soglia FROM metriche WHERE nome= %s"
                 cursor.execute(query, (metric_name,)) #vedi se è giusto
                 threshold = cursor.fetchone()
             except mysql.connector.errors as e:

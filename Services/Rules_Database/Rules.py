@@ -65,7 +65,7 @@ def get_aeroporti():
 
 def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
     try:
-        query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ? AND adulti= ?"
+        query="SELECT user_id FROM tratte WHERE origine= %s AND destinazione= %s AND budget>= %s AND adulti= %s"
         cursor.execute(query,(origine, destinazione, prezzo, adulti))
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
     except mysql.connector.Error as e:
@@ -77,7 +77,7 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
 
 def get_users_by_aeroporto(aeroporto,prezzo):
     try:
-        query=" SELECT user_id FROM aeroporti WHERE origine= ? AND budget>= ?"
+        query=" SELECT user_id FROM aeroporti WHERE origine= %s AND budget>= %s"
         cursor.execute(query,(aeroporto,prezzo))
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
     except mysql.connector.Error as e:
@@ -90,16 +90,16 @@ def get_users_by_aeroporto(aeroporto,prezzo):
 def inserisci_tratta(user_id,origine,destinazione,budget,adulti):
     try:
         #vedo se l'utente è già iscritto alla tratta
-        query="SELECT COUNT(*) FROM tratte WHERE user_id = ? AND origine= ? AND destinazione= ? AND adulti= ?"
+        query="SELECT COUNT(*) FROM tratte WHERE user_id = %s AND origine= %s AND destinazione= %s AND adulti= %s"
         cursor.execute(query,(user_id, origine, destinazione, adulti))
         Count=cursor.fetchone()
         #se non è iscritto lo inserisco, sennò non lo inserisco
         if Count[0]==0:
-            query="INSERT INTO tratte (user_id, origine, destinazione, budget, adulti) VALUES(?, ?, ?, ?, ?)"
+            query="INSERT INTO tratte (user_id, origine, destinazione, budget, adulti) VALUES(%s, %s, %s, %s, %s)"
             cursor.execute(query, (user_id, origine, destinazione, budget, adulti))
             conn.commit()
         #ritorna il numero di utenti iscritti a quella tratta
-        query="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ? AND adulti= ?"
+        query="SELECT COUNT(*) FROM tratte WHERE origine= %s AND destinazione= %s AND adulti= %s"
         cursor.execute(query,(origine, destinazione, adulti))
         result=cursor.fetchone()
         return result[0]+Count[0]
@@ -109,17 +109,17 @@ def inserisci_tratta(user_id,origine,destinazione,budget,adulti):
 
 def inserisci_aeroporto(user_id,origine,budget):
     try:
-        query="SELECT COUNT(*) FROM aeroporti WHERE user_id = ? AND origine= ?"
+        query="SELECT COUNT(*) FROM aeroporti WHERE user_id = %s AND origine= %s"
         #vedo se l'utente è già iscritto a questo aeroporto
         cursor.execute(query,(user_id,origine))
         Count=cursor.fetchone()
         #se non è iscritto lo inserisco
         if Count[0]==0:
-            query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (?, ?, ?)"
+            query = "INSERT INTO aeroporti (user_id, origine, budget) VALUES (%s, %s, %s)"
             cursor.execute(query, (user_id, origine, budget))
             conn.commit()
         #ritorna il numero di utenti iscritti a quell'aeroporto
-        query="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
+        query="SELECT COUNT(*) FROM aeroporti WHERE origine= %s"
         cursor.execute(query,(origine,))
         result=cursor.fetchone()
         return result[0]+Count[0]
@@ -130,7 +130,7 @@ def inserisci_aeroporto(user_id,origine,budget):
 
 def elimina_tratta(user_id,origine,destinazione,adulti):
     try:
-        query1="DELETE FROM tratte WHERE user_id= ? AND origine= ? AND destinazione= ? AND adulti= ?"
+        query1="DELETE FROM tratte WHERE user_id= %s AND origine= %s AND destinazione= %s AND adulti= %s"
         cursor.execute(query1,(user_id,origine,destinazione,adulti))
         trovati=cursor.rowcount #numero di righe eliminate
         conn.commit()
@@ -140,7 +140,7 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
         print(f"Errore durante l'esecuzione della query DELETE: {e}")
     try:
         #ritorna il numero di utenti iscritti a quella tratta
-        query2="SELECT COUNT(*) FROM tratte WHERE origine= ? AND destinazione= ? AND adulti= ?"
+        query2="SELECT COUNT(*) FROM tratte WHERE origine= %s AND destinazione= %s AND adulti= %s"
         cursor.execute(query2,(origine,destinazione,adulti))
         result=cursor.fetchone()
         return result
@@ -151,7 +151,7 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
 
 def elimina_aeroporto(user_id,origine):
     try:
-        query1="DELETE FROM aeroporti WHERE user_id= ? AND origine= ?"
+        query1="DELETE FROM aeroporti WHERE user_id= %s AND origine= %s"
         cursor.execute(query1,(user_id,origine))
         trovati=cursor.rowcount #numero di righe eliminate
         #print(trovati)
@@ -159,7 +159,7 @@ def elimina_aeroporto(user_id,origine):
         if trovati==0:
             return [-1]
         #ritorna il numero di utenti iscritti a quell'aeroporto'
-        query2="SELECT COUNT(*) FROM aeroporti WHERE origine= ?"
+        query2="SELECT COUNT(*) FROM aeroporti WHERE origine= %s"
         cursor.execute(query2,(origine,))
         result=cursor.fetchone()
         return result

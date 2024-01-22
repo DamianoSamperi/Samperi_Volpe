@@ -180,7 +180,7 @@ def chiedi_tratte_controller_tratte():
             print("ho ricevuto tratte da controller")
             # return tratte
             cursor.execute("TRUNCATE TABLE tratte_salvate")
-            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (?, ?, ?)" #aggiunti adulti
+            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (%s, %s, %s)" #aggiunti adulti
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
     except Exception as e:
@@ -197,7 +197,7 @@ def chiedi_aeroporti_controller_tratte():
             print("ho ricevuto aeroporti da controller")
             # return aeroporti
             cursor.execute("TRUNCATE TABLE aeroporti_salvati")
-            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (? )" #TO_DO da modificare se vogliamo aggiungere adults
+            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (%s )" #TO_DO da modificare se vogliamo aggiungere adults
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
     except Exception as e:

@@ -38,7 +38,7 @@ def inserisci_client(nome,cognome,email):
     try:
         cursor.execute('''
         INSERT INTO users (nome, cognome, email)
-        VALUES (?, ?, ?)
+        VALUES (%s, %s, %s)
         ''', (nome, cognome, email))
         conn.commit()
         return 'ok'
@@ -50,7 +50,7 @@ def get_email_by_userid(*ids):
     users=[]
     for id in ids:
         try:
-            query="SELECT email FROM users WHERE id= ?"
+            query="SELECT email FROM users WHERE id= %s"
             cursor.execute(query, (id[0],))
             user = cursor.fetchall()
             users.append(user[0])
@@ -60,7 +60,7 @@ def get_email_by_userid(*ids):
 
 def control_client(email):
     try:
-        query="SELECT id FROM users WHERE email= ?"
+        query="SELECT id FROM users WHERE email= %s"
         cursor.execute(query,(email,))
         result=cursor.fetchone()
         print("result ",result)
