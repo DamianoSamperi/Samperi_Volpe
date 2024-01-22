@@ -66,5 +66,5 @@ CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
         nome VARCHAR(20) NOT NULL,
         cognome VARCHAR(20) NOT NULL,
-        email VARCHAR(20) NOT NULL
+        email VARCHAR(40) NOT NULL
 );
