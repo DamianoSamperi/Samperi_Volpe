@@ -1,12 +1,14 @@
 from prometheus_api_client import PrometheusConnect
 from flask import Flask, jsonify, request
-import requests
-import sqlite3
+#import requests
+#import sqlite3
 import mysql.connector
 import os
 from datetime import datetime, timedelta
-import numpy as np
-from scipy.stats import norm
+#import numpy as np
+#from scipy.stats import norm
+from statsmodels.tsa.arima.model import ARIMA
+import pandas as pd
 #tempo di risposta di ogni api e consumo di risorse
 #response time e consumo di cpu
 #misura a rules
@@ -120,10 +122,15 @@ def get_violazioni_tempo():
             violazioni[metrica["nome"]]=count
         return violazioni
 
+def calculate_probability(predictions, threshold):
+    exceeding_values = predictions[predictions > threshold]
+    probability = len(exceeding_values) / len(predictions)
+    return probability
 
 #ritorna la probabilità che ci sia una violazione nel prossimo intervallo di tempo x
 @app.route('/get_probabilità_violazioni', methods=['POST'])
 def get_probabilità_violazioni():
+    probabilities={}
     if request.method == 'POST': 
         data = request.json
         end_time=datetime.utcnow()
@@ -134,6 +141,40 @@ def get_probabilità_violazioni():
         prom = PrometheusConnect(url=prometheus_url)
         response=prom.custom_query_range(query, start=start_time, end=end_time, step="60s")
         metric_data = response['data']['result']
+
+        # Creo un DataFrame pandas con i dati della metrica
+        df = pd.DataFrame(columns=['timestamp'] + metrics)
+        for entry in metric_data:
+            timestamp = pd.to_datetime(entry['value'][0])
+            values = [float(entry['value'][1])]  # Assumendo che il valore della metrica sia un numero
+            df = pd.concat([df, pd.DataFrame([timestamp] + values, columns=['timestamp'] + metrics)])
+
+        # Addestramento del modello ARIMA
+        for metric in metrics:
+            train_data = df[metric]
+            model = ARIMA(train_data, order=(1, 1, 1))  # Sostituisci con i tuoi parametri
+            fitted_model = model.fit()
+
+            # Previsioni per i prossimi 5 minuti (modifica in base alle tue esigenze)
+            forecast_steps = data['minuti']
+            future_timestamps = pd.date_range(end_time, periods=forecast_steps+1, freq='60s')[1:]
+            predictions = fitted_model.forecast(steps=forecast_steps)
+
+            try:
+                query="SELECT soglia FROM metriche WHERE nome= ?"
+                cursor.execute(query, (metric,))
+                threshold = cursor.fetchone()
+            except mysql.connector.errors as e:
+                print(f"Errore durante l'esecuzione della query: {e}")
+                return e            
+            # Calcolo della probabilità di violazione della soglia
+            probability = calculate_probability(predictions, threshold)
+
+            probabilities[metric]=probability
+        return probabilities
+    
+        #modo con media e deviazione standard
+        '''
         #calcolo le probabilità di violazioni in base a ciò che ho ottenuto
         probabilities = {}
         for entry in metric_data:
@@ -153,6 +194,36 @@ def get_probabilità_violazioni():
             probability_next_interval = 1 - (1 - probability) ** data['minuti']
             probabilities[entry['name']]=probability_next_interval
         return probabilities
+        '''
+        #altro modo che ho trovato
+        '''
+        dictPred={}
+        metrics=get_metrics_list()
+        for name in metrics:
+            metric_df = MetricRangeDataFrame(Metrics[name])
+
+            data= metric_df.resample(rule='5s').mean(numeric_only="True")
+
+            tsmodel = ExponentialSmoothing(data['value'].interpolate(), trend='add', seasonal='add',seasonal_periods=5).fit()
+            
+            prediction = tsmodel.forecast(steps=round((10*60)/5))
+
+            # plt.figure(figsize=(24,10))
+            # plt.ylabel('Values', fontsize=14)
+            # plt.xlabel('Time', fontsize=14)
+            # plt.title('Values over time', fontsize=16)
+            
+            # plt.plot(data, "-", label = 'train')
+            # plt.plot(prediction,"--",label = 'pred')
+            # plt.legend(title='Series')
+            # # plt.show()
+            # plt.savefig(fname=name)
+
+            dictPred[name]={"max": prediction.max(),
+                        "min": prediction.min(),
+                        "avg": prediction.mean()}
+        return dictPred
+        '''
 
 @app.route('/elimina_metrica', methods=['POST'])
 def elimina_metrica():
