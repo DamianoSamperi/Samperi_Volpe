@@ -138,7 +138,7 @@ services:
       context: Services/mysql
       dockerfile: Dockerfile
     # command: --authentication_policy=caching_sha2_password
-    command: --authentication_policy=caching_sha2_password
+    command: --default-authentication-plugin=caching_sha2_password
     restart: always
     environment:
       MYSQL_DATABASE: users

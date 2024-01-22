@@ -23,7 +23,7 @@ app = Flask(__name__)
 # try:
 #     cursor.execute('''
 #         CREATE TABLE IF NOT EXISTS tratte_salvate (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
+#             id INTEGER PRIMARY KEY AUTO_INCREMENT,
 #             origine TEXT NOT NULL,
 #             destinazione TEXT NOT NULL,
 #             adulti INTEGER
