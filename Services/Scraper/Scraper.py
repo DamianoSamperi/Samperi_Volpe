@@ -174,41 +174,36 @@ def recupero_aeroporti():
 #giorno precedente, le funzioni devono lanciare un eccezione nel caso in cui
 #la richiesta non vada a buon fine
 
-@circuit(failure_threshold=5,recovery_timeout=43200)
+#TO_DO forse c'è un parametro chiamato fallback_function in cui possiamo mettere la nostra funzione di fallaback
+@circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_tratte_controller_tratte():
     try:
         response=requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'tratta'})
         if  response.text != 'error':
             data = response.json()
-            print("ho ricevuto tratte da controller ",data)
+            print("ho ricevuto tratte da controller")
             # return tratte
             cursor.execute("TRUNCATE TABLE tratte_salvate")
             query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (%s, %s, %s)" #aggiunti adulti
-            for item in data:
-                cursor.execute(query, (item['origine'], item['destinazione'], item['adulti']))
-                conn.commit()
-            # cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
-            # conn.commit()
+            cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
+            conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delle tratte: {e}")
         raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
 
         
-@circuit(failure_threshold=5,recovery_timeout=43200)
+@circuit(failure_treshold=5,reset_timeout=43200)
 def chiedi_aeroporti_controller_tratte():
     try:
         response = requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'aeroporto'})
         if response.text != 'error':
-            data = response.json()
-            print("ho ricevuto aeroporti da controller ",data)
+            aeroporti = response.json()
+            print("ho ricevuto aeroporti da controller")
             # return aeroporti
             cursor.execute("TRUNCATE TABLE aeroporti_salvati")
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (%s )" #TO_DO da modificare se vogliamo aggiungere adults
-            # cursor.execute(query, (data['aeroporto'],))
-            for item in data:
-                cursor.execute(query, (item['aeroporto']),)
-                conn.commit()
-            # conn.commit()
+            cursor.execute(query, (data['aeroporto'],))
+            conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
         raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
@@ -260,7 +255,7 @@ while True:
         chiedi_tratte_controller_tratte()
         tratte=recupero_tratte()
     except Exception as e:
-        print(f"errore durante la richiesta: {e}")
+        print("errore durante la richiesta: {e}")
     for tratta in tratte:
         try:
             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
@@ -273,9 +268,9 @@ while True:
 
     try:
         chiedi_aeroporti_controller_tratte()
-        aeroporti=recupero_aeroporti()
+        aeroporti=recupero_aeroporti
     except Exception as e:
-        print(f"errore durante la richiesta: {e}")  
+        print("errore durante la richiesta: {e}")  
     for aeroporto in aeroporti:
         try:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
