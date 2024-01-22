@@ -1,7 +1,5 @@
 from prometheus_api_client import PrometheusConnect, MetricRangeDataFrame
 from flask import Flask, jsonify, request
-#import requests
-#import sqlite3
 import mysql.connector
 import os
 from datetime import datetime, timedelta
