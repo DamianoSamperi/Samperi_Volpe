@@ -1,3 +1,4 @@
+import time
 from prometheus_api_client import PrometheusConnect, MetricRangeDataFrame
 from flask import Flask, jsonify, request
 import mysql.connector
@@ -13,6 +14,7 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 #response time e consumo di cpu
 #misura a rules
 app=Flask(__name__)
+
 while(True):
     try:
         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
@@ -20,6 +22,7 @@ while(True):
         break
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        time.sleep(10)
 
 prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie

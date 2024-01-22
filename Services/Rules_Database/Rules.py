@@ -1,4 +1,5 @@
 # import sqlite3
+import time
 from flask import Flask, request
 import json
 import requests
@@ -43,8 +44,10 @@ while(True):
     try:
         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='rules')
         cursor = conn.cursor()
+        break
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        time.sleep(10)
 
  
 def get_tratte():

@@ -5,6 +5,8 @@ services:
     build:     
       context: Services/Controller_tratta
       dockerfile: Dockerfile
+    depends_on:
+      - db
     ports:
       - "5002:5002"
     volumes:
@@ -30,6 +32,8 @@ services:
     build:     
       context: Services/Rules_Database
       dockerfile: Dockerfile
+    depends_on:
+      - db
     ports:
       - "5005:5005"
     volumes:
@@ -40,6 +44,7 @@ services:
       - controller_tratta
       - kafka
       - elaboratore
+      - db
     build:     
       context: Services/Scraper
       dockerfile: Dockerfile
@@ -57,6 +62,8 @@ services:
     build:     
       context: Services/User_Database
       dockerfile: Dockerfile
+    depends_on:
+      - db
     ports:
       - "5001:5001"
     volumes:

@@ -32,6 +32,7 @@ while(True):
         break
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        time.sleep(10)
 
 
 def inserisci_client(nome,cognome,email):

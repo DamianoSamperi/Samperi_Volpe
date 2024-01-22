@@ -1,6 +1,7 @@
 import os
 import socket
 import json
+import time
 # import sqlite3
 import mysql.connector
 from flask import Flask, jsonify, request
@@ -48,6 +49,7 @@ while(True):
         break
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+        time.sleep(10)
 
     
 def leggi_database():
