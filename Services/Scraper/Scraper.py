@@ -21,7 +21,7 @@ amadeus = Client(
 try:
     conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='scraper')
     cursor = conn.cursor()
-except mysql.connector.errors as e:
+except mysql.connector.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
     
@@ -68,7 +68,7 @@ def recupero_tratte():
 
         # Ottieni i risultati
         risultati = cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
@@ -94,7 +94,7 @@ def recupero_aeroporti():
 
         # Ottieni i risultati
         risultati = cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 

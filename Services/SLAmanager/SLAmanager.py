@@ -15,7 +15,7 @@ app=Flask(__name__)
 try:
     conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='metrics')
     cursor = conn.cursor()
-except mysql.connector.errors as e:
+except mysql.connector.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
 prometheus_url="http://prometheus-service:9090"
@@ -38,7 +38,7 @@ for metric in metrics:
         VALUES (?, ?, ?)
         ''', (metric['nome'], metric['soglia'], metric['desiderato']))
         conn.commit()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 #ritorna la lista dei nomi delle metriche
@@ -47,7 +47,7 @@ def get_metrics_list():
         query="SELECT nome FROM metriche"
         cursor.execute(query)
         metriche = cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     return metriche
 
@@ -71,7 +71,7 @@ def get_valori_desiderati():
         query="SELECT nome, desiderato FROM metriche"
         cursor.execute(query)
         metriche = cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return e
     return metriche #in teoria va bene così, non penso che devo creare un dizionario
@@ -90,7 +90,7 @@ def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna promethe
                 violazioni[valore['nome']]=True
             else:
                 violazioni[valore['nome']]=False
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             return e
     return violazioni #forse meglio tornare un json?
@@ -109,7 +109,7 @@ def get_violazioni_tempo():
             query="SELECT nome, soglia FROM metriche"
             cursor.execute(query)
             metriche = cursor.fetchall()
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
         for metrica in metriche:
             # Costruzione della query per ottenere il conteggio delle violazioni
@@ -144,7 +144,7 @@ def get_probabilità_violazioni():
                 query="SELECT soglia FROM metriche WHERE nome= ?"
                 cursor.execute(query, (entry['name'],)) #TO_DO vedi se è name
                 threshold = cursor.fetchone()
-            except mysql.connector.errors as e:
+            except mysql.connector.Error as e:
                 print(f"Errore durante l'esecuzione della query: {e}")
                 return e
             z_score = (threshold - mean) / std_dev #z-score per la soglia
@@ -162,7 +162,7 @@ def elimina_metrica():
             query="DELETE FROM metriche WHERE nome=?"
             cursor.execute(query,(data['nome'],))
             conn.commit()
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             return e
         return "metrica eliminata"
@@ -177,7 +177,7 @@ def aggiungi_metrica():
             VALUES (?, ?, ?)
             ''', (data['nome'], data['soglia'], data['desiderato']))
             conn.commit()
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             return e
         return "metrica aggiunta"

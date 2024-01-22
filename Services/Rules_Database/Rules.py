@@ -42,7 +42,7 @@ app = Flask(__name__)
 try:
     conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='rules')
     cursor = conn.cursor()
-except mysql.connector.errors as e:
+except mysql.connector.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
  
@@ -50,7 +50,7 @@ def get_tratte():
     try:
         cursor.execute(" SELECT * from tratte")
         result=cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     return result
 
@@ -58,7 +58,7 @@ def get_aeroporti():
     try:
         cursor.execute(" SELECT * from aeroporti")
         result=cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     return result 
 
@@ -68,7 +68,7 @@ def get_users_by_tratta_and_budget(origine,destinazione,prezzo,adulti):
         query="SELECT user_id FROM tratte WHERE origine= ? AND destinazione= ? AND budget>= ? AND adulti= ?"
         cursor.execute(query,(origine, destinazione, prezzo, adulti))
         users=cursor.fetchall() #insieme di userid interessati in quella tratta
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     url='http://users-service:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
@@ -80,7 +80,7 @@ def get_users_by_aeroporto(aeroporto,prezzo):
         query=" SELECT user_id FROM aeroporti WHERE origine= ? AND budget>= ?"
         cursor.execute(query,(aeroporto,prezzo))
         users=cursor.fetchall() #insieme di userid interessati in quell'aeroporto
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     url='http://users-service:5001/trova_email_by_user_id'
     result = requests.post(url, json=json.dumps(users))
@@ -103,7 +103,7 @@ def inserisci_tratta(user_id,origine,destinazione,budget,adulti):
         cursor.execute(query,(origine, destinazione, adulti))
         result=cursor.fetchone()
         return result[0]+Count[0]
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
 
@@ -123,7 +123,7 @@ def inserisci_aeroporto(user_id,origine,budget):
         cursor.execute(query,(origine,))
         result=cursor.fetchone()
         return result[0]+Count[0]
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return -1
 
@@ -136,7 +136,7 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
         conn.commit()
         if trovati==0:
             return [-1]
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query DELETE: {e}")
     try:
         #ritorna il numero di utenti iscritti a quella tratta
@@ -146,7 +146,7 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
         return result
         #return [trovati,result]
         #return json.dumps({"trovati": trovati, "count": result[0]})
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query SELECT: {e}")
 
 def elimina_aeroporto(user_id,origine):
@@ -165,7 +165,7 @@ def elimina_aeroporto(user_id,origine):
         return result
         #return [trovati,result]
         #return json.dumps({"trovati": trovati, "count": result[0]})
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 #la chiamo solo se crasha qualcosa 
@@ -174,7 +174,7 @@ def crash():
         #conn1.close()
         #conn2.close()
         conn.close()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------

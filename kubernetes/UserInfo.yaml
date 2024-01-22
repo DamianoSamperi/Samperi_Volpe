@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: users-container
-        # image: samperi_volpe-users #TO_DO nome immagine + versione
-        image: kubernetes-db-users
+        image: samperi_volpe-users #TO_DO nome immagine + versione
+        # image: kubernetes-db-users
         imagePullPolicy: Never
         env: #TO_DO l'ho inserito per vedere se posso usare la variabile di ambiente nel service
         - name: MYSQL_ROOT_PASSWORD #TO_DO An environment variable named “MYSQL_ROOT_PASSWORD.”

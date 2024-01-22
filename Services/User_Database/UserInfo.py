@@ -23,11 +23,15 @@ app = Flask(__name__)
 #     ''')
 # except sqlite3.Error as e:
 #     print(f"Errore durante l'esecuzione della query: {e}")
-try:
-    conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='users')
-    cursor = conn.cursor()
-except mysql.connector.errors as e:
-    print(f"Errore durante l'esecuzione della query: {e}")
+while(True):
+    try:
+
+        conn = mysql.connector.connect(user='user', password='papero', host='mysql', database='users')
+        # conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='mysql', database='users')
+        cursor = conn.cursor()
+        break
+    except mysql.connector.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 
 def inserisci_client(nome,cognome,email):
@@ -38,19 +42,19 @@ def inserisci_client(nome,cognome,email):
         ''', (nome, cognome, email))
         conn.commit()
         return 'ok'
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return e
 
 def get_email_by_userid(*ids):
-    users=[]      
-    for id in ids:           
+    users=[]
+    for id in ids:
         try:
             query="SELECT email FROM users WHERE id= ?"
             cursor.execute(query, (id[0],))
             user = cursor.fetchall()
             users.append(user[0])
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
     return users
 
@@ -64,15 +68,15 @@ def control_client(email):
             return result
         else:
             return False
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
-   
+
 
 #la chiamo solo se crasha qualcosa
 def crash():
     try:
         conn.close()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante la chiusura della connessione al database: {e}")
 
 #FLASK----------------------------------------------------------------------------------
@@ -85,15 +89,15 @@ def controlla_utente():
 
 @app.route('/registra_utente', methods=['POST'])
 def inserisci_utente():
-    if request.method == 'POST': 
+    if request.method == 'POST':
         data = request.json
         stato = inserisci_client(data["nome"],data["cognome"],data["email"])
         result = {'message': stato, 'data': data}
-        return jsonify(result) 
-    
+        return jsonify(result)
+
 @app.route('/trova_email_by_user_id', methods=['POST'])
 def trova_utente():
-    if request.method == 'POST': 
+    if request.method == 'POST':
         data = request.json
         print("json ",data)
         data_dict = json.loads(data)
@@ -101,7 +105,7 @@ def trova_utente():
         emails=get_email_by_userid(*data_dict)
         print("emails ",emails)
         return jsonify(emails)
-    
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5001, debug=True, threaded=True)
 

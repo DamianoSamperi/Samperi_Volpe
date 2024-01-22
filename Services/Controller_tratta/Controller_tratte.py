@@ -44,7 +44,7 @@ app = Flask(__name__)
 try:
     conn = mysql.connector.connect(user='user', password=os.environ.get("MYSQL_ROOT_PASSWORD_POST_DB"), host='localhost', database='controllertratte')
     cursor = conn.cursor()
-except mysql.connector.errors as e:
+except mysql.connector.Error as e:
     print(f"Errore durante l'esecuzione della query: {e}")
 
     
@@ -56,7 +56,7 @@ def leggi_database():
         cursor.execute("SELECT * FROM aeroporti_salvati")
         risultati2 = cursor.fetchall()
 
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 
@@ -83,7 +83,7 @@ def leggi_database_tratte():
 
         # Ottieni i risultati
         risultati = cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
@@ -110,7 +110,7 @@ def leggi_database_aeroporti():
 
         # Ottieni i risultati
         risultati = cursor.fetchall()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
@@ -139,7 +139,7 @@ def scrivi_database_tratte(data):
         count = cursor.fetchone()
         
         # Esegui il commit delle modifiche
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         raise "errore connesione"
     if count[0]==0:
@@ -148,7 +148,7 @@ def scrivi_database_tratte(data):
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "insert error"
     else:
@@ -157,7 +157,7 @@ def scrivi_database_tratte(data):
             cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             conn.commit()
             return 'ok'
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "delete error"
 
@@ -175,7 +175,7 @@ def scrivi_database_aeroporti(data):
 
         # Esegui il commit delle modifiche
         conn.commit()
-    except mysql.connector.errors as e:
+    except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         raise "errore connesione"
     if count[0] == 0:
@@ -184,7 +184,7 @@ def scrivi_database_aeroporti(data):
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
             return 'ok'
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "insert error"
     else:
@@ -193,7 +193,7 @@ def scrivi_database_aeroporti(data):
             cursor.execute(query, (data['aeroporto'],))
             conn.commit()
             return 'ok'
-        except mysql.connector.errors as e:
+        except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             raise "delete error"
 
