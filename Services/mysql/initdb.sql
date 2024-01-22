@@ -52,10 +52,11 @@ CREATE DATABASE IF NOT EXISTS metrics;
 
 USE metrics;
 
-CREATE TABLE IF NOT EXISTS metrica (
+CREATE TABLE IF NOT EXISTS metriche (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        metrica VARCHAR(3) NOT NULL,
-        soglia FLOAT UNSIGNED
+        nome VARCHAR(20) NOT NULL,
+        soglia FLOAT UNSIGNED,
+        desiderato FLOAT UNSIGNED
 );
 
 CREATE DATABASE IF NOT EXISTS users;
