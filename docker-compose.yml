@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   controller_tratta:
+    container_name: controllertratta-service
     build:     
       context: Services/Controller_tratta
       dockerfile: Dockerfile
@@ -13,6 +14,7 @@ services:
       - daticontrollertratte:/Services/Controller_tratta/controllertratte
 
   elaboratore:
+    container_name: elaboratore-service
     build:     
       context: Services/Elaboratore
       dockerfile: Dockerfile  
@@ -22,6 +24,7 @@ services:
       - 5010:5010
 
   notifier:
+    container_name: notifier-service
     build:    
       context: Services/Notification
       dockerfile: Dockerfile
@@ -29,6 +32,7 @@ services:
       - "5003:5003"
 
   rules:
+    container_name: rules-service
     build:     
       context: Services/Rules_Database
       dockerfile: Dockerfile
@@ -40,6 +44,7 @@ services:
       - datirules:/Services/Rules_Database/rules
 
   scraper:
+    container_name: scraper-service
     depends_on:
       - controller_tratta
       - kafka
@@ -52,6 +57,7 @@ services:
      - 5012:5012
 
   user_controller:
+    container_name: user-controller-service
     build:     
       context: Services/User_controller
       dockerfile: Dockerfile
@@ -59,6 +65,7 @@ services:
       - "5000:5000"
 
   users:
+    container_name: users-service
     build:     
       context: Services/User_Database
       dockerfile: Dockerfile
