@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)         
 
 def autentica_client(email):
-    url = 'http://users-service:5001/controlla_utente'
+    url = 'http://users:5001/controlla_utente'
     params = {'email': email}
     try:
         response = requests.get(url, params=params)
@@ -74,7 +74,7 @@ def registra_client():
     #prima controllo se era già registrato
     autenticato =autentica_client(data["email"])
     if  autenticato == False:
-        url = 'http://users-service:5001/registra_utente'
+        url = 'http://users:5001/registra_utente'
         payload = {'email': data["email"], 'nome': data["nome"], 'cognome': data["cognome"]}
         headers = {'Content-Type': 'application/json'}
         response = requests.post(url, json=payload, headers=headers)
