@@ -127,5 +127,5 @@ data:
             id INT PRIMARY KEY AUTO_INCREMENT,
             nome VARCHAR(20) NOT NULL,
             cognome VARCHAR(20) NOT NULL,
-            email VARCHAR(40) NOT NULL
+            email VARCHAR(50) NOT NULL
     );

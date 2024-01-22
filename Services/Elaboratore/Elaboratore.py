@@ -33,7 +33,7 @@ while True:
         time.sleep(15)
 
 def invioNotifier(notifiche):
-    response = requests.post('http://notifier-service :5003/recuperomail', json={'notifiche':notifiche})
+    response = requests.post('http://notifier-service:5003/recuperomail', json={'notifiche':notifiche})
 
 #istanzio il consumer una sola volta
 def leggi_topic_tratte():
@@ -41,6 +41,7 @@ def leggi_topic_tratte():
     for messages in consumer_tratta:
         # Ottieni il messaggio dal topic Kafka
         # msg = message.value
+        print("ho ricevuto notifiche ",messages.value)
         for message in messages.value:
             result = requests.post('http://user-controller-service:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'],'adulti': message['adulti'] }) #aggiunti adulti
         #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
@@ -65,6 +66,7 @@ def leggi_topic_aeroporti():
     notifiche = []
     for messages in consumer_aeroporto:
         #msg = message.value
+        print("ho ricevuto notifiche ",messages.value)
         for message in messages.value:
             result = requests.post('http://user-controller-service:5000/trova_email_by_offerte', json={'ori':message['origin'], 'pr': message['price']})
             emails=result.json()
