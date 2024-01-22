@@ -42,6 +42,7 @@ def inviotratta(data):
     if data != []:
         producer.send('Tratte', data)
         #flush dovrebbe aspettare che il messaggio venga effettivamente inviato
+        print("sto inviando a kafka: ",data)
         producer.flush()
 def invioaeroporto(data):
     if data != []:
