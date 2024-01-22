@@ -41,11 +41,13 @@ app = Flask(__name__)
 #     ''') #tu avevi messo aeroporti
 # except sqlite3.Error as e:
 #     print(f"Errore durante l'esecuzione della query: {e}")
-try:
-    conn = mysql.connector.connect(user='root', password='password', host='mysql', database='controllertratte')
-    cursor = conn.cursor()
-except mysql.connector.Error as e:
-    print(f"Errore durante l'esecuzione della query: {e}")
+while(True):
+    try:
+        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='controllertratte')
+        cursor = conn.cursor()
+        break
+    except mysql.connector.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
 
     
 def leggi_database():

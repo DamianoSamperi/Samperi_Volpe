@@ -13,12 +13,13 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 #response time e consumo di cpu
 #misura a rules
 app=Flask(__name__)
-
-try:
-    conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
-    cursor = conn.cursor()
-except mysql.connector.Error as e:
-    print(f"Errore durante l'esecuzione della query: {e}")
+while(True):
+    try:
+        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
+        cursor = conn.cursor()
+        break
+    except mysql.connector.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie

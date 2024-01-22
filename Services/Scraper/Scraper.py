@@ -18,11 +18,13 @@ amadeus = Client(
     client_id='VGSEQ2nHW7nHDGB1oBOMSsmXBYwWMEkQ',
     client_secret='qtXqxyhlSA4lMrO'+'d'
 )
-try:
-    conn = mysql.connector.connect(user='root', password='password', host='mysql', database='scraper')
-    cursor = conn.cursor()
-except mysql.connector.Error as e:
-    print(f"Errore durante l'esecuzione della query: {e}")
+while(True):
+    try:
+        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='scraper')
+        cursor = conn.cursor()
+        break
+    except mysql.connector.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
 
     
 while True:
