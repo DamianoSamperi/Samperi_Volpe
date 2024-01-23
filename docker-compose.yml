@@ -182,6 +182,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:latest
     restart: always
+    container_name: kafka-service
     depends_on:
       - zookeeper
     ports:
