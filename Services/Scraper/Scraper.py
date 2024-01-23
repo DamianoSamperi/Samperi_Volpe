@@ -192,7 +192,7 @@ def chiedi_tratte_controller_tratte():
             # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delle tratte: {e}")
-        raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
+        # raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
 
         
 @circuit(failure_threshold=5,recovery_timeout=43200)
@@ -204,10 +204,10 @@ def chiedi_aeroporti_controller_tratte():
             print("ho ricevuto aeroporti da controller ",data)
             # return aeroporti
             cursor.execute("TRUNCATE TABLE aeroporti_salvati")
-            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (%s )" #TO_DO da modificare se vogliamo aggiungere adults
+            query = "INSERT INTO aeroporti_salvati ( origine) VALUES (%s )" 
             # cursor.execute(query, (data['aeroporto'],))
             for item in data:
-                cursor.execute(query, (item['aeroporto']),)
+                cursor.execute(query, (item['origine'],))
                 conn.commit()
             # conn.commit()
     except Exception as e:
@@ -285,4 +285,5 @@ while True:
             time.sleep(0.5)
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error}")
+            
     time.sleep(86400)

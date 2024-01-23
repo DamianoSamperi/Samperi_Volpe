@@ -113,10 +113,11 @@ data:
 
     USE metrics;
 
-    CREATE TABLE IF NOT EXISTS metrica (
+    CREATE TABLE IF NOT EXISTS metriche (
             id INT PRIMARY KEY AUTO_INCREMENT,
-            metrica VARCHAR(3) NOT NULL,
-            soglia FLOAT UNSIGNED
+            nome VARCHAR(40) NOT NULL,
+            soglia FLOAT UNSIGNED,
+            desiderato FLOAT UNSIGNED
     );
 
     CREATE DATABASE IF NOT EXISTS users;
@@ -129,3 +130,4 @@ data:
             cognome VARCHAR(20) NOT NULL,
             email VARCHAR(50) NOT NULL
     );
+
