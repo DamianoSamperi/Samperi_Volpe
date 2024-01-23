@@ -270,7 +270,7 @@ while True:
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.5)
         except ResponseError as error:
-            print(f"Errore durante l'esecuzione della chiamata API: {error}")
+            print(f"Errore durante l'esecuzione della chiamata API: {error.code}")
 
     try:
         chiedi_aeroporti_controller_tratte()
@@ -284,6 +284,5 @@ while True:
             invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
             time.sleep(0.5)
         except ResponseError as error:
-            print(f"Errore durante l'esecuzione della chiamata API: {error}")
-            
+            print(f"Errore durante l'esecuzione della chiamata API: {error.code}")    
     time.sleep(86400)
