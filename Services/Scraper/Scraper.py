@@ -83,7 +83,7 @@ def recupero_tratte():
 
     # Inizializza un array vuoto
     tratte = []
-
+    
     # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
         tratte.append({"origine": tupla[1] , "destinazione" : tupla[2], "adulti": tupla[3]}) #TO_DO Damiano credo sia giusto ma vedi tu
@@ -252,7 +252,6 @@ def chiedi_aeroporti_controller_tratte():
 #             print(f"Errore durante l'esecuzione della chiamata API: {error}")
 #     time.sleep(86400)
 
-    
 
 while True:
     domani = datetime.now() + timedelta(days=1) 

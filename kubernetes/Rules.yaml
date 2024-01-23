@@ -43,7 +43,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi  # Imposta la dimensione del tuo volume persistente
+      storage: 100Mi  # Imposta la dimensione del tuo volume persistente
 
 ---
 apiVersion: v1

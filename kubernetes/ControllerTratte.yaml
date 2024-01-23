@@ -43,7 +43,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi  # Imposta la dimensione del tuo volume persistente
+      storage: 500Mi  # Imposta la dimensione del tuo volume persistente
 
 ---
 apiVersion: v1
@@ -51,10 +51,10 @@ kind: Service
 metadata:
   name: controllertratta-service
   labels: #non so se serve
-    app: controller_tratta
+    app: controllertratta
 spec:
   selector:
-    app: controller_tratta
+    app: controllertratta
   ports:
     #- protocol: TCP
     - port: 5002

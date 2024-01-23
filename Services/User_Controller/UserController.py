@@ -39,7 +39,7 @@ def invia_tratta(origine, destinazione, adulti):
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
-    print(response.status_code)
+    print("risposta ",response.status_code)
     print(response.text)
 
 def invia_aeroporto(aeroporto):

@@ -22,7 +22,7 @@ while True:
 while True:
     try:            
         consumer_aeroporto = KafkaConsumer('Aeroporti',
-                                bootstrap_servers=['kafka:9092'],
+                                bootstrap_servers=['kafka-service:9092'],
                                 group_id='grp1',
                                 enable_auto_commit=False,
                                 value_deserializer=lambda m: json.loads(m.decode('utf-8'))) #quest'ultimo valore da controllare
