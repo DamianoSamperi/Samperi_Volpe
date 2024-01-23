@@ -27,14 +27,14 @@ while(True):
 prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie
 metrics = [
-    {'nome': 'node_network_receive_errs_total', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_network_transmit_errs_total', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_memory_MemAvailable_bytes', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_ipvs_connection_total', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_ipvs_incoming_bytes_total', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_ipvs_incoming_packets_total', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_ipvs_outgoing_bytes_total', 'soglia': 10, 'desiderato': 5},
-    {'nome': 'node_ipvs_outgoing_packets_total', 'soglia': 10, 'desiderato': 5}
+    {'nome': 'node_network_receive_errs_total', 'soglia': 2, 'desiderato': 0},
+    {'nome': 'node_network_transmit_errs_total', 'soglia': 2, 'desiderato': 0},
+    {'nome': 'node_memory_MemAvailable_bytes', 'soglia': 884879400, 'desiderato': 884879360},
+    {'nome': 'node_ipvs_connections_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    {'nome': 'node_ipvs_incoming_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    {'nome': 'node_ipvs_incoming_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    {'nome': 'node_ipvs_outgoing_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    {'nome': 'node_ipvs_outgoing_packets_total', 'soglia': 10, 'desiderato': 5} #vedi
 ]
 
 for metric in metrics:

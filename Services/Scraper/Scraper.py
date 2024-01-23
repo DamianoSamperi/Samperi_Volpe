@@ -30,7 +30,7 @@ while(True):
     
 while True:
     try:
-        producer = KafkaProducer(bootstrap_servers=['kafka:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8')) 
+        producer = KafkaProducer(bootstrap_servers=['kafka-service:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8')) 
         print("connesso al broker")
         break
     except errors.NoBrokersAvailable as error:
