@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: slamanager
+  namespace: monitoring
 spec:
   replicas: 1 #scegliamo numero di repliche
   selector:
@@ -38,6 +39,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: slamanager-pvc
+  namespace: monitoring
 spec:
   accessModes:
     - ReadWriteOnce
@@ -50,6 +52,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: slamanager-service
+  namespace: monitoring
   labels: #non so se serve
     app: slamanager
 spec:
