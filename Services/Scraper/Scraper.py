@@ -188,6 +188,7 @@ def chiedi_tratte_controller_tratte():
             for item in data:
                 cursor.execute(query, (item['origine'], item['destinazione'], item['adulti']))
                 conn.commit()
+            return data
             # cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             # conn.commit()
     except Exception as e:
@@ -209,6 +210,7 @@ def chiedi_aeroporti_controller_tratte():
             for item in data:
                 cursor.execute(query, (item['origine'],))
                 conn.commit()
+            return data
             # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
@@ -257,10 +259,10 @@ while True:
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
     try:
-        chiedi_tratte_controller_tratte()
-        tratte=recupero_tratte()
+        tratte=chiedi_tratte_controller_tratte()
     except Exception as e:
-        print(f"errore durante la richiesta: {e}")
+        print(f"errore durante la richiesta: {e} , Accedo al database per le tratte salvate")
+        tratte=recupero_tratte()
     for tratta in tratte:
         try:
             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
@@ -272,10 +274,10 @@ while True:
             print(f"Errore durante l'esecuzione della chiamata API: {error.code}")
 
     try:
-        chiedi_aeroporti_controller_tratte()
-        aeroporti=recupero_aeroporti()
+        aeroporti=chiedi_aeroporti_controller_tratte()
     except Exception as e:
-        print(f"errore durante la richiesta: {e}")  
+        print(f"errore durante la richiesta: {e} , Accedo al database per gli aeroporti salvati")  
+        aeroporti=recupero_aeroporti()
     for aeroporto in aeroporti:
         try:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
@@ -285,3 +287,4 @@ while True:
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error.code}")    
     time.sleep(86400)
+
