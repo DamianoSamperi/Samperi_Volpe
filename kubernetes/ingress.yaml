@@ -30,4 +30,3 @@ spec:
       #       name: slamanager-service
       #       port:
       #         number: 5014
-
