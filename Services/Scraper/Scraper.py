@@ -188,8 +188,8 @@ def chiedi_tratte_controller_tratte():
             for item in data:
                 cursor.execute(query, (item['origine'], item['destinazione'], item['adulti']))
                 conn.commit()
-            return data
-            # return True TO_DO in caso uso circuit breaker
+            # return data
+            return True 
         
             # cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             # conn.commit()
@@ -212,8 +212,8 @@ def chiedi_aeroporti_controller_tratte():
             for item in data:
                 cursor.execute(query, (item['origine'],))
                 conn.commit()
-            return data
-            # return True TO_DO in caso uso circuit breaker
+            # return data
+            return True 
             # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
@@ -257,29 +257,30 @@ def chiedi_aeroporti_controller_tratte():
 #             print(f"Errore durante l'esecuzione della chiamata API: {error}")
 #     time.sleep(86400)
 
-
+aeroporti=[]
+tratte=[]
 while True:
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
-    try:
-        tratte=chiedi_tratte_controller_tratte()
-    except Exception as e:
-        print(f"errore durante la richiesta: {e} , Accedo al database per le tratte salvate")
-        tratte=recupero_tratte()
+    # try:
+    #     tratte=chiedi_tratte_controller_tratte()
+    # except Exception as e:
+    #     print(f"errore durante la richiesta: {e} , Accedo al database per le tratte salvate")
+    #     tratte=recupero_tratte()
     
     # possibilità uso circuit breaker veramente un poò brutto ma vabbe
-    # try:
-    #     stato=False
-    #     while not stato:
-    #         try:
-    #           stato=chiedi_tratte_controller_tratte()
-    #         except requests.exceptions.ConnectionError:
-    #           print("Connessione rifiutata riprovo a connettermi...\n")
-    #         print("prova ciclo")
-    # except CircuitBreakerError:
-    #     print("Microservizio momentaneamente down, faccio richiesta al database\n")
-    #     tratte=recupero_tratte()
-    #     break
+    try:
+        stato=False
+        while not stato:
+            try:
+              stato=chiedi_tratte_controller_tratte()
+            except requests.exceptions.ConnectionError:
+              print("Connessione rifiutata riprovo a connettermi...\n")
+            print("prova ciclo")
+    except CircuitBreakerError:
+        print("Microservizio momentaneamente down, faccio richiesta al database\n")
+        tratte=recupero_tratte()
+        break
 
     for tratta in tratte:
         try:
@@ -291,24 +292,25 @@ while True:
         except ResponseError as error:
             print(f"Errore durante l'esecuzione della chiamata API: {error.code}")
 
-    try:
-        aeroporti=chiedi_aeroporti_controller_tratte()
-    except Exception as e:
-        print(f"errore durante la richiesta: {e} , Accedo al database per gli aeroporti salvati")  
-        aeroporti=recupero_aeroporti()
-    # possibilità uso circuit breaker veramente un poò brutto ma vabbe
     # try:
-    #     stato=False
-    #     while not stato:
-    #         try:
-    #           stato=chiedi_aeroporti_controller_tratte()
-    #         except requests.exceptions.ConnectionError:
-    #           print("Connessione rifiutata riprovo a connettermi...\n")
-    #         print("prova ciclo")
-    # except CircuitBreakerError:
-    #     print("Microservizio momentaneamente down, faccio richiesta al database\n")
+    #     aeroporti=chiedi_aeroporti_controller_tratte()
+    # except Exception as e:
+    #     print(f"errore durante la richiesta: {e} , Accedo al database per gli aeroporti salvati")  
     #     aeroporti=recupero_aeroporti()
-    #     break
+
+    # possibilità uso circuit breaker veramente un poò brutto ma vabbe
+    try:
+        stato=False
+        while not stato:
+            try:
+              stato=chiedi_aeroporti_controller_tratte()
+            except requests.exceptions.ConnectionError:
+              print("Connessione rifiutata riprovo a connettermi...\n")
+            print("prova ciclo")
+    except CircuitBreakerError:
+        print("Microservizio momentaneamente down, faccio richiesta al database\n")
+        aeroporti=recupero_aeroporti()
+        break
 
     for aeroporto in aeroporti:
         try:
