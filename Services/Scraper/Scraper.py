@@ -279,12 +279,12 @@ while True:
             print("prova ciclo")
     except CircuitBreakerError:
         print("Microservizio momentaneamente down, faccio richiesta al database\n")
-        tratte=recupero_tratte()
         break
-
+    
+    tratte=recupero_tratte()
     for tratta in tratte:
         try:
-            # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
+            print("data ",data_domani, tratta["origine"], tratta["destinazione"])
             response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
             data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
@@ -309,9 +309,9 @@ while True:
             print("prova ciclo")
     except CircuitBreakerError:
         print("Microservizio momentaneamente down, faccio richiesta al database\n")
-        aeroporti=recupero_aeroporti()
         break
 
+    aeroporti=recupero_aeroporti()
     for aeroporto in aeroporti:
         try:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
