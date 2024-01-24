@@ -8,7 +8,7 @@ import time
 import requests
 import threading
 from datetime import datetime, timedelta
-from circuitbreaker import circuit
+from circuitbreaker import circuit,CircuitBreakerError
 import mysql.connector
 import os
 
@@ -189,11 +189,13 @@ def chiedi_tratte_controller_tratte():
                 cursor.execute(query, (item['origine'], item['destinazione'], item['adulti']))
                 conn.commit()
             return data
+            # return True TO_DO in caso uso circuit breaker
+        
             # cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
             # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delle tratte: {e}")
-        # raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
+        raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
 
         
 @circuit(failure_threshold=5,recovery_timeout=43200)
@@ -211,6 +213,7 @@ def chiedi_aeroporti_controller_tratte():
                 cursor.execute(query, (item['origine'],))
                 conn.commit()
             return data
+            # return True TO_DO in caso uso circuit breaker
             # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
@@ -263,6 +266,21 @@ while True:
     except Exception as e:
         print(f"errore durante la richiesta: {e} , Accedo al database per le tratte salvate")
         tratte=recupero_tratte()
+    
+    # possibilità uso circuit breaker veramente un poò brutto ma vabbe
+    # try:
+    #     stato=False
+    #     while not stato:
+    #         try:
+    #           stato=chiedi_tratte_controller_tratte()
+    #         except requests.exceptions.ConnectionError:
+    #           print("Connessione rifiutata riprovo a connettermi...\n")
+    #         print("prova ciclo")
+    # except CircuitBreakerError:
+    #     print("Microservizio momentaneamente down, faccio richiesta al database\n")
+    #     tratte=recupero_tratte()
+    #     break
+
     for tratta in tratte:
         try:
             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
@@ -278,6 +296,20 @@ while True:
     except Exception as e:
         print(f"errore durante la richiesta: {e} , Accedo al database per gli aeroporti salvati")  
         aeroporti=recupero_aeroporti()
+    # possibilità uso circuit breaker veramente un poò brutto ma vabbe
+    # try:
+    #     stato=False
+    #     while not stato:
+    #         try:
+    #           stato=chiedi_aeroporti_controller_tratte()
+    #         except requests.exceptions.ConnectionError:
+    #           print("Connessione rifiutata riprovo a connettermi...\n")
+    #         print("prova ciclo")
+    # except CircuitBreakerError:
+    #     print("Microservizio momentaneamente down, faccio richiesta al database\n")
+    #     aeroporti=recupero_aeroporti()
+    #     break
+
     for aeroporto in aeroporti:
         try:
             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
