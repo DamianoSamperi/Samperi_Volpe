@@ -55,21 +55,22 @@ def get_metrics_list():
         metriche = cursor.fetchall()
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
+    valori = [tupla[0] for tupla in metriche]
+    metriche = ', '.join(valori)
     return metriche
 
 #prende il valore attuale delle metriche
 @app.route('/get_valori_attuali', methods=['POST'])
 def fetch_prometheus_metrics():
     #query a prometheus con la lista di metriche
-    metrics_list=get_metrics_list()
-    query = ', '.join(metrics_list) #sistema
-    # Crea un'istanza di PrometheusConnect con l'URL del tuo server Prometheus
+    query=get_metrics_list()
     prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
     # Esegui la query per ottenere le metriche specifiche
     result = prom.custom_query(query)
     # Restituisci i risultati della query
     return result
 
+#permette di eliminare una metrica dal SLA set
 @app.route('/elimina_metrica', methods=['POST'])
 def elimina_metrica():
     if request.method == 'POST': 
@@ -82,7 +83,8 @@ def elimina_metrica():
             print(f"Errore durante l'esecuzione della query: {e}")
             return e
         return "metrica eliminata"
-    
+
+#permette di aggiungere una metrica dal SLA set    
 @app.route('/aggiungi_metrica', methods=['POST'])
 def aggiungi_metrica():
     if request.method == 'POST': 
@@ -115,6 +117,7 @@ def get_valori_desiderati():
 def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna prometheus
     violazioni={}
     valori=fetch_prometheus_metrics()
+    print("valori ritornati da prometheus", valori)
     for valore in valori:
         try:
             query="SELECT soglia FROM metriche WHERE nome=%s"
@@ -168,8 +171,7 @@ def get_probabilità_violazioni():
         end_time=datetime.utcnow()
         start_time=end_time-timedelta(minutes=10) #TO_DO vedi se così è giusto
         #chiedo a prometheus i valori delle metriche negli ultimi 30 minuti
-        metrics=get_metrics_list()
-        query = ', '.join(metrics)
+        query=get_metrics_list()
         prom = PrometheusConnect(url=prometheus_url)
         response=prom.custom_query_range(query, start=start_time, end=end_time, step="5s")
         metric_data = response['data']['result']
