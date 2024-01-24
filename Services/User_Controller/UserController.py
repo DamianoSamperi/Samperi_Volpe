@@ -33,23 +33,37 @@ def trova_email_by_offerte(ori,pr):
     result = requests.post(url, json={'ori':ori,'pr':pr})
     return result.json()
 
-def invia_tratta(origine, destinazione, adulti):
+def invia_tratta(origine, destinazione, adulti, id):
     url = 'http://controllertratta-service:5002/ricevi_tratte_usercontroller'
-    payload = {'origine': origine, 'destinazione': destinazione, 'adulti': adulti} #aggiunti adulti
+    payload = {'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print("risposta ",response.status_code)
+    if response.status_code!=200:
+        url = 'http://rules-service:5005/elimina_tratte_Rules'
+        payload = {'userid': id, 'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, json=payload, headers=headers)
+        return "non è stato possibile registrarsi"
     print(response.text)
+    return "iscrizione effettuata"
 
-def invia_aeroporto(aeroporto):
+def invia_aeroporto(aeroporto, id):
     url = 'http://controllertratta-service:5002/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, json=payload, headers=headers)
     # Stampa la risposta ricevuta dal servizio
     print(response.status_code)
+    if response.status_code!=200:
+        url = 'http://rules-service:5005/elimina_aeroporto_Rules'
+        payload = {'userid': id, 'origine': aeroporto}
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, json=payload, headers=headers)
+        return "non è stato possibile registrarsi"
     print(response.text)
+    return "iscrizione effettuata"
 
 #FLASK----------------------------------------------------------------------------------
 @app.route('/trova_email_by_tratta', methods=['POST'])
@@ -112,8 +126,8 @@ def inserisci_tratta():
                     if response.json()["count"]!=-1:
                         if response.json()["count"]==1: #la invia solo è il primo cliente ad averla chiesta
                             print("sto inviando")
-                            invia_tratta(origine,destinazione,adulti)
-                        return "Iscrizione effettuata" 
+                            riuscito=invia_tratta(origine,destinazione,adulti,user[0])
+                        return riuscito 
                     else:
                         return "Errore durante l'iscrizione"     
             return "autenticazione fallita, si prega di registrarsi"
@@ -142,8 +156,8 @@ def inserisci_aeroporto():
                 #print(response.status_code) forse devo controllare lo status_code
                 if response.json()["count"]!=-1:
                     if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
-                        invia_aeroporto(origine)
-                    return "Iscrizione effettuata"
+                        riuscito=invia_aeroporto(origine,user[0])
+                    return riuscito
                 else:
                     return "Errore durante l'iscrizione"   
         return "autenticazione fallita, si prega di registrarsi"
