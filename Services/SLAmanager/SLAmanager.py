@@ -1,5 +1,5 @@
 import time
-from prometheus_api_client import PrometheusConnect, MetricRangeDataFrame
+from prometheus_api_client import PrometheusConnect, MetricRangeDataFrame, PrometheusApiClientException
 from flask import Flask, jsonify, request
 import mysql.connector
 import os
@@ -62,13 +62,16 @@ def get_metrics_list():
 #prende il valore attuale delle metriche
 @app.route('/get_valori_attuali', methods=['POST'])
 def fetch_prometheus_metrics():
-    #query a prometheus con la lista di metriche
-    query=get_metrics_list()
-    prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
-    # Esegui la query per ottenere le metriche specifiche
-    result = prom.custom_query(query)
-    # Restituisci i risultati della query
-    return result
+    try:
+        #query a prometheus con la lista di metriche
+        query=get_metrics_list()
+        prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
+        # Esegui la query per ottenere le metriche specifiche
+        result = prom.custom_query(query)
+        # Restituisci i risultati della query
+        return result
+    except PrometheusApiClientException as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
 
 #permette di eliminare una metrica dal SLA set
 @app.route('/elimina_metrica', methods=['POST'])

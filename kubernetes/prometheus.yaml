@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: monitoring
+  # namespace: monitoring
 data:
   prometheus.yml: | #TO_DO in questo caso ho fatto per node-exporter, ma lo possiamo modificare #aggiunto evalutation inerval, rules, alerting
     global:
@@ -61,7 +61,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
-  namespace: monitoring
+  # namespace: monitoring
   labels:
     app: prometheus
 spec:
@@ -96,7 +96,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus-service
-  namespace: monitoring
+  # namespace: monitoring
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port:   '9090'
