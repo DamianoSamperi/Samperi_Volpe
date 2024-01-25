@@ -124,12 +124,12 @@ def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna promethe
     for valore in valori:
         try:
             query="SELECT soglia FROM metriche WHERE nome=%s"
-            cursor.execute(query, (valore['nome'],))
+            cursor.execute(query, (valore["metric"]["__name__"],))
             value = cursor.fetchone()
-            if valore['value']>value:
-                violazioni[valore['nome']]=True
+            if valore["value"]>value: #TO_DO vedi, non so quale dei numeri prende
+                violazioni[valore["metric"]["__name__"]]=True
             else:
-                violazioni[valore['nome']]=False
+                violazioni[valore["metric"]["__name__"]]=False
         except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             return e
@@ -173,17 +173,18 @@ def get_probabilità_violazioni():
         data = request.json
         end_time=datetime.utcnow()
         start_time=end_time-timedelta(minutes=10) #TO_DO vedi se così è giusto
-        #chiedo a prometheus i valori delle metriche negli ultimi 30 minuti
+        #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         query=get_metrics_list()
         prom = PrometheusConnect(url=prometheus_url)
         response=prom.custom_query_range(query, start=start_time, end=end_time, step="5s")
         metric_data = response['data']['result']
+        print(metric_data)
 
         for entry in metric_data:
             #modo con ExponentialSmoothing
             metric_name = entry['metric']['__name__']
             # Estraggo i dati specifici per la metrica corrente
-            metric_values = entry['values']
+            metric_values = entry['values'] #TO_DO forse è value
             # Converti i dati delle metriche in un DataFrame pandas
             df = pd.DataFrame(metric_values, columns=['timestamp', 'value'])
             df['timestamp'] = pd.to_datetime(df['timestamp'])
