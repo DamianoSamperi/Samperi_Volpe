@@ -4,3 +4,13 @@ groups:
     - alert: InstanceDown
     expr: up == 0
     for: 360m #6 ore down
+
+
+# groups:
+# - name: alert.rules
+#   rules:
+#   - alert: InstanceDown
+#     expr: up == 0
+#     for: 1m
+#     labels:
+#       severity: "critical"
