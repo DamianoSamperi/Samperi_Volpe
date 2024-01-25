@@ -125,8 +125,11 @@ def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna promethe
     print("valori ritornati da prometheus", valori)
     for valore in valori:
         try:
+            #TO_DO da' problemi, è strano forse il valore che prende, ho provato ma bho
+            #lo da' tipo come lista con indice di stringa
+            nome_metrica=valore["metric"]["__name__"]
             query="SELECT soglia FROM metriche WHERE nome=%s"
-            cursor.execute(query, (valore["metric"]["__name__"],))
+            cursor.execute(query, (nome_metrica,))
             value = cursor.fetchone()
             if valore["value"]>value: #TO_DO vedi, non so quale dei numeri prende
                 violazioni[valore["metric"]["__name__"]]=True
