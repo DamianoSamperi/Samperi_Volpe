@@ -122,21 +122,26 @@ def get_valori_desiderati():
 def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna prometheus
     violazioni={}
     valori=fetch_prometheus_metrics()
-    print("valori ritornati da prometheus", valori)
+    #print("valori ritornati da prometheus", valori,"\n")
     for valore in valori:
         try:
             #TO_DO da' problemi, è strano forse il valore che prende, ho provato ma bho
             #lo da' tipo come lista con indice di stringa
-            nome_metrica=valore["metric"]["__name__"]
+            print("valore attuale ",valore,"\n")
+            nome_metrica=valore[0]["metric"]["__name__"]
             query="SELECT soglia FROM metriche WHERE nome=%s"
             cursor.execute(query, (nome_metrica,))
             value = cursor.fetchone()
-            if valore["value"]>value: #TO_DO vedi, non so quale dei numeri prende
-                violazioni[valore["metric"]["__name__"]]=True
+            cursor.reset()
+            if valore[0]["value"][0]>value[0]: #TO_DO vedi, non so quale dei numeri prende MA OVVIAMENTE TUTTE,QUALE CASPITERINA VUOI
+                violazioni[valore[0]["metric"]["__name__"]]=True
             else:
-                violazioni[valore["metric"]["__name__"]]=False
+                violazioni[valore[0]["metric"]["__name__"]]=False
         except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
+            return e
+        except Exception as e:
+            print(f"Errore durante l'esecuzione : {e}")
             return e
     return violazioni #forse meglio tornare un json?
 

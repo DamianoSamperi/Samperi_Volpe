@@ -4,14 +4,14 @@ metadata:
   name: prometheus-config
   # namespace: monitoring
 data:
-  prometheus.rules: |-
+  prometheus.rules: |
     groups:
     -name: alert
       rules:
       - alert: InstanceDown
       expr: up == 0
       for: 360m #6 ore down
-  prometheus.yml: | #TO_DO in questo caso ho fatto per node-exporter, ma lo possiamo modificare #aggiunto evalutation inerval, rules, alerting
+  prometheus.yml: |
     global:
       scrape_interval: 15s
       evaluation_interval: 15s  
