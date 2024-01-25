@@ -37,17 +37,12 @@ def invia_tratta(origine, destinazione, adulti):
     url = 'http://controllertratta-service:5002/ricevi_tratte_usercontroller'
     payload = {'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, json=payload, headers=headers)
-    # Stampa la risposta ricevuta dal servizio
-    print("risposta ",response.status_code)
-    if response.status_code!=200:
-        '''
-        url = 'http://rules-service:5005/elimina_tratte_Rules'
-        payload = {'userid': id, 'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
-        headers = {'Content-Type': 'application/json'}
+    try:
         response = requests.post(url, json=payload, headers=headers)
-        return "non è stato possibile registrarsi"
-        '''
+    except Exception as e:
+        #print("risposta ",response.status_code)
+        #if response.status_code!=200:
+        print(f"Errore con la richiesta HTTP: {e}")
         return 0
     print(response.text)
     return "iscrizione effettuata"
@@ -56,17 +51,12 @@ def invia_aeroporto(aeroporto):
     url = 'http://controllertratta-service:5002/ricevi_aeroporto_usercontroller'
     payload = {'aeroporto': aeroporto}
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url, json=payload, headers=headers)
-    # Stampa la risposta ricevuta dal servizio
-    print(response.status_code)
-    if response.status_code!=200:
-        '''
-        url = 'http://rules-service:5005/elimina_aeroporto_Rules'
-        payload = {'userid': id, 'origine': aeroporto}
-        headers = {'Content-Type': 'application/json'}
+    try:
         response = requests.post(url, json=payload, headers=headers)
-        return "non è stato possibile registrarsi"
-        '''
+    except Exception as e:
+        # Stampa la risposta ricevuta dal servizio
+        #print(response.status_code)
+        print(f"Errore con la richiesta HTTP: {e}")
         return 0
     print(response.text)
     return "iscrizione effettuata"
@@ -139,7 +129,7 @@ def inserisci_tratta():
                                 headers = {'Content-Type': 'application/json'}
                                 response = requests.post(url, json=payload, headers=headers)
                                 return "non è stato possibile registrarsi alla tratta"
-                        return riuscito 
+                        return "Iscrizione effettuata" 
                     else:
                         return "Errore durante l'iscrizione"     
             return "autenticazione fallita, si prega di registrarsi"
@@ -175,7 +165,7 @@ def inserisci_aeroporto():
                             headers = {'Content-Type': 'application/json'}
                             response = requests.post(url, json=payload, headers=headers)
                             return "non è stato possibile registrarsi all'aeroporto"
-                    return riuscito
+                    return "Iscrizione effettuata"
                 else:
                     return "Errore durante l'iscrizione"   
         return "autenticazione fallita, si prega di registrarsi"
@@ -202,7 +192,10 @@ def disiscrizione_tratta():
             #return response.json()
             if response.json()["count"]!=-1:
                 if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-                    invia_tratta(origine,destinazione,adulti)
+                    print("sto eliminando ")
+                    result=invia_tratta(origine,destinazione,adulti)
+                    if result==0:
+                        return "Errore durante la disiscrizione"
             else:
                 return "Utente non registrato a questa tratta" 
             #if response.json()[0]==0:
@@ -227,7 +220,10 @@ def disiscrizione_aeroporto():
             #print(response.status_code) forse devo controllare lo status_code
             if response.json()["count"]!=-1:
                 if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
-                    invia_aeroporto(origine)  
+                    print("sto eliminando ")
+                    result=invia_aeroporto(origine) 
+                    if result==0:
+                        return "Errore durante la disiscrizione" 
             else:
                 return "Utente non registrato a questo aeroporto" 
             #if response.json()["trovati"]==0:

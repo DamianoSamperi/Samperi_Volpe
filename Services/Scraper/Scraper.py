@@ -279,18 +279,18 @@ while True:
             print("prova ciclo")
     except CircuitBreakerError:
         print("Microservizio momentaneamente down, faccio richiesta al database\n")
-        break
-    
-    tratte=recupero_tratte()
-    for tratta in tratte:
-        try:
-            print("data ",data_domani, tratta["origine"], tratta["destinazione"])
-            response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
-            data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
-            inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0.5)
-        except ResponseError as error:
-            print(f"Errore durante l'esecuzione della chiamata API: {error.code}")
+        #break
+    finally:
+        tratte=recupero_tratte()
+        for tratta in tratte:
+            try:
+                print("data ",data_domani, tratta["origine"], tratta["destinazione"])
+                response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
+                data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
+                inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+                time.sleep(0.5)
+            except ResponseError as error:
+                print(f"Errore durante l'esecuzione della chiamata API: {error.code}")
 
     # try:
     #     aeroporti=chiedi_aeroporti_controller_tratte()
@@ -299,26 +299,26 @@ while True:
     #     aeroporti=recupero_aeroporti()
 
     # possibilità uso circuit breaker veramente un poò brutto ma vabbe
-    try:
-        stato=False
-        while not stato:
-            try:
-              stato=chiedi_aeroporti_controller_tratte()
-            except requests.exceptions.ConnectionError:
-              print("Connessione rifiutata riprovo a connettermi...\n")
-            print("prova ciclo")
-    except CircuitBreakerError:
-        print("Microservizio momentaneamente down, faccio richiesta al database\n")
-        break
-
-    aeroporti=recupero_aeroporti()
-    for aeroporto in aeroporti:
         try:
-            response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
-            data = trova_prezzo_aeroporto(response)
-            invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-            time.sleep(0.5)
-        except ResponseError as error:
-            print(f"Errore durante l'esecuzione della chiamata API: {error.code}")    
-    time.sleep(86400)
+            stato=False
+            while not stato:
+                try:
+                    stato=chiedi_aeroporti_controller_tratte()
+                except requests.exceptions.ConnectionError:
+                    print("Connessione rifiutata riprovo a connettermi...\n")
+                print("prova ciclo")
+        except CircuitBreakerError:
+            print("Microservizio momentaneamente down, faccio richiesta al database\n")
+            #break
+        finally:
+            aeroporti=recupero_aeroporti()
+            for aeroporto in aeroporti:
+                try:
+                    response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
+                    data = trova_prezzo_aeroporto(response)
+                    invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
+                    time.sleep(0.5)
+                except ResponseError as error:
+                    print(f"Errore durante l'esecuzione della chiamata API: {error.code}")    
+            time.sleep(86400)
 
