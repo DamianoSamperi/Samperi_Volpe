@@ -56,8 +56,8 @@ def get_metrics_list():
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
     valori = [tupla[0] for tupla in metriche]
-    metriche = ', '.join(valori)
-    return metriche
+    # metriche = ', '.join(valori) TO_DO che senso ha?
+    return valori
 
 #prende il valore attuale delle metriche
 @app.route('/get_valori_attuali', methods=['POST'])
