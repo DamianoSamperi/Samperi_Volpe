@@ -4,18 +4,24 @@ metadata:
   name: prometheus-config
   # namespace: monitoring
 data:
+  prometheus.rules: |-
+    groups:
+    -name: alert
+      rules:
+      - alert: InstanceDown
+      expr: up == 0
+      for: 360m #6 ore down
   prometheus.yml: | #TO_DO in questo caso ho fatto per node-exporter, ma lo possiamo modificare #aggiunto evalutation inerval, rules, alerting
     global:
       scrape_interval: 15s
       evaluation_interval: 15s  
     rule_files:
-      - rules.yml
+      - /etc/prometheus/prometheus.rules
     alerting:
       alertmanagers:
       - scheme: http
         static_configs:
-        - targets:
-          - "alertmanager.monitoring.svc:9093"
+        - targets: ['alertmanager.default.svc.cluster.local:9093']
     scrape_configs:
       - job_name: 'prometheus'
         static_configs:
@@ -86,10 +92,14 @@ spec:
             - name: prometheus-config
               mountPath: /etc/prometheus/prometheus.yml #TO_DO non so se dobbiamo modificarlo
               subPath: prometheus.yml
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
       volumes:
         - name: prometheus-config
           configMap:
             name: prometheus-config
+        - name: prometheus-storage-volume
+          emptyDir: {}
 
 ---
 apiVersion: v1
@@ -103,7 +113,8 @@ metadata:
 spec:
   selector:
     app: prometheus
+  type: NodePort
   ports:
     - port: 9090
       targetPort: 9090
-  type: NodePort
+      nodePort: 30000
