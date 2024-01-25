@@ -48,6 +48,7 @@ for metric in metrics:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 #ritorna la lista dei nomi delle metriche
+@app.route('/get_sla', methods=['POST'])
 def get_metrics_list():
     try:
         query="SELECT nome FROM metriche"
@@ -133,7 +134,7 @@ def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna promethe
             cursor.execute(query, (nome_metrica,))
             value = cursor.fetchone()
             cursor.reset()
-            if valore[0]["value"][0]>value[0]: #TO_DO vedi, non so quale dei numeri prende MA OVVIAMENTE TUTTE,QUALE CASPITERINA VUOI
+            if float(valore[0]["value"][1])>value[0]: #TO_DO vedi, non so quale dei numeri prende MA OVVIAMENTE TUTTE,QUALE CASPITERINA VUOI
                 violazioni[valore[0]["metric"]["__name__"]]=True
             else:
                 violazioni[valore[0]["metric"]["__name__"]]=False
@@ -153,8 +154,8 @@ def get_violazioni_tempo():
         violazioni={}
         # Connessione a Prometheus
         prom = PrometheusConnect(url=prometheus_url)
-        end_time=datetime.utcnow()
-        start_time=end_time-timedelta(hours=data['ore']) #vedi se è giusto data["ore"]
+        end=datetime.utcnow()
+        start=end-timedelta(hours=data['ore']) #vedi se è giusto data["ore"]
         try:
             query="SELECT nome, soglia FROM metriche"
             cursor.execute(query)
@@ -163,8 +164,8 @@ def get_violazioni_tempo():
             print(f"Errore durante l'esecuzione della query: {e}")
         for metrica in metriche:
             # Costruzione della query per ottenere il conteggio delle violazioni
-            query = f'count_over_time({metrica["nome"]} > {metrica["soglia"]})'
-            result = prom.custom_query(query, start=start_time, end=end_time, step='1h')
+            query = f'count_over_time({metrica[0]} > {metrica[1]})'
+            result = prom.custom_query(query, start_time=start, end_time=end, step='1h')
             # Estrazione del valore dalla risposta
             count = result[0]['values'][0][1]
             violazioni[metrica["nome"]]=count
@@ -181,12 +182,12 @@ def get_probabilità_violazioni():
     probabilities={}
     if request.method == 'POST': 
         data = request.json
-        end_time=datetime.utcnow()
-        start_time=end_time-timedelta(minutes=10) #TO_DO vedi se così è giusto
+        end=datetime.utcnow()
+        start=end-timedelta(minutes=10) #TO_DO vedi se così è giusto
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         query=get_metrics_list()
         prom = PrometheusConnect(url=prometheus_url)
-        response=prom.custom_query_range(query, start=start_time, end=end_time, step="5s")
+        response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
         metric_data = response['data']['result']
         print(metric_data)
 
