@@ -64,10 +64,12 @@ def get_metrics_list():
 def fetch_prometheus_metrics():
     try:
         #query a prometheus con la lista di metriche
-        query=get_metrics_list()
+        queries=get_metrics_list()
         prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
         # Esegui la query per ottenere le metriche specifiche
-        result = prom.custom_query(query)
+        result=[]
+        for query in queries:
+          result.append(prom.custom_query(query))
         # Restituisci i risultati della query
         return result
     except PrometheusApiClientException as e:
