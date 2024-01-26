@@ -73,3 +73,54 @@ spec:
       port: 9092
       targetPort: 9092
   type: ClusterIP
+
+---
+#esporre metriche di kafka
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jmx-exporter-config
+data:
+  jmx-exporter-config.yml: |
+    lowercaseOutputName: true
+    lowercaseOutputLabelNames: true
+    whitelistObjectNames: ["kafka.server:type=BrokerTopicMetrics,name=*"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmx-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmx-exporter
+  template:
+    metadata:
+      labels:
+        app: jmx-exporter
+    spec:
+      containers:
+      - name: jmx-exporter
+        image: bitnami/jmx-exporter
+        ports:
+        - containerPort: 5556  # Porta esposta da jmx_exporter
+        volumeMounts:
+        - name: jmx-exporter-config
+          mountPath: /etc/jmx-exporter
+      volumes:
+      - name: jmx-exporter-config
+        configMap:
+          name: jmx-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jmx-exporter-service
+spec:
+  selector:
+    app: jmx-exporter
+  ports:
+  - protocol: TCP
+    port: 5556
+    targetPort: 5556

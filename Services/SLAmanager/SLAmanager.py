@@ -201,7 +201,7 @@ def get_probabilità_violazioni():
             metric_name = metric_data[0]['metric']['__name__']
             # Estraggo i dati specifici per la metrica corrente
             #TO_DO devo prendere la lista, non un unico valore,forse senza [0]
-            metric_values = metric_data[0]['value'][1]
+            metric_values = metric_data[0]['value'][1] #forse è "values"
             # Converti i dati delle metriche in un DataFrame pandas
             df = pd.DataFrame(metric_values, columns=['timestamp', 'value'])
             df['timestamp'] = pd.to_datetime(df['timestamp'])
