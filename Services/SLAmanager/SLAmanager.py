@@ -30,11 +30,17 @@ metrics = [
     {'nome': 'node_network_receive_errs_total', 'soglia': 2, 'desiderato': 0},
     {'nome': 'node_network_transmit_errs_total', 'soglia': 2, 'desiderato': 0},
     {'nome': 'node_memory_MemAvailable_bytes', 'soglia': 884879400, 'desiderato': 884879360},
-    {'nome': 'node_ipvs_connections_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_incoming_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_incoming_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_outgoing_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_outgoing_packets_total', 'soglia': 10, 'desiderato': 5} #vedi
+    #{'nome': 'node_ipvs_connections_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_incoming_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_incoming_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_outgoing_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_outgoing_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    {'nome': 'kafka_brokers', 'soglia': 1, 'desiderato': 1},
+    {'nome': 'kafka_consumergroup_members', 'soglia': 2, 'desiderato': 2},
+    #TO_DO cerchiamo di trasformarla in numero di volumi creati
+    {'nome': 'kube_persistentvolume_created', 'soglia': 8, 'desiderato': 8},
+    {'nome': 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 'soglia': 5, 'desiderato': 2},
+    {'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0}
 ]
 
 #TO_DO forse conviene che inseriamo le metriche base direttamente nello script sql
