@@ -36,6 +36,9 @@ data:
       - job_name: 'kube-state-metrics'
         static_configs:
           - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+      - job_name: 'kafka'
+        static_configs:
+          - targets: ['jmx-exporter-service:5556']
       
 #        static_configs:
 #          - targets: ['node-exporter:9100']
