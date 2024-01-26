@@ -20,6 +20,9 @@ spec:
         - containerPort: 9092
         - containerPort: 9093
         env:
+        # JMX PORT FOR KAFKA EXPORTER
+        - name: JMX_PORT
+          value: "9010"
         - name: KAFKA_JMX_OPTS
           value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-service"
         - name: KAFKA_ADVERTISED_LISTENERS
@@ -32,6 +35,13 @@ spec:
           value: "INSIDE"
         - name: KAFKA_ZOOKEEPER_CONNECT
           value: "zookeeper-service:2181"
+      - name: kafka-exporter
+        image: danielqsj/kafka-exporter:latest
+        args:
+          - "--kafka.server=kafka-service:9092"
+        ports:
+          - name: metrics
+            containerPort: 9308
 
 
 ---
@@ -71,58 +81,13 @@ spec:
   selector:
     app: kafka
   ports:
-    - protocol: TCP
+    - name: inside
       port: 9092
       targetPort: 9092
+      protocol: TCP
+    - name: metrics
+      port: 9308
+      targetPort: 9308
+      protocol: TCP
   type: ClusterIP
 
----
-#esporre metriche di kafka
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: jmx-exporter-config
-data:
-  jmx-exporter-config.yml: |
-    lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
-    whitelistObjectNames: ["kafka.server:type=BrokerTopicMetrics,name=*"]
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: jmx-exporter
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jmx-exporter
-  template:
-    metadata:
-      labels:
-        app: jmx-exporter
-    spec:
-      containers:
-      - name: jmx-exporter
-        image: bitnami/jmx-exporter
-        ports:
-        - containerPort: 5556  # Porta esposta da jmx_exporter
-        volumeMounts:
-        - name: jmx-exporter-config
-          mountPath: /etc/jmx-exporter
-      volumes:
-      - name: jmx-exporter-config
-        configMap:
-          name: jmx-exporter-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: jmx-exporter-service
-spec:
-  selector:
-    app: jmx-exporter
-  ports:
-  - protocol: TCP
-    port: 5556
-    targetPort: 5556
