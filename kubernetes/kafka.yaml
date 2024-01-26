@@ -20,6 +20,8 @@ spec:
         - containerPort: 9092
         - containerPort: 9093
         env:
+        - name: KAFKA_JMX_OPTS
+          value: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-service"
         - name: KAFKA_ADVERTISED_LISTENERS
           value: "INSIDE://kafka-service:9092"
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
