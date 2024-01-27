@@ -46,7 +46,7 @@ data:
           - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
       - job_name: 'personalized-metrics'
         static_configs:
-          - targets: [scraper-service:9999]
+          - targets: ['scraper-service:9999']
       - job_name: 'kafka'
         static_configs:
           - targets: ['kafka-service:9308']
