@@ -175,12 +175,21 @@ def get_violazioni_tempo():
         except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
         for metrica in metriche:
-            # Costruzione della query per ottenere il conteggio delle violazioni
-            query = f'count_over_time({metrica[0]} > {metrica[1]})'
-            result = prom.custom_query_range(query, start_time=start, end_time=end, step='1h')
-            # Estrazione del valore dalla risposta
-            count = result[0]['values'][0][1]
-            violazioni[metrica[0]]=count
+            try:
+                # Costruzione della query per ottenere il conteggio delle violazioni
+                # query = f'count_over_time({metrica[0]} > {metrica[1]})'
+                # query = f'count(rate(metrica[0][1h])>metrica[1])'
+                # query = f'count_over_time((rate(metrica[0][1h]) > metrica[1])[1h:])'
+                query = f'count_over_time((rate({metrica[0]}[1h:]) > {metrica[1]})[1h:])'
+                result = prom.custom_query_range(query, start_time=start, end_time=end, step='1h')
+                # Estrazione del valore dalla risposta
+                if result!=[]:
+                    count = result[0]['values'][0][1]
+                    violazioni[metrica[0]]=count
+                else:
+                    violazioni[metrica[0]]=0
+            except PrometheusApiClientException as e:
+                print(f"Errore durante l'esecuzione della query prometheus : {e}")
         return violazioni
 '''
 def calculate_probability(predictions, threshold):

@@ -54,7 +54,7 @@ USE metrics;
 
 CREATE TABLE IF NOT EXISTS metriche (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        nome VARCHAR(40) NOT NULL,
+        nome VARCHAR(70) NOT NULL,
         soglia FLOAT UNSIGNED,
         desiderato FLOAT UNSIGNED
 );
