@@ -40,7 +40,8 @@ metrics = [
     {'nome': 'count(kube_persistentvolume_created)', 'soglia': 8, 'desiderato': 8},
     {'nome': 'count(kube_service_created)', 'soglia': 21, 'desiderato': 21},
     {'nome': 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 'soglia': 5, 'desiderato': 1},
-    {'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0}
+    {'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0},
+    {'nome': 'container_cpu_usage_seconds_total{pod=~"rules.*"}', 'soglia': 7, 'desiderato': 5}
 ]
 
 #TO_DO forse conviene che inseriamo le metriche base direttamente nello script sql
@@ -210,6 +211,8 @@ def get_probabilità_violazioni():
         for query in queries:
             prom = PrometheusConnect(url=prometheus_url)
             response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
+            print(response)
+            #TO_DO da sistemare qui, si devono prendere tutti i valori
             metric_data = response['data']['result']
             print(metric_data)
             #for entry in metric_data:
