@@ -11,8 +11,12 @@ from datetime import datetime, timedelta
 from circuitbreaker import circuit,CircuitBreakerError
 import mysql.connector
 import os
+import prometheus_client
 
 app = Flask(__name__)
+scraping_time = prometheus_client.Gauge('scraping_time', 'tempo di scraping')
+scraping_time.set(0)
+prometheus_client.start_http_server(9999)
 
 amadeus = Client(
     client_id='VGSEQ2nHW7nHDGB1oBOMSsmXBYwWMEkQ',
@@ -260,6 +264,7 @@ def chiedi_aeroporti_controller_tratte():
 aeroporti=[]
 tratte=[]
 while True:
+    start_time=time.time()
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
     # try:
@@ -319,6 +324,10 @@ while True:
                     invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
                     time.sleep(0.5)
                 except ResponseError as error:
-                    print(f"Errore durante l'esecuzione della chiamata API: {error.code}")    
+                    print(f"Errore durante l'esecuzione della chiamata API: {error.code}") 
+            end_time=time.time()
+            tempo_scraping=end_time-start_time
+            #setto la metrica per prometheus
+            scraping_time.set(tempo_scraping) 
             time.sleep(86400)
 
