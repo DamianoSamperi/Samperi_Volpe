@@ -10,6 +10,10 @@ rules:
   - services
   - endpoints
   - pods
+  - alertmanagers
+  - alertmanagers/finalizers
+  - alertmanagers/status
+  - alertmanagerconfigs
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - extensions
