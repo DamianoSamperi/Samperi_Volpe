@@ -43,6 +43,7 @@ def invioNotifier(notifiche):
 
 #istanzio il consumer una sola volta
 def leggi_topic_tratte():
+    print("sono qui")
     start_time=time.time()
     notifiche_tratta = []
     for messages in consumer_tratta:
@@ -68,8 +69,10 @@ def leggi_topic_tratte():
         if notifiche_tratta:    
             invioNotifier(notifiche_tratta)
             notifiche_tratta=[]
-    end_time=time.time()
-    elaborating_tratte_time.set(end_time-start_time)
+            end_time=time.time() #TO_DO controllare se ti piace
+            print(end_time)
+            elaborating_tratte_time.set(end_time-start_time)
+
 
 def leggi_topic_aeroporti():
     start_time=time.time()
