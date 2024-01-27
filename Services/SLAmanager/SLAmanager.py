@@ -35,9 +35,11 @@ metrics = [
     {'nome': 'count(kube_persistentvolume_created)', 'soglia': 8, 'desiderato': 8},
     {'nome': 'count(kube_service_created)', 'soglia': 21, 'desiderato': 21},
     {'nome': 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 'soglia': 5, 'desiderato': 1},
-    {'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0},
+    #{'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0},
     {'nome': 'container_cpu_usage_seconds_total{pod=~"rules.*"}', 'soglia': 7, 'desiderato': 5},
-    {'nome': 'scraping_time', 'soglia': 3, 'desiderato': 2}
+    {'nome': 'scraping_time', 'soglia': 3, 'desiderato': 2},
+    {'nome': 'elaborating_tratte_time', 'soglia': 3, 'desiderato': 2},
+    {'nome': 'elaborating_aeroporti_time', 'soglia': 3, 'desiderato': 2}
 ]
 
 #TO_DO forse conviene che inseriamo le metriche base direttamente nello script sql

@@ -3,7 +3,13 @@ import time
 import json
 import requests
 import threading
+import prometheus_client
 
+elaborating_tratte_time = prometheus_client.Gauge('elaborating_tratte_time', 'tempo di elaborazione tratte')
+elaborating_aeroporti_time = prometheus_client.Gauge('elaborating_aeroporti_time', 'tempo di elaborazione aeroporti')
+elaborating_tratte_time.set(0)
+elaborating_aeroporti_time.set(0)
+prometheus_client.start_http_server(9998)
 # Crea consumatore Kafka per tratte
 while True:
     try:
@@ -37,6 +43,7 @@ def invioNotifier(notifiche):
 
 #istanzio il consumer una sola volta
 def leggi_topic_tratte():
+    start_time=time.time()
     notifiche_tratta = []
     for messages in consumer_tratta:
         # Ottieni il messaggio dal topic Kafka
@@ -61,8 +68,11 @@ def leggi_topic_tratte():
         if notifiche_tratta:    
             invioNotifier(notifiche_tratta)
             notifiche_tratta=[]
+    end_time=time.time()
+    elaborating_tratte_time.set(end_time-start_time)
 
 def leggi_topic_aeroporti():
+    start_time=time.time()
     notifiche = []
     for messages in consumer_aeroporto:
         #msg = message.value
@@ -85,6 +95,8 @@ def leggi_topic_aeroporti():
         if notifiche:
             invioNotifier(notifiche)
             notifiche=[]
+    end_time=time.time()
+    elaborating_aeroporti_time.set(end_time-start_time)
 
 
 if __name__ == "__main__":
