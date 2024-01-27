@@ -70,7 +70,6 @@ def leggi_topic_tratte():
             invioNotifier(notifiche_tratta)
             notifiche_tratta=[]
             end_time=time.time() #TO_DO controllare se ti piace
-            print(end_time)
             elaborating_tratte_time.set(end_time-start_time)
 
 
@@ -98,8 +97,8 @@ def leggi_topic_aeroporti():
         if notifiche:
             invioNotifier(notifiche)
             notifiche=[]
-    end_time=time.time()
-    elaborating_aeroporti_time.set(end_time-start_time)
+            end_time=time.time()
+            elaborating_aeroporti_time.set(end_time-start_time)
 
 
 if __name__ == "__main__":
