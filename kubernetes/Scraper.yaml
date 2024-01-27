@@ -38,5 +38,9 @@ spec:
     app: scraper
   ports:
     #- protocol: TCP
-    - port: 5012
+    - name: main-service
+      port: 5012
       targetPort: 5012
+    - name: metrics
+      port: 9999
+      targetPort: 9999

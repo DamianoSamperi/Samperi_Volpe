@@ -32,5 +32,9 @@ spec:
     app: elaboratore
   ports:
     #- protocol: TCP
-    - port: 5010
+    - name: main-service
+      port: 5010
       targetPort: 5010
+    - name: metrics
+      port: 9998
+      targetPort: 9998
