@@ -30,11 +30,17 @@ metrics = [
     {'nome': 'node_network_receive_errs_total', 'soglia': 2, 'desiderato': 0},
     {'nome': 'node_network_transmit_errs_total', 'soglia': 2, 'desiderato': 0},
     {'nome': 'node_memory_MemAvailable_bytes', 'soglia': 884879400, 'desiderato': 884879360},
-    {'nome': 'node_ipvs_connections_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_incoming_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_incoming_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_outgoing_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
-    {'nome': 'node_ipvs_outgoing_packets_total', 'soglia': 10, 'desiderato': 5} #vedi
+    #{'nome': 'node_ipvs_connections_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_incoming_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_incoming_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_outgoing_bytes_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    #{'nome': 'node_ipvs_outgoing_packets_total', 'soglia': 10, 'desiderato': 5}, #vedi
+    {'nome': 'kafka_brokers', 'soglia': 1, 'desiderato': 1},
+    {'nome': 'kafka_consumergroup_members', 'soglia': 2, 'desiderato': 2},
+    {'nome': 'count(kube_persistentvolume_created)', 'soglia': 8, 'desiderato': 8},
+    {'nome': 'count(kube_service_created)', 'soglia': 21, 'desiderato': 21},
+    {'nome': 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 'soglia': 5, 'desiderato': 1},
+    {'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0}
 ]
 
 #TO_DO forse conviene che inseriamo le metriche base direttamente nello script sql
@@ -73,9 +79,11 @@ def fetch_prometheus_metrics():
         queries=get_metrics_list()
         prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
         # Esegui la query per ottenere le metriche specifiche
-        result=[]
+        result={}
         for query in queries:
-          result.append(prom.custom_query(query))
+          #result.append(prom.custom_query(query))
+          #dovrebbe funzionare così
+          result[query]=prom.custom_query(query)
         # Restituisci i risultati della query
         return result
     except PrometheusApiClientException as e:
@@ -128,21 +136,20 @@ def get_valori_desiderati():
 def get_violazioni(): #TO_DO da sistemare in base ai label che mi torna prometheus
     violazioni={}
     valori=fetch_prometheus_metrics()
-    #print("valori ritornati da prometheus", valori,"\n")
-    for valore in valori:
+    #scorro sia la chiave che il valore del mio dizionario
+    for metrica,valore in valori.items():
         try:
-            #TO_DO da' problemi, è strano forse il valore che prende, ho provato ma bho
-            #lo da' tipo come lista con indice di stringa
             print("valore attuale ",valore,"\n")
-            nome_metrica=valore[0]["metric"]["__name__"]
+            #nome_metrica=valore[0]["metric"]["__name__"]
+            nome_metrica=metrica
             query="SELECT soglia FROM metriche WHERE nome=%s"
             cursor.execute(query, (nome_metrica,))
             value = cursor.fetchone()
             cursor.reset()
-            if float(valore[0]["value"][1])>value[0]: #TO_DO vedi, non so quale dei numeri prende MA OVVIAMENTE TUTTE,QUALE CASPITERINA VUOI
-                violazioni[valore[0]["metric"]["__name__"]]=True
+            if float(valore[0]["value"][1])>value[0]:
+                violazioni[nome_metrica]=True
             else:
-                violazioni[valore[0]["metric"]["__name__"]]=False
+                violazioni[nome_metrica]=False
         except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
             return e
@@ -173,7 +180,7 @@ def get_violazioni_tempo():
             result = prom.custom_query_range(query, start_time=start, end_time=end, step='1h')
             # Estrazione del valore dalla risposta
             count = result[0]['values'][0][1]
-            violazioni[metrica["nome"]]=count
+            violazioni[metrica[0]]=count
         return violazioni
 '''
 def calculate_probability(predictions, threshold):
@@ -198,10 +205,10 @@ def get_probabilità_violazioni():
             print(metric_data)
             #for entry in metric_data:
             #modo con ExponentialSmoothing
-            metric_name = metric_data[0]['metric']['__name__']
+            metric_name = query
             # Estraggo i dati specifici per la metrica corrente
             #TO_DO devo prendere la lista, non un unico valore,forse senza [0]
-            metric_values = metric_data[0]['value'][1] #forse è "values"
+            metric_values = metric_data[0]['values'][1] #forse è "value"
             # Converti i dati delle metriche in un DataFrame pandas
             df = pd.DataFrame(metric_values, columns=['timestamp', 'value'])
             df['timestamp'] = pd.to_datetime(df['timestamp'])
