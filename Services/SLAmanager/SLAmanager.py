@@ -10,6 +10,7 @@ import statsmodels.api as sm
 #from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.seasonal import seasonal_decompose
 # from pyramid.arima import auto_arima
+import plotly.plotly as ply
 from pmdarima import auto_arima
 import pandas as pd
 #import matplotlib.pyplot as plt
@@ -292,57 +293,63 @@ def get_probabilità_violazioni():
         data = request.json
         end=datetime.utcnow()
         start=end-timedelta(minutes=data["minuti"]) #TO_DO vedi se così è giusto
-        start_test=start-timedelta(minutes=data["minuti"]+60)
+        start_test=start-timedelta(minutes=data["minuti"]+2880)
         end_test=start
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
-        query="container_cpu_usage_seconds_total{pod=~'rules.*'}"
+        query="node_memory_MemAvailable_bytes"
         try:
             prom = PrometheusConnect(url=prometheus_url)
-            response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
-            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="5s")
-            print("response ",response,"\n")
-            metric_data_string = response[0]['values']
-            metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
-            print("data ",metric_data,"\n")
-            metric_data_string_test = response_test[0]['values']
-            metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
-            #for entry in metric_data:
-            #modo con ExponentialSmoothing
-            metric_name = query
-        
+            response=prom.custom_query_range(query, start_time=start, end_time=end, step="30m")
+            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="30m")          
         except PrometheusApiClientException as e:
             print(f"Errore durante l'esecuzione della query prometheus : {e}")
+        metric_data_string = response[0]['values']
+        metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
+        metric_data_string_test = response_test[0]['values']
+        metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
+        #for entry in metric_data:
+        #modo con ExponentialSmoothing
+        metric_name = query
+
             # Converti i dati delle metriche in un DataFrame pandas
-            df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
-            df.set_index('timestamp', inplace=True)
-            # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
-            df.sort_index(inplace=True)
-            #stagionalità?
-            result = seasonal_decompose(df, model='multiplicative')
-            fig = result.iplot()
-            stepwise_model = auto_arima(df, start_p=1, start_q=1,
-                        max_p=3, max_q=3, m=12,
-                        start_P=0, seasonal=True,
-                        d=1, D=1, trace=True,
-                        error_action='ignore',  
-                        suppress_warnings=True, 
-                        stepwise=True)
-            print(stepwise_model.aic())
-            df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
-            df_train['timestamp'] = pd.to_datetime(df['timestamp'])
-            df_train.set_index('timestamp', inplace=True)
-            # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
-            df_train.sort_index(inplace=True)
-            #addestro modello con dati precedenti
-            stepwise_model.fit(df_train)
-            future_forecast = stepwise_model.predict(n_periods=len(metric_data))
-            future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-            df_trained=pd.concat([df,future_forecast],axis=1).iplot()
-            stepwise_model.fit(df_trained)
-            future_forecast = stepwise_model.predict(n_periods=len(metric_data))
-            future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-            future_forecast.iplot()
+        df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
+        print("colonne ",df.columns,"\n")
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        df.set_index('timestamp', inplace=True)
+        # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+        df.sort_index(inplace=True)
+        df = df.asfreq('1min')
+        df.dropna(inplace=True)
+
+        stepwise_model = auto_arima(df, start_p=1, start_q=1,
+                    max_p=3, max_q=3, m=12,
+                    start_P=0, seasonal=True,
+                    d=1, D=1, trace=True,
+                    error_action='ignore',  
+                    suppress_warnings=True, 
+                    stepwise=True)
+        print(stepwise_model.aic())
+        df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
+        df_train['timestamp'] = pd.to_datetime(df_train['timestamp'])
+        df_train.set_index('timestamp', inplace=True)
+        df_train = df.asfreq('1min')
+        df_train.dropna(inplace=True)
+        # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+        df_train.sort_index(inplace=True)
+              #stagionalità?
+        #result = seasonal_decompose(df_train, model='multiplicative',period=1440)
+        #fig = result.iplot()
+        #addestro modello con dati precedenti
+      
+        stepwise_model.fit(df_train)
+        future_forecast = stepwise_model.predict(n_periods=len(metric_data))
+        future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        df_trained=pd.concat([df,future_forecast],axis=1)
+        df_trained.iplot()
+        stepwise_model.fit(df_trained)
+        future_forecast = stepwise_model.predict(n_periods=len(metric_data))
+        future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        future_forecast.iplot()
 
                 
         '''
