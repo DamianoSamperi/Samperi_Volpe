@@ -119,6 +119,73 @@ data:
             soglia FLOAT UNSIGNED,
             desiderato FLOAT UNSIGNED
     );
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'node_network_receive_errs_total', 2, 0) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'node_network_receive_errs_total'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'node_network_transmit_errs_total', 2, 0) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'node_network_transmit_errs_total'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'node_memory_MemAvailable_bytes', 884879400, 884879360) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'node_memory_MemAvailable_bytes'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'kafka_consumergroup_members', 2, 2) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'kafka_consumergroup_members'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'count(kube_persistentvolume_created)', 8, 8) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'count(kube_persistentvolume_created)'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'count(kube_service_created)', 21, 21) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'count(kube_service_created)'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 5, 1) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'prometheus_sd_kubernetes_http_request_duration_seconds_count'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'container_cpu_usage_seconds_total{pod=~"rules.*"}', 7, 5) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'container_cpu_usage_seconds_total{pod=~"rules.*"}'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'scraping_time', 4, 3) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'scraping_time'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'elaborating_tratte_time', 11, 10) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'elaborating_tratte_time'
+    ) LIMIT 1;
+
+    INSERT INTO metriche (nome, soglia, desiderato)
+    SELECT * FROM (SELECT 'elaborating_aeroporti_time', 11, 10) AS tmp
+    WHERE NOT EXISTS (
+        SELECT nome FROM metriche WHERE nome = 'elaborating_aeroporti_time'
+    ) LIMIT 1;
+
+
 
     CREATE DATABASE IF NOT EXISTS users;
 

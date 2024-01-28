@@ -26,36 +26,44 @@ while(True):
 
 prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie
-metrics = [
-    {'nome': 'node_network_receive_errs_total', 'soglia': 2, 'desiderato': 0},
-    {'nome': 'node_network_transmit_errs_total', 'soglia': 2, 'desiderato': 0},
-    {'nome': 'node_memory_MemAvailable_bytes', 'soglia': 884879400, 'desiderato': 884879360},
-    #{'nome': 'kafka_brokers', 'soglia': 1, 'desiderato': 1},
-    {'nome': 'kafka_consumergroup_members', 'soglia': 2, 'desiderato': 2},
-    {'nome': 'count(kube_persistentvolume_created)', 'soglia': 8, 'desiderato': 8},
-    {'nome': 'count(kube_service_created)', 'soglia': 21, 'desiderato': 21},
-    {'nome': 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 'soglia': 5, 'desiderato': 1},
-    #{'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0},
-    {'nome': 'container_cpu_usage_seconds_total{pod=~"rules.*"}', 'soglia': 7, 'desiderato': 5},
-    {'nome': 'scraping_time', 'soglia': 4, 'desiderato': 3},
-    {'nome': 'elaborating_tratte_time', 'soglia': 11, 'desiderato': 10},
-    {'nome': 'elaborating_aeroporti_time', 'soglia': 11, 'desiderato': 10}
-]
+# metrics = [
+#     {'nome': 'node_network_receive_errs_total', 'soglia': 2, 'desiderato': 0},
+#     {'nome': 'node_network_transmit_errs_total', 'soglia': 2, 'desiderato': 0},
+#     {'nome': 'node_memory_MemAvailable_bytes', 'soglia': 884879400, 'desiderato': 884879360},
+#     #{'nome': 'kafka_brokers', 'soglia': 1, 'desiderato': 1},
+#     {'nome': 'kafka_consumergroup_members', 'soglia': 2, 'desiderato': 2},
+#     {'nome': 'count(kube_persistentvolume_created)', 'soglia': 8, 'desiderato': 8},
+#     {'nome': 'count(kube_service_created)', 'soglia': 21, 'desiderato': 21},
+#     {'nome': 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 'soglia': 5, 'desiderato': 1},
+#     #{'nome': 'prometheus_sd_http_failures_total', 'soglia': 0, 'desiderato': 0},
+#     {'nome': 'container_cpu_usage_seconds_total{pod=~"rules.*"}', 'soglia': 7, 'desiderato': 5},
+#     {'nome': 'scraping_time', 'soglia': 4, 'desiderato': 3},
+#     {'nome': 'elaborating_tratte_time', 'soglia': 11, 'desiderato': 10},
+#     {'nome': 'elaborating_aeroporti_time', 'soglia': 11, 'desiderato': 10}
+# ]
 
-#TO_DO forse conviene che inseriamo le metriche base direttamente nello script sql
-delete_query = f'DELETE FROM metriche'
-cursor.execute(delete_query)
-conn.commit()
+# #TO_DO forse conviene che inseriamo le metriche base direttamente nello script sql
+# delete_query = f'DELETE FROM metriche'
+# cursor.execute(delete_query)
+# conn.commit()
 
-for metric in metrics:
-    try:
-        cursor.execute('''
-        INSERT INTO metriche (nome, soglia, desiderato)
-        VALUES (%s, %s, %s)
-        ''', (metric['nome'], metric['soglia'], metric['desiderato']))
-        conn.commit()
-    except mysql.connector.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
+# for metric in metrics:
+#     try:
+#         cursor.execute('''
+#         INSERT INTO metriche (nome, soglia, desiderato)
+#         VALUES (%s, %s, %s)
+#         ''', (metric['nome'], metric['soglia'], metric['desiderato']))
+#         conn.commit()
+#     except mysql.connector.Error as e:
+#         print(f"Errore durante l'esecuzione della query: {e}")
+metriche_personalizzate = ['scraping_time','elaborating_tratte_time','elaborating_aeroporti_time']
+
+def contains(data,lista):
+    return data in lista
+    # for metrica in lista:
+    #     if data==metrica:
+    #         return True
+    # return False
 
 #ritorna la lista dei nomi delle metriche
 @app.route('/get_sla', methods=['POST'])
@@ -93,14 +101,17 @@ def fetch_prometheus_metrics():
 def elimina_metrica():
     if request.method == 'POST': 
         data = request.json
-        try:
-            query="DELETE FROM metriche WHERE nome=%s"
-            cursor.execute(query,(data['nome'],))
-            conn.commit()
-        except mysql.connector.errors as e:
-            print(f"Errore durante l'esecuzione della query: {e}")
-            return e
-        return "metrica eliminata"
+        if not contains(data['nome'],metriche_personalizzate):
+            try:
+                query="DELETE FROM metriche WHERE nome=%s"
+                cursor.execute(query,(data['nome'],))
+                conn.commit()
+            except mysql.connector.errors as e:
+                print(f"Errore durante l'esecuzione della query: {e}")
+                return e
+            return "metrica eliminata"
+        else:
+            return "impossibile eliminare metrica personalizzata"
 
 #permette di aggiungere una metrica dal SLA set    
 @app.route('/aggiungi_metrica', methods=['POST'])
