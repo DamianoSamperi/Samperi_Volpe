@@ -4,9 +4,13 @@ from flask import Flask, jsonify, request
 import mysql.connector
 import os
 from datetime import datetime, timedelta
-#import numpy as np
+import numpy as np
+import statsmodels.api as sm
 #from scipy.stats import norm
 #from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.seasonal import seasonal_decompose
+# from pyramid.arima import auto_arima
+from pmdarima import auto_arima
 import pandas as pd
 #import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
@@ -223,65 +227,124 @@ def calculate_probability(predictions, threshold):
 #ritorna la probabilità che ci sia una violazione nel prossimo intervallo di tempo x
 @app.route('/get_probabilità_violazioni', methods=['POST'])
 def get_probabilità_violazioni():
-    probabilities={}
+    # probabilities={}
+    # if request.method == 'POST': 
+    #     data = request.json
+    #     end=datetime.utcnow()
+    #     start=end-timedelta(minutes=10) #TO_DO vedi se così è giusto
+    #     #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
+    #     queries=get_metrics_list()
+    #     for query in queries:
+    #         try:
+    #           prom = PrometheusConnect(url=prometheus_url)
+    #           response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
+    #           print("response ",response,"\n")
+    #           #TO_DO da sistemare qui, si devono prendere tutti i valori
+    #           #metric_data = response['data']['result']
+    #           metric_data_string = response[0]['values']
+    #           metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
+    #           print("data ",metric_data,"\n")
+    #           #for entry in metric_data:
+    #           #modo con ExponentialSmoothing
+    #           metric_name = query
+    #           # Estraggo i dati specifici per la metrica corrente
+    #           #TO_DO devo prendere la lista, non un unico valore,forse senza [0]
+    #           #metric_values = metric_data[0]['values'][1]
+    #           #metric_values = metric_data[1]
+    #           #metric_values = [sublist[1] for sublist in metric_data]
+    #           #print("array valori ",metric_values,"\n")
+    #           # Converti i dati delle metriche in un DataFrame pandas
+    #           df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
+    #           df['timestamp'] = pd.to_datetime(df['timestamp'])
+    #           df.set_index('timestamp', inplace=True)
+    #           # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+    #           df.sort_index(inplace=True)
+    #           # Applico ExponentialSmoothing
+    #           tsmodel = ExponentialSmoothing(df['value'].interpolate(),trend='add', seasonal='add', seasonal_periods=5).fit()
+    #           # Fai previsioni per i prossimi n periodi
+    #           forecast_steps = round((data['minuti']*60) / 5)
+    #           forecast = tsmodel.forecast(steps=forecast_steps)
+    #           #prendo la soglia della data metrica
+    #           try:
+    #               query="SELECT soglia FROM metriche WHERE nome= %s"
+    #               cursor.execute(query, (metric_name,)) #vedi se è giusto
+    #               threshold = cursor.fetchone()
+    #           except mysql.connector.errors as e:
+    #               print(f"Errore durante l'esecuzione della query: {e}")
+    #               return e
+    #           #calcolo la probabilità
+    #           threshold=threshold[0]
+    #           violations = sum(forecast > threshold)
+    #           probability_of_violation = violations / len(forecast)
+    #           #lo aggiungo al dizionario di probabilities
+    #           probabilities[metric_name]=probability_of_violation
+
+    #         except PrometheusApiClientException as e:
+    #           print(f"Errore durante l'esecuzione della query prometheus : {e}")
+    #     #finito per ogni metrica ritorno il dizionario
+    #     return probabilities
+
+        # Visualizza i dati originali e le previsioni
+
+    #ARIMA PROVA
+    # probabilities={}
     if request.method == 'POST': 
         data = request.json
         end=datetime.utcnow()
-        start=end-timedelta(minutes=10) #TO_DO vedi se così è giusto
+        start=end-timedelta(minutes=data["minuti"]) #TO_DO vedi se così è giusto
+        start_test=start-timedelta(minutes=data["minuti"]+60)
+        end_test=start
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
-        queries=get_metrics_list()
-        for query in queries:
-            try:
-              prom = PrometheusConnect(url=prometheus_url)
-              response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
-              print("response ",response,"\n")
-              #TO_DO da sistemare qui, si devono prendere tutti i valori
-              #metric_data = response['data']['result']
-              metric_data_string = response[0]['values']
-              metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
-              print("data ",metric_data,"\n")
-              #for entry in metric_data:
-              #modo con ExponentialSmoothing
-              metric_name = query
-              # Estraggo i dati specifici per la metrica corrente
-              #TO_DO devo prendere la lista, non un unico valore,forse senza [0]
-              #metric_values = metric_data[0]['values'][1]
-              #metric_values = metric_data[1]
-              #metric_values = [sublist[1] for sublist in metric_data]
-              #print("array valori ",metric_values,"\n")
-              # Converti i dati delle metriche in un DataFrame pandas
-              df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
-              df['timestamp'] = pd.to_datetime(df['timestamp'])
-              df.set_index('timestamp', inplace=True)
-              # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
-              df.sort_index(inplace=True)
-              # Applico ExponentialSmoothing
-              tsmodel = ExponentialSmoothing(df['value'].interpolate(),trend='add', seasonal='add', seasonal_periods=5).fit()
-              # Fai previsioni per i prossimi n periodi
-              forecast_steps = round((data['minuti']*60) / 5)
-              forecast = tsmodel.forecast(steps=forecast_steps)
-              #prendo la soglia della data metrica
-              try:
-                  query="SELECT soglia FROM metriche WHERE nome= %s"
-                  cursor.execute(query, (metric_name,)) #vedi se è giusto
-                  threshold = cursor.fetchone()
-              except mysql.connector.errors as e:
-                  print(f"Errore durante l'esecuzione della query: {e}")
-                  return e
-              #calcolo la probabilità
-              threshold=threshold[0]
-              violations = sum(forecast > threshold)
-              probability_of_violation = violations / len(forecast)
-              #lo aggiungo al dizionario di probabilities
-              probabilities[metric_name]=probability_of_violation
+        query="container_cpu_usage_seconds_total{pod=~'rules.*'}"
+        try:
+            prom = PrometheusConnect(url=prometheus_url)
+            response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
+            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="5s")
+            print("response ",response,"\n")
+            metric_data_string = response[0]['values']
+            metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
+            print("data ",metric_data,"\n")
+            metric_data_string_test = response_test[0]['values']
+            metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
+            #for entry in metric_data:
+            #modo con ExponentialSmoothing
+            metric_name = query
+        
+        except PrometheusApiClientException as e:
+            print(f"Errore durante l'esecuzione della query prometheus : {e}")
+            # Converti i dati delle metriche in un DataFrame pandas
+            df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df.set_index('timestamp', inplace=True)
+            # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+            df.sort_index(inplace=True)
+            #stagionalità?
+            result = seasonal_decompose(df, model='multiplicative')
+            fig = result.iplot()
+            stepwise_model = auto_arima(df, start_p=1, start_q=1,
+                        max_p=3, max_q=3, m=12,
+                        start_P=0, seasonal=True,
+                        d=1, D=1, trace=True,
+                        error_action='ignore',  
+                        suppress_warnings=True, 
+                        stepwise=True)
+            print(stepwise_model.aic())
+            df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
+            df_train['timestamp'] = pd.to_datetime(df['timestamp'])
+            df_train.set_index('timestamp', inplace=True)
+            # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+            df_train.sort_index(inplace=True)
+            #addestro modello con dati precedenti
+            stepwise_model.fit(df_train)
+            future_forecast = stepwise_model.predict(n_periods=len(metric_data))
+            future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+            df_trained=pd.concat([df,future_forecast],axis=1).iplot()
+            stepwise_model.fit(df_trained)
+            future_forecast = stepwise_model.predict(n_periods=len(metric_data))
+            future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+            future_forecast.iplot()
 
-            except PrometheusApiClientException as e:
-              print(f"Errore durante l'esecuzione della query prometheus : {e}")
-        #finito per ogni metrica ritorno il dizionario
-        return probabilities
-
-        # Visualizza i dati originali e le previsioni
-    
+                
         '''
         plt.plot(df.index, df['value'], label='Original Data')
         plt.plot(pd.date_range(df.index[-1], periods=forecast_steps+1, freq='60s')[1:], forecast, label='Forecast', color='red')
