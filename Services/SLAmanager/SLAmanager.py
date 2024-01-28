@@ -196,6 +196,7 @@ def calculate_probability(predictions, threshold):
     probability = len(exceeding_values) / len(predictions)
     return probability
 '''
+
 #ritorna la probabilità che ci sia una violazione nel prossimo intervallo di tempo x
 @app.route('/get_probabilità_violazioni', methods=['POST'])
 def get_probabilità_violazioni():
@@ -207,47 +208,55 @@ def get_probabilità_violazioni():
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         queries=get_metrics_list()
         for query in queries:
-            prom = PrometheusConnect(url=prometheus_url)
-            response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
-            print(response)
-            #TO_DO da sistemare qui, si devono prendere tutti i valori
-            metric_data = response['data']['result']
-            print(metric_data)
-            #for entry in metric_data:
-            #modo con ExponentialSmoothing
-            metric_name = query
-            # Estraggo i dati specifici per la metrica corrente
-            #TO_DO devo prendere la lista, non un unico valore,forse senza [0]
-            metric_values = metric_data[0]['values'][1] #forse è "value"
-            # Converti i dati delle metriche in un DataFrame pandas
-            df = pd.DataFrame(metric_values, columns=['timestamp', 'value'])
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
-            df.set_index('timestamp', inplace=True)
-            # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
-            df.sort_index(inplace=True)
-            # Applico ExponentialSmoothing
-            tsmodel = ExponentialSmoothing(df['value'].interpolate(),trend='add', seasonal='add', seasonal_periods=5).fit()
-            # Fai previsioni per i prossimi n periodi
-            forecast_steps = round((data['minuti']*60) / 5)
-            forecast = tsmodel.forecast(steps=forecast_steps)
-            #prendo la soglia della data metrica
             try:
-                query="SELECT soglia FROM metriche WHERE nome= %s"
-                cursor.execute(query, (metric_name,)) #vedi se è giusto
-                threshold = cursor.fetchone()
-            except mysql.connector.errors as e:
-                print(f"Errore durante l'esecuzione della query: {e}")
-                return e
-            #calcolo la probabilità
-            treshold=treshold[0]
-            violations = sum(forecast > threshold)
-            probability_of_violation = violations / len(forecast)
-            #lo aggiungo al dizionario di probabilities
-            probabilities[metric_name]=probability_of_violation
+              prom = PrometheusConnect(url=prometheus_url)
+              response=prom.custom_query_range(query, start_time=start, end_time=end, step="5s")
+              print("response ",response,"\n")
+              #TO_DO da sistemare qui, si devono prendere tutti i valori
+              #metric_data = response['data']['result']
+              metric_data = response[0]['values']
+              print("data ",metric_data,"\n")
+              #for entry in metric_data:
+              #modo con ExponentialSmoothing
+              metric_name = query
+              # Estraggo i dati specifici per la metrica corrente
+              #TO_DO devo prendere la lista, non un unico valore,forse senza [0]
+              #metric_values = metric_data[0]['values'][1]
+              #metric_values = metric_data[1]
+              #metric_values = [sublist[1] for sublist in metric_data]
+              #print("array valori ",metric_values,"\n")
+              # Converti i dati delle metriche in un DataFrame pandas
+              df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
+              df['timestamp'] = pd.to_datetime(df['timestamp'])
+              df.set_index('timestamp', inplace=True)
+              # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+              df.sort_index(inplace=True)
+              # Applico ExponentialSmoothing
+              tsmodel = ExponentialSmoothing(df['value'].interpolate(),trend='add', seasonal='add', seasonal_periods=5).fit()
+              # Fai previsioni per i prossimi n periodi
+              forecast_steps = round((data['minuti']*60) / 5)
+              forecast = tsmodel.forecast(steps=forecast_steps)
+              #prendo la soglia della data metrica
+              try:
+                  query="SELECT soglia FROM metriche WHERE nome= %s"
+                  cursor.execute(query, (metric_name,)) #vedi se è giusto
+                  threshold = cursor.fetchone()
+              except mysql.connector.errors as e:
+                  print(f"Errore durante l'esecuzione della query: {e}")
+                  return e
+              #calcolo la probabilità
+              treshold=treshold[0]
+              violations = sum(forecast > threshold)
+              probability_of_violation = violations / len(forecast)
+              #lo aggiungo al dizionario di probabilities
+              probabilities[metric_name]=probability_of_violation
+
+            except PrometheusApiClientException as e:
+              print(f"Errore durante l'esecuzione della query prometheus : {e}")
         #finito per ogni metrica ritorno il dizionario
         return probabilities
-
         # Visualizza i dati originali e le previsioni
+    
         '''
         plt.plot(df.index, df['value'], label='Original Data')
         plt.plot(pd.date_range(df.index[-1], periods=forecast_steps+1, freq='60s')[1:], forecast, label='Forecast', color='red')
