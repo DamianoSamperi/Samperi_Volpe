@@ -214,7 +214,8 @@ def get_probabilità_violazioni():
               print("response ",response,"\n")
               #TO_DO da sistemare qui, si devono prendere tutti i valori
               #metric_data = response['data']['result']
-              metric_data = response[0]['values']
+              metric_data_string = response[0]['values']
+              metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
               print("data ",metric_data,"\n")
               #for entry in metric_data:
               #modo con ExponentialSmoothing
@@ -245,7 +246,7 @@ def get_probabilità_violazioni():
                   print(f"Errore durante l'esecuzione della query: {e}")
                   return e
               #calcolo la probabilità
-              treshold=treshold[0]
+              threshold=threshold[0]
               violations = sum(forecast > threshold)
               probability_of_violation = violations / len(forecast)
               #lo aggiungo al dizionario di probabilities
@@ -255,6 +256,7 @@ def get_probabilità_violazioni():
               print(f"Errore durante l'esecuzione della query prometheus : {e}")
         #finito per ogni metrica ritorno il dizionario
         return probabilities
+
         # Visualizza i dati originali e le previsioni
     
         '''
