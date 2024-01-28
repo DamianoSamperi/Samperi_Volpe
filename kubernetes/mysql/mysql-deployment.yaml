@@ -119,7 +119,8 @@ data:
             soglia FLOAT UNSIGNED,
             desiderato FLOAT UNSIGNED
     );
-    INSERT INTO metriche (nome, soglia, desiderato)
+
+    INSERT INTO metriche (nome, soglia, desiderato) 
     SELECT * FROM (SELECT 'node_network_receive_errs_total', 2, 0) AS tmp
     WHERE NOT EXISTS (
         SELECT nome FROM metriche WHERE nome = 'node_network_receive_errs_total'
@@ -138,19 +139,19 @@ data:
     ) LIMIT 1;
 
     INSERT INTO metriche (nome, soglia, desiderato)
-    SELECT * FROM (SELECT 'kafka_consumergroup_members', 2, 2) AS tmp
+    SELECT * FROM (SELECT 'kafka_consumergroup_members' AS nome, 2 AS soglia, 2 AS desiderato) AS tmp
     WHERE NOT EXISTS (
         SELECT nome FROM metriche WHERE nome = 'kafka_consumergroup_members'
     ) LIMIT 1;
 
     INSERT INTO metriche (nome, soglia, desiderato)
-    SELECT * FROM (SELECT 'count(kube_persistentvolume_created)', 8, 8) AS tmp
+    SELECT * FROM (SELECT 'count(kube_persistentvolume_created)'AS nome, 8 AS soglia, 8 AS desiderato) AS tmp
     WHERE NOT EXISTS (
         SELECT nome FROM metriche WHERE nome = 'count(kube_persistentvolume_created)'
     ) LIMIT 1;
 
     INSERT INTO metriche (nome, soglia, desiderato)
-    SELECT * FROM (SELECT 'count(kube_service_created)', 21, 21) AS tmp
+    SELECT * FROM (SELECT 'count(kube_service_created)'AS nome, 21 AS soglia, 21 AS desiderato) AS tmp
     WHERE NOT EXISTS (
         SELECT nome FROM metriche WHERE nome = 'count(kube_service_created)'
     ) LIMIT 1;

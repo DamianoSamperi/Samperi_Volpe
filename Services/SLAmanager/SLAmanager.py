@@ -119,15 +119,27 @@ def aggiungi_metrica():
     if request.method == 'POST': 
         data = request.json
         try:
-            cursor.execute('''
-            INSERT INTO metriche (nome, soglia, desiderato)
-            VALUES (%s, %s, %s)
-            ''', (data['nome'], data['soglia'], data['desiderato']))
-            conn.commit()
-        except mysql.connector.errors as e:
+            #query a prometheus con la lista di metriche
+            prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
+            # Esegui la query per ottenere le metriche specifiche
+            #result.append(prom.custom_query(query))
+            #dovrebbe funzionare così
+            result=prom.custom_query(data['nome'])
+            if result!=[]:
+                try:
+                    cursor.execute('''
+                    INSERT INTO metriche (nome, soglia, desiderato)
+                    VALUES (%s, %s, %s)
+                    ''', (data['nome'], data['soglia'], data['desiderato']))
+                    conn.commit()
+                except mysql.connector.errors as e:
+                    print(f"Errore durante l'esecuzione della query: {e}")
+                    return e
+                return "metrica aggiunta"
+            else:
+                return "metrica inesistente"
+        except PrometheusApiClientException as e:
             print(f"Errore durante l'esecuzione della query: {e}")
-            return e
-        return "metrica aggiunta"
 
 #ritorna i valori desiderati delle metriche
 @app.route('/get_valori_desiderati', methods=['POST'])
