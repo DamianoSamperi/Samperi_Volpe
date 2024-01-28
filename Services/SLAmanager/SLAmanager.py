@@ -10,10 +10,11 @@ import statsmodels.api as sm
 #from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.seasonal import seasonal_decompose
 # from pyramid.arima import auto_arima
-import plotly.plotly as ply
+from chart_studio import plotly
 from pmdarima import auto_arima
+import cufflinks as cf
 import pandas as pd
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 #tempo di risposta di ogni api e consumo di risorse
 #response time e consumo di cpu
@@ -289,6 +290,8 @@ def get_probabilità_violazioni():
 
     #ARIMA PROVA
     # probabilities={}
+    cf.go_offline()
+    cf.set_config_file(offline=False, world_readable=True)
     if request.method == 'POST': 
         data = request.json
         end=datetime.utcnow()
@@ -303,14 +306,14 @@ def get_probabilità_violazioni():
             response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="30m")          
         except PrometheusApiClientException as e:
             print(f"Errore durante l'esecuzione della query prometheus : {e}")
+        print("sono qui")
         metric_data_string = response[0]['values']
         metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
         metric_data_string_test = response_test[0]['values']
         metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
-        #for entry in metric_data:
-        #modo con ExponentialSmoothing
-        metric_name = query
 
+        metric_name = query
+        print("ora qui")
             # Converti i dati delle metriche in un DataFrame pandas
         df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
         print("colonne ",df.columns,"\n")
@@ -328,7 +331,7 @@ def get_probabilità_violazioni():
                     error_action='ignore',  
                     suppress_warnings=True, 
                     stepwise=True)
-        print(stepwise_model.aic())
+        print("modello ",stepwise_model.aic())
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
         df_train['timestamp'] = pd.to_datetime(df_train['timestamp'])
         df_train.set_index('timestamp', inplace=True)
@@ -336,20 +339,21 @@ def get_probabilità_violazioni():
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
         df_train.sort_index(inplace=True)
-              #stagionalità?
-        #result = seasonal_decompose(df_train, model='multiplicative',period=1440)
-        #fig = result.iplot()
-        #addestro modello con dati precedenti
-      
+        
         stepwise_model.fit(df_train)
+        print("fit\n")
         future_forecast = stepwise_model.predict(n_periods=len(metric_data))
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
         df_trained=pd.concat([df,future_forecast],axis=1)
-        df_trained.iplot()
+        #fig=df_trained.iplot()
+        #plt.show(fig)
+        print("trained ",df_trained)
         stepwise_model.fit(df_trained)
         future_forecast = stepwise_model.predict(n_periods=len(metric_data))
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-        future_forecast.iplot()
+        #fig=future_forecast.iplot()
+        #plt.show(fig)
+        return(future_forecast)
 
                 
         '''
