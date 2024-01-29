@@ -11,6 +11,7 @@ import statsmodels.api as sm
 from statsmodels.tsa.seasonal import seasonal_decompose
 # from pyramid.arima import auto_arima
 from chart_studio import plotly
+import plotly.graph_objs as go
 from pmdarima import auto_arima
 import cufflinks as cf
 import pandas as pd
@@ -21,14 +22,14 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 #misura a rules
 app=Flask(__name__)
 
-while(True):
-    try:
-        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
-        cursor = conn.cursor()
-        break
-    except mysql.connector.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
-        time.sleep(10)
+# while(True):
+#     try:
+#         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
+#         cursor = conn.cursor()
+#         break
+#     except mysql.connector.Error as e:
+#         print(f"Errore durante l'esecuzione della query: {e}")
+#         time.sleep(10)
 
 prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie
@@ -294,26 +295,31 @@ def get_probabilità_violazioni():
     cf.set_config_file(offline=False, world_readable=True)
     if request.method == 'POST': 
         data = request.json
-        end=datetime.utcnow()
+        end=datetime.now()
         start=end-timedelta(minutes=data["minuti"]) #TO_DO vedi se così è giusto
-        start_test=start-timedelta(minutes=data["minuti"]+2880)
+        start_test=start-timedelta(minutes=data["minuti"]+1440)#2880
         end_test=start
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         query="node_memory_MemAvailable_bytes"
         try:
+            prometheus_url="http://localhost:9090"
             prom = PrometheusConnect(url=prometheus_url)
-            response=prom.custom_query_range(query, start_time=start, end_time=end, step="30m")
-            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="30m")          
+            response=prom.custom_query_range(query, start_time=start, end_time=end, step="15s")#30m
+            # result2=prom.get_metric_range_data(metric_name=query,start_time=start,end_time=end)
+            # result=prom.custom_query("node_memory_MemAvailable_bytes[10m:15s]")
+            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="15s") #30m         
         except PrometheusApiClientException as e:
             print(f"Errore durante l'esecuzione della query prometheus : {e}")
-        print("sono qui")
+            return "Errore connessione prometheus"
+        if response ==[]:
+            return "campioni insufficienti, riprovare in seguito"
+        
         metric_data_string = response[0]['values']
         metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
         metric_data_string_test = response_test[0]['values']
         metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
 
         metric_name = query
-        print("ora qui")
             # Converti i dati delle metriche in un DataFrame pandas
         df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
         print("colonne ",df.columns,"\n")
@@ -321,7 +327,7 @@ def get_probabilità_violazioni():
         df.set_index('timestamp', inplace=True)
         # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
         df.sort_index(inplace=True)
-        df = df.asfreq('1min')
+        df = df.asfreq('15S')#1min
         df.dropna(inplace=True)
 
         stepwise_model = auto_arima(df, start_p=1, start_q=1,
@@ -332,28 +338,47 @@ def get_probabilità_violazioni():
                     suppress_warnings=True, 
                     stepwise=True)
         print("modello ",stepwise_model.aic())
+        metric_data_test = np.array(metric_data_test)
+        metric_data_test = metric_data_test.reshape(-1, 2)
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
-        df_train['timestamp'] = pd.to_datetime(df_train['timestamp'])
+        df_train['timestamp'] = pd.to_datetime(df_train['timestamp'],unit='s')
         df_train.set_index('timestamp', inplace=True)
-        df_train = df.asfreq('1min')
+        df_train = df_train.asfreq('15s')#1min
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
         df_train.sort_index(inplace=True)
-        
+        print("train\n",df_train)
+        # print("metric \n,",metric_data_test)
+        print("model2 \n",stepwise_model)
         stepwise_model.fit(df_train)
-        print("fit\n")
-        future_forecast = stepwise_model.predict(n_periods=len(metric_data))
-        future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        print("model3 \n",stepwise_model)
+        future_forecast = stepwise_model.predict(n_periods=len(metric_data_test))
+        print("forecast\n",future_forecast)
+        future_forecast = pd.DataFrame(future_forecast,index = df_train.index,columns=['Prediction'])
         df_trained=pd.concat([df,future_forecast],axis=1)
-        #fig=df_trained.iplot()
-        #plt.show(fig)
-        print("trained ",df_trained)
-        stepwise_model.fit(df_trained)
-        future_forecast = stepwise_model.predict(n_periods=len(metric_data))
-        future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-        #fig=future_forecast.iplot()
-        #plt.show(fig)
-        return(future_forecast)
+        # fig=df_trained.iplot()
+        fig = go.Figure()
+        fig.add_scatter(x=df_trained["value"], y=df_trained.index)
+        fig.show()
+        # trace = go.Bar(x=df['Fruit'], y=df['Amount'])
+
+        # # Inserisci l'oggetto 'trace' in una lista
+        # data = [trace]
+
+        # # Crea il grafico con 'chart_studio.plotly.plot'
+        # py.plot(data, filename='basic-bar')
+        # plt.show(fig)
+        df_trained_shaped = np.array(df_trained)   
+        df_trained_shaped = df_trained_shaped.reshape(-1)
+        stepwise_model.fit(df_trained_shaped)
+        future_forecast = stepwise_model.predict(n_periods=len(df_trained))
+        # future_forecast = future_forecast.reshape(-1)
+        future_forecast = pd.DataFrame(future_forecast,index = df_trained.index,columns=['Prediction'])
+        fig = go.Figure()
+        # print("future_forecast ",future_forecast)
+        fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
+        fig.show()
+        return "grafico creato"
 
                 
         '''
