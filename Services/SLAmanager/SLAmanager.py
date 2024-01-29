@@ -322,14 +322,13 @@ def get_probabilità_violazioni():
         metric_name = query
             # Converti i dati delle metriche in un DataFrame pandas
         df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
-        print("colonne ",df.columns,"\n")
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
         df.set_index('timestamp', inplace=True)
         # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
         df.sort_index(inplace=True)
-        df = df.asfreq('15S')#1min
+        df = df.asfreq('15s')#1min
         df.dropna(inplace=True)
-
+        print("butto nel modello ",df)
         stepwise_model = auto_arima(df, start_p=1, start_q=1,
                     max_p=3, max_q=3, m=12,
                     start_P=0, seasonal=True,
@@ -337,7 +336,6 @@ def get_probabilità_violazioni():
                     error_action='ignore',  
                     suppress_warnings=True, 
                     stepwise=True)
-        print("modello ",stepwise_model.aic())
         metric_data_test = np.array(metric_data_test)
         metric_data_test = metric_data_test.reshape(-1, 2)
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
@@ -347,18 +345,23 @@ def get_probabilità_violazioni():
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
         df_train.sort_index(inplace=True)
-        print("train\n",df_train)
+        # print("train\n",df_train)
         # print("metric \n,",metric_data_test)
-        print("model2 \n",stepwise_model)
+        # print("model2 \n",stepwise_model)
         stepwise_model.fit(df_train)
-        print("model3 \n",stepwise_model)
+        # print("model3 \n",stepwise_model)
         future_forecast = stepwise_model.predict(n_periods=len(metric_data_test))
-        print("forecast\n",future_forecast)
+        # print("forecast\n",future_forecast)
         future_forecast = pd.DataFrame(future_forecast,index = df_train.index,columns=['Prediction'])
         df_trained=pd.concat([df,future_forecast],axis=1)
         # fig=df_trained.iplot()
         fig = go.Figure()
-        fig.add_scatter(x=df_trained["value"], y=df_trained.index)
+        fig.add_scatter(y=df_trained["value"], x=df_trained.index)
+        fig.update_layout(
+            title="train+predizione",
+            xaxis_title="Tempo",
+            yaxis_title="Valore"
+        )
         fig.show()
         # trace = go.Bar(x=df['Fruit'], y=df['Amount'])
 
@@ -377,6 +380,11 @@ def get_probabilità_violazioni():
         fig = go.Figure()
         # print("future_forecast ",future_forecast)
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
+        fig.update_layout(
+            title="nuova predizione",
+            xaxis_title="Tempo",
+            yaxis_title="Predizione"
+        )
         fig.show()
         return "grafico creato"
 
