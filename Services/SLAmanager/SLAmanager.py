@@ -296,8 +296,8 @@ def get_probabilità_violazioni():
     if request.method == 'POST': 
         data = request.json
         end=datetime.now()
-        start=end-timedelta(minutes=data["minuti"]) #TO_DO vedi se così è giusto
-        start_test=start-timedelta(minutes=data["minuti"]+1440)#2880
+        start=end-timedelta(minutes=10) #TO_DO vedi se così è giusto
+        start_test=start-timedelta(minutes=60)#2880
         end_test=start
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         query="node_memory_MemAvailable_bytes"
@@ -307,13 +307,13 @@ def get_probabilità_violazioni():
             response=prom.custom_query_range(query, start_time=start, end_time=end, step="15s")#30m
             # result2=prom.get_metric_range_data(metric_name=query,start_time=start,end_time=end)
             # result=prom.custom_query("node_memory_MemAvailable_bytes[10m:15s]")
-            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="15s") #30m         
+            response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="15s") #30m 
+            # print("start ",start_test," end ",end_test,"\n")        
         except PrometheusApiClientException as e:
             print(f"Errore durante l'esecuzione della query prometheus : {e}")
             return "Errore connessione prometheus"
-        if response ==[]:
+        if response ==[] or response_test ==[]:
             return "campioni insufficienti, riprovare in seguito"
-        
         metric_data_string = response[0]['values']
         metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
         metric_data_string_test = response_test[0]['values']
@@ -328,7 +328,7 @@ def get_probabilità_violazioni():
         df.sort_index(inplace=True)
         df = df.asfreq('15s')#1min
         df.dropna(inplace=True)
-        print("butto nel modello ",df)
+        # print("butto nel modello ",df)
         stepwise_model = auto_arima(df, start_p=1, start_q=1,
                     max_p=3, max_q=3, m=12,
                     start_P=0, seasonal=True,
@@ -336,6 +336,7 @@ def get_probabilità_violazioni():
                     error_action='ignore',  
                     suppress_warnings=True, 
                     stepwise=True)
+        print("test \n",metric_data_test)
         metric_data_test = np.array(metric_data_test)
         metric_data_test = metric_data_test.reshape(-1, 2)
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
@@ -345,20 +346,25 @@ def get_probabilità_violazioni():
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
         df_train.sort_index(inplace=True)
-        # print("train\n",df_train)
+        print("train\n",df_train)
         # print("metric \n,",metric_data_test)
         # print("model2 \n",stepwise_model)
         stepwise_model.fit(df_train)
         # print("model3 \n",stepwise_model)
         future_forecast = stepwise_model.predict(n_periods=len(metric_data_test))
-        # print("forecast\n",future_forecast)
-        future_forecast = pd.DataFrame(future_forecast,index = df_train.index,columns=['Prediction'])
+        print("forecast\n",future_forecast)
+        future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        print("date forecast ",future_forecast)
         df_trained=pd.concat([df,future_forecast],axis=1)
+        print("concat\n",df_trained)
         # fig=df_trained.iplot()
         fig = go.Figure()
-        fig.add_scatter(y=df_trained["value"], x=df_trained.index)
+        # fig.add_scatter(y=df_trained["value"], x=df_trained.index)
+        fig.add_trace(go.Scatter(x=df_trained.index, y=df_trained['value'], mode='lines', name='Reale'))
+        fig.add_trace(go.Scatter(x=df_trained.index, y=df_trained['Prediction'], mode='lines', name='future_forecast'))
+
         fig.update_layout(
-            title="train+predizione",
+            title="Reale+predizione",
             xaxis_title="Tempo",
             yaxis_title="Valore"
         )
@@ -373,10 +379,12 @@ def get_probabilità_violazioni():
         # plt.show(fig)
         df_trained_shaped = np.array(df_trained)   
         df_trained_shaped = df_trained_shaped.reshape(-1)
+        print("df shaped ",df_trained_shaped )
         stepwise_model.fit(df_trained_shaped)
         future_forecast = stepwise_model.predict(n_periods=len(df_trained))
         # future_forecast = future_forecast.reshape(-1)
-        future_forecast = pd.DataFrame(future_forecast,index = df_trained.index,columns=['Prediction'])
+        timestamp_index = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
+        future_forecast = pd.DataFrame(future_forecast,index = timestamp_index ,columns=['Prediction'])
         fig = go.Figure()
         # print("future_forecast ",future_forecast)
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
