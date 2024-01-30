@@ -281,7 +281,7 @@ def get_probabilità_violazioni():
         df.sort_index(inplace=True)
         df = df.asfreq('15s')#1min
         df.dropna(inplace=True)
-        print("test \n",metric_data_test)
+        # print("test \n",metric_data_test)
         metric_data_test = np.array(metric_data_test)
         metric_data_test = metric_data_test.reshape(-1, 2)
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
@@ -291,7 +291,7 @@ def get_probabilità_violazioni():
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp
         df_train.sort_index(inplace=True)
-        print("train\n",df_train)
+        # print("train\n",df_train)
         result = seasonal_decompose(df_train, model='additive', period=15)
         trend = result.trend.dropna()
         fig = go.Figure()
@@ -312,6 +312,7 @@ def get_probabilità_violazioni():
         future_forecast = stepwise_model.predict(n_periods=len(metric_data_test),dynamic=False, typ='levels')
         # print("forecast\n",future_forecast)
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        # print("index 1 ",df.index)
         # print("date forecast ",future_forecast)
         df_comparazione=pd.concat([df,future_forecast],axis=1)
         # print("concat\n",df_comparazione)
@@ -339,11 +340,34 @@ def get_probabilità_violazioni():
         # df_trained_shaped = np.array(df_trained)   
         # df_trained_shaped = df_trained_shaped.reshape(-1)
         # print("df shaped ",df_trained_shaped )
+        df_trained = df_trained.asfreq('15s')#1min
+        df_trained.dropna()
+        df_train.sort_index(inplace=True)
+        print("df_trained ",df_trained)
         stepwise_model.fit(df_trained)
-        print("model ",stepwise_model)
-        timestamp_index = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
-        future_forecast = stepwise_model.predict(n_periods=len(timestamp_index),dynamic=False, typ='levels')
-        future_forecast = pd.DataFrame(future_forecast,index = timestamp_index ,columns=['Prediction'])
+        timestamp = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
+        lista=[]
+        now=int((end-datetime(1970,1,1)).total_seconds())
+        for i in range(0, data["minuti"]*60, 15):
+            # Ottieni il timestamp corrente e convertilo in secondi totali
+            now = now+15
+            # Aggiungi il totale di secondi alla lista
+            lista.append([now,0])
+        # list_of_lists = [[date.date(),0] for date in timestamp]
+        print("list ",lista)
+        timestamp_index = pd.DataFrame(lista, columns=['timestamp','value'])
+        timestamp_index['timestamp'] = pd.to_datetime(timestamp_index['timestamp'],unit='s')
+        timestamp_index.set_index('timestamp', inplace=True)
+        timestamp_index = timestamp_index.asfreq('15s')#1min
+        timestamp_index.dropna(inplace=True)
+        # Ordina i dati per il timestamp
+        timestamp_index.sort_index(inplace=True)
+        # timestamp_index = pd.DataFrame(index=timestamp)
+        # timestamp_index.index.name = 'timestamp'
+        # print("index ",timestamp_index.index)
+        # print("index rif",df_train.index)
+        future_forecast = stepwise_model.predict(n_periods=len(timestamp),dynamic=False, typ='levels')
+        future_forecast = pd.DataFrame(future_forecast,index = timestamp_index.index ,columns=['Prediction'])
         print("future ",future_forecast)
         fig = go.Figure()
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
