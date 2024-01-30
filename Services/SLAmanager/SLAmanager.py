@@ -157,24 +157,25 @@ def get_violazioni_tempo():
         violazioni={}
         # Connessione a Prometheus
         prom = PrometheusConnect(url=prometheus_url)
-        end=datetime.now()
-        start=end-timedelta(hours=data['ore'])
         try:
             query="SELECT nome, soglia FROM metriche"
             cursor.execute(query)
             metriche = cursor.fetchall()
         except mysql.connector.Error as e:
             print(f"Errore durante l'esecuzione della query: {e}")
-        for metrica in metriche:
+        for metrica in metriche: 
             try:
-                query = f'count_over_time((rate({metrica[0]}[1h:]) > {metrica[1]})[1h:])'
-                result = prom.custom_query_range(query, start_time=start, end_time=end, step='1h')
-                # Estrazione del valore dalla risposta
+                query= f'sum_over_time(count({metrica[0]} > {metrica[1]})[{data["ore"]}h:])'
+                # query = f'count_over_time((rate({metrica[0]}[1h:]) > {metrica[1]})[1h:])'
+                # result = prom.custom_query_range(query, start_time=start, end_time=end, step='1h')
+                result=prom.custom_query(query)
+                print("risultato ",query," ",result,"\n")
                 if result!=[]:
-                    count = result[0]['values'][0][1]
+                    count = result[0]['value'][1]
+                    print("risultato ",query," ",result,"\n")
                     violazioni[metrica[0]]=count
                 else:
-                    violazioni[metrica[0]]=0
+                    violazioni[metrica[0]]="0"
             except PrometheusApiClientException as e:
                 print(f"Errore durante l'esecuzione della query prometheus : {e}")
         return violazioni
@@ -330,8 +331,8 @@ def get_probabilità_violazioni():
         df_trained_shaped = df_trained_shaped.reshape(-1)
         print("df shaped ",df_trained_shaped )
         stepwise_model.fit(df_trained_shaped)
-        future_forecast = stepwise_model.predict(n_periods=len(df_comparazione),dynamic=False, typ='levels')
         timestamp_index = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
+        future_forecast = stepwise_model.predict(n_periods=len(timestamp_index),dynamic=False, typ='levels')
         future_forecast = pd.DataFrame(future_forecast,index = timestamp_index ,columns=['Prediction'])
         fig = go.Figure()
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
