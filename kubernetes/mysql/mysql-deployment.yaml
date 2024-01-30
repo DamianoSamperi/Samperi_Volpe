@@ -157,7 +157,7 @@ data:
     ) LIMIT 1;
 
     INSERT INTO metriche (nome, soglia, desiderato)
-    SELECT * FROM (SELECT 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 5, 1) AS tmp
+    SELECT * FROM (SELECT 'prometheus_sd_kubernetes_http_request_duration_seconds_count', 4, 1) AS tmp
     WHERE NOT EXISTS (
         SELECT nome FROM metriche WHERE nome = 'prometheus_sd_kubernetes_http_request_duration_seconds_count'
     ) LIMIT 1;

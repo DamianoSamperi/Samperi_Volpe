@@ -157,7 +157,7 @@ def get_violazioni_tempo():
         violazioni={}
         # Connessione a Prometheus
         prom = PrometheusConnect(url=prometheus_url)
-        end=datetime.utcnow()
+        end=datetime.now()
         start=end-timedelta(hours=data['ore'])
         try:
             query="SELECT nome, soglia FROM metriche"
@@ -248,25 +248,19 @@ def get_probabilità_violazioni():
         # Visualizza i dati originali e le previsioni
 
     #ARIMA PROVA
-    # probabilities={}
-    # cf.go_offline()
-    # cf.set_config_file(offline=False, world_readable=True)
+
     if request.method == 'POST': 
         data = request.json
         end=datetime.now()
         start=end-timedelta(minutes=10) #TO_DO vedi se così è giusto
         start_test=start-timedelta(minutes=60)#2880
         end_test=start
-        #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         query="node_memory_MemAvailable_bytes"
         try:
             # prometheus_url="http://localhost:9090"
             prom = PrometheusConnect(url=prometheus_url)
             response=prom.custom_query_range(query, start_time=start, end_time=end, step="15s")#30m
-            # result2=prom.get_metric_range_data(metric_name=query,start_time=start,end_time=end)
-            # result=prom.custom_query(f"node_memory_MemAvailable_bytes[10m:15s]")
             response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="15s") #30m 
-            # print("start ",start_test," end ",end_test,"\n")        
         except PrometheusApiClientException as e:
             print(f"Errore durante l'esecuzione della query prometheus : {e}")
             return "Errore connessione prometheus"
@@ -282,11 +276,10 @@ def get_probabilità_violazioni():
         df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
         df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
         df.set_index('timestamp', inplace=True)
-        # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+        # Ordina i dati per il timestamp
         df.sort_index(inplace=True)
         df = df.asfreq('15s')#1min
         df.dropna(inplace=True)
-        # print("butto nel modello ",df)
         print("test \n",metric_data_test)
         metric_data_test = np.array(metric_data_test)
         metric_data_test = metric_data_test.reshape(-1, 2)
@@ -295,17 +288,15 @@ def get_probabilità_violazioni():
         df_train.set_index('timestamp', inplace=True)
         df_train = df_train.asfreq('15s')#1min
         df_train.dropna(inplace=True)
-        # Ordina i dati per il timestamp, potrebbe non essere necessario a seconda della risposta di Prometheus
+        # Ordina i dati per il timestamp
         df_train.sort_index(inplace=True)
         print("train\n",df_train)
         result = seasonal_decompose(df_train, model='additive', period=15)
         trend = result.trend.dropna()
-        # fig=df_trained.iplot()
         fig = go.Figure()
         fig.add_scatter(y=trend, x=df_train.index)
         fig.show()
 
-        # stepwise_model = auto_arima(df_train,trend)
         stepwise_model = auto_arima(df_train, start_p=1, start_q=1,
                     max_p=3, max_q=5, m=10,
                     start_P=0, seasonal=True,
@@ -316,19 +307,14 @@ def get_probabilità_violazioni():
                     # trend=trend)
 
 
-        # print("metric \n,",metric_data_test)
-        # print("model2 \n",stepwise_model)
         stepwise_model.fit(df_train)
-        # print("model3 \n",stepwise_model)
         future_forecast = stepwise_model.predict(n_periods=len(metric_data_test),dynamic=False, typ='levels')
         print("forecast\n",future_forecast)
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
         print("date forecast ",future_forecast)
         df_comparazione=pd.concat([df,future_forecast],axis=1)
         print("concat\n",df_comparazione)
-        # fig=df_trained.iplot()
         fig = go.Figure()
-        # fig.add_scatter(y=df_trained["value"], x=df_trained.index)
         fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['value'], mode='lines', name='Reale'))
         fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['Prediction'], mode='lines', name='future_forecast'))
 
@@ -338,29 +324,16 @@ def get_probabilità_violazioni():
             yaxis_title="Valore"
         )
         fig.show()
-        # future_forecast.dropna(inplace=True)
-        # error = mean_squared_error(df, future_forecast) 
-        # error = rmse(df, future_forecast)
-        
-        # trace = go.Bar(x=df['Fruit'], y=df['Amount'])
-
-        # # Inserisci l'oggetto 'trace' in una lista
-        # data = [trace]
-
-        # # Crea il grafico con 'chart_studio.plotly.plot'
-        # py.plot(data, filename='basic-bar')
-        # plt.show(fig)
+       
         df_trained=pd.concat([df,df_train])
         df_trained_shaped = np.array(df_trained)   
         df_trained_shaped = df_trained_shaped.reshape(-1)
         print("df shaped ",df_trained_shaped )
         stepwise_model.fit(df_trained_shaped)
         future_forecast = stepwise_model.predict(n_periods=len(df_comparazione),dynamic=False, typ='levels')
-        # future_forecast = future_forecast.reshape(-1)
         timestamp_index = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
         future_forecast = pd.DataFrame(future_forecast,index = timestamp_index ,columns=['Prediction'])
         fig = go.Figure()
-        # print("future_forecast ",future_forecast)
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
         fig.update_layout(
             title="nuova predizione",
@@ -370,12 +343,10 @@ def get_probabilità_violazioni():
         fig.show()
         violations=0
         for value in future_forecast["Prediction"]:
-            if value > 884879400:
+            if value > 884879400: #soglia metrica memoria disponibile presa in considerazione
                 violations=violations+1
-        # violations = sum(future_forecast > 884879400)
         probability_of_violation = violations / len(future_forecast["Prediction"])
         return f"probabilità violazione nei prossimi {data['minuti']} minuti = {probability_of_violation}%"
-        # return "grafico creato"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5014, debug=True, threaded=True)

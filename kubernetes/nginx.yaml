@@ -407,6 +407,7 @@ spec:
         app.kubernetes.io/part-of: ingress-nginx
         app.kubernetes.io/version: 1.9.5
     spec:
+      hostNetwork: true
       containers:
       - args:
         - /nginx-ingress-controller
