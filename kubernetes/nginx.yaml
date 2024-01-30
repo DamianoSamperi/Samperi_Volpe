@@ -317,20 +317,7 @@ subjects:
 - kind: ServiceAccount
   name: ingress-nginx-admission
   namespace: ingress-nginx
----
-apiVersion: v1
-data:
-  allow-snippet-annotations: "false"
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
-    app.kubernetes.io/version: 1.9.5
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
+
 ---
 apiVersion: v1
 kind: Service
@@ -659,3 +646,58 @@ webhooks:
     resources:
     - ingresses
   sideEffects: None
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: ingress-nginx-controller
+#   namespace: ingress-nginx
+#   labels:
+#     app.kubernetes.io/name: ingress-nginx
+#     app.kubernetes.io/part-of: ingress-nginx
+# data:
+#   proxy-connect-timeout: "10"
+#   proxy-read-timeout: "120"
+#   proxy-send-timeout: "120"
+---
+apiVersion: v1
+data:
+  # allow-snippet-annotations: "false"
+  proxy-connect-timeout: "10"
+  proxy-read-timeout: "120"
+  proxy-send-timeout: "120"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.9.5
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-nginx-network-policy
+  labels:
+    app: ingress-nginx
+spec:
+  podSelector:
+    matchLabels:
+      app: ingress-nginx
+  ingress:
+  - {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-http-backend-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: default-http-backend
+  ingress:
+  - {}

@@ -24,14 +24,14 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 #misura a rules
 app=Flask(__name__)
 
-# while(True):
-#     try:
-#         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
-#         cursor = conn.cursor()
-#         break
-#     except mysql.connector.Error as e:
-#         print(f"Errore durante l'esecuzione della query: {e}")
-#         time.sleep(10)
+while(True):
+    try:
+        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
+        cursor = conn.cursor()
+        break
+    except mysql.connector.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+        time.sleep(10)
 
 prometheus_url="http://prometheus-service:9090"
 #da sistemare le soglie
@@ -306,7 +306,7 @@ def get_probabilità_violazioni():
         #chiedo a prometheus i valori delle metriche negli ultimi 10 minuti
         query="node_memory_MemAvailable_bytes"
         try:
-            prometheus_url="http://localhost:9090"
+            # prometheus_url="http://localhost:9090"
             prom = PrometheusConnect(url=prometheus_url)
             response=prom.custom_query_range(query, start_time=start, end_time=end, step="15s")#30m
             # result2=prom.get_metric_range_data(metric_name=query,start_time=start,end_time=end)
