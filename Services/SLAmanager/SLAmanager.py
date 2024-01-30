@@ -100,6 +100,8 @@ def fetch_prometheus_metrics():
           #result.append(prom.custom_query(query))
           #dovrebbe funzionare così
           result[query]=prom.custom_query(query)
+          if result[query]==[]:
+            result[query]="campioni insufficienti"
         # Restituisci i risultati della query
         return result
     except PrometheusApiClientException as e:
