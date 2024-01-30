@@ -1,4 +1,4 @@
-# from msilib import Control
+
 from amadeus import Client, ResponseError
 from kafka import KafkaProducer,errors
 import kafka
@@ -57,11 +57,9 @@ def trova_prezzo_tratta(response,origin,destination,adulti):
     tratte_speciali=[]   
     for offer in response.data:
             prezzo= round(float(offer["price"]["total"]) * 0.91,2)
-            tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo, 'adulti': adulti, "partenza": offer["itineraries"][0]["segments"][0]["departure"]["at"]}) #aggiunti adulti
-    # prezzo= response.data[00]["price"]["total"] * 0.91
+            tratte_speciali.append({'origin':origin,'destination':destination, 'price': prezzo, 'adulti': adulti, "partenza": offer["itineraries"][0]["segments"][0]["departure"]["at"]})
     return tratte_speciali
 
-#TO_DO non so perchè chiedeva data quando doveva essere response, sarà cambiato con un conflitto di merge
 def trova_prezzo_aeroporto(response):
     aeroporti_speciali=[]
     for offer in response.data:
@@ -71,53 +69,34 @@ def trova_prezzo_aeroporto(response):
 
 def recupero_tratte():
     try:
-        # Esegui una query SQL
         cursor.execute("SELECT * FROM tratte_salvate")
 
-        # Ottieni i risultati
         risultati = cursor.fetchall()
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
-
-
-    # Chiudi la connessione
-    # conn1.close()
-
-    # Inizializza un array vuoto
     tratte = []
     
-    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
         tratte.append({"origine": tupla[1] , "destinazione" : tupla[2], "adulti": tupla[3]}) #TO_DO Damiano credo sia giusto ma vedi tu
 
-
-    # Stampa l'array di stringhe
     return tratte
+
 def recupero_aeroporti():
     try:
-        # Esegui una query SQL
         cursor.execute("SELECT * FROM aeroporti_salvati")
 
-        # Ottieni i risultati
         risultati = cursor.fetchall()
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
         return "error"
 
-
-    # Chiudi la connessione
-    # conn1.close()
-
-    # Inizializza un array vuoto
     aeroporti = []
 
-    # Itera sui risultati e aggiungi ogni tupla all'array come stringa
     for tupla in risultati:
         aeroporti.append({"origine": tupla[1] })
 
-    # Stampa l'array di stringhe
     return aeroporti
 
 
@@ -173,12 +152,6 @@ def recupero_aeroporti():
 # t1.start()
 # t2.start()
 
-
-#prova circuit breaker, dovremmo fare in modo che se la funzione crasha troppe volte
-#(di default è 5), allora fa le richieste ad amadeus con le tratte/aeroporti del
-#giorno precedente, le funzioni devono lanciare un eccezione nel caso in cui
-#la richiesta non vada a buon fine
-
 @circuit(failure_threshold=5,recovery_timeout=43200)
 def chiedi_tratte_controller_tratte():
     try:
@@ -186,20 +159,16 @@ def chiedi_tratte_controller_tratte():
         if  response.text != 'error':
             data = response.json()
             print("ho ricevuto tratte da controller ",data)
-            # return tratte
             cursor.execute("TRUNCATE TABLE tratte_salvate")
-            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (%s, %s, %s)" #aggiunti adulti
+            query = "INSERT INTO tratte_salvate ( origine, destinazione, adulti) VALUES (%s, %s, %s)"
             for item in data:
                 cursor.execute(query, (item['origine'], item['destinazione'], item['adulti']))
                 conn.commit()
-            # return data
             return True 
         
-            # cursor.execute(query, (data['origine'], data['destinazione'], data['adulti']))
-            # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delle tratte: {e}")
-        raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
+        raise e
 
         
 @circuit(failure_threshold=5,recovery_timeout=43200)
@@ -209,57 +178,16 @@ def chiedi_aeroporti_controller_tratte():
         if response.text != 'error':
             data = response.json()
             print("ho ricevuto aeroporti da controller ",data)
-            # return aeroporti
             cursor.execute("TRUNCATE TABLE aeroporti_salvati")
             query = "INSERT INTO aeroporti_salvati ( origine) VALUES (%s )" 
-            # cursor.execute(query, (data['aeroporto'],))
             for item in data:
                 cursor.execute(query, (item['origine'],))
                 conn.commit()
-            # return data
             return True 
-            # conn.commit()
     except Exception as e:
         print(f"Errore durante la richiesta delgli aeroporti: {e}")
-        raise e #TO_DO o il print o il raise, in realtà non andrebbe terminato il programma,andrebbe controllato se obbligato dal circuit breaker
+        raise e
 
-
-# #aggiungere un altro database
-# aeroporti = {}
-# tratte = {}
-# while True:
-#     #tratte,aeroporti=richiesta_tratte()
-#     domani = datetime.now() + timedelta(days=1) 
-#     data_domani = domani.strftime('%Y-%m-%d')
-
-#     #mettere le url come variabili d'ambiente
-#     response=requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'tratta'})
-#     if  response.text != 'error':
-#         tratte = response.json()
-#         print("ho ricevuto tratte da controller")
-#     for tratta in tratte:
-#         try:
-#             # print("data ",data_domani, tratta["origine"], tratta["destinazione"])
-#             response = amadeus.shopping.flight_offers_search.get(originLocationCode=tratta["origine"], destinationLocationCode=tratta["destinazione"], departureDate=data_domani, adults=tratta["adulti"], max=5) 
-#             data = trova_prezzo_tratta(response,tratta["origine"],tratta["destinazione"],tratta["adulti"]) #TO_DO non so se devi aggiungere adulti qui
-#             inviotratta(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-#             time.sleep(0.5)
-#         except ResponseError as error:
-#             print(f"Errore durante l'esecuzione della chiamata API: {error}")
-    
-#     response = requests.post('http://controllertratta-service:5002/invio_Scraper', json={'request':'aeroporto'})
-#     if response.text != 'error':
-#         aeroporti = response.json()
-#         print("ho ricevuto aeroporti da controller")
-#     for aeroporto in aeroporti:
-#         try:
-#             response = amadeus.shopping.flight_destinations.get(origin=aeroporto["origine"],departureDate=data_domani,oneWay=True,nonStop=True)  
-#             data = trova_prezzo_aeroporto(response)
-#             invioaeroporto(data) #funzione che permette di inviare al topic kafka la tratta ottenuta
-#             time.sleep(0.1)
-#         except ResponseError as error:
-#             print(f"Errore durante l'esecuzione della chiamata API: {error}")
-#     time.sleep(86400)
 
 aeroporti=[]
 tratte=[]
@@ -267,13 +195,6 @@ while True:
     start_time=time.time()
     domani = datetime.now() + timedelta(days=1) 
     data_domani = domani.strftime('%Y-%m-%d')
-    # try:
-    #     tratte=chiedi_tratte_controller_tratte()
-    # except Exception as e:
-    #     print(f"errore durante la richiesta: {e} , Accedo al database per le tratte salvate")
-    #     tratte=recupero_tratte()
-    
-    # possibilità uso circuit breaker veramente un poò brutto ma vabbe
     try:
         stato=False
         while not stato:
@@ -284,7 +205,6 @@ while True:
             print("prova ciclo")
     except CircuitBreakerError:
         print("Microservizio momentaneamente down, faccio richiesta al database\n")
-        #break
     finally:
         tratte=recupero_tratte()
         for tratta in tratte:
@@ -297,13 +217,6 @@ while True:
             except ResponseError as error:
                 print(f"Errore durante l'esecuzione della chiamata API: {error.code}")
 
-    # try:
-    #     aeroporti=chiedi_aeroporti_controller_tratte()
-    # except Exception as e:
-    #     print(f"errore durante la richiesta: {e} , Accedo al database per gli aeroporti salvati")  
-    #     aeroporti=recupero_aeroporti()
-
-    # possibilità uso circuit breaker veramente un poò brutto ma vabbe
         try:
             stato=False
             while not stato:
@@ -314,7 +227,6 @@ while True:
                 print("prova ciclo")
         except CircuitBreakerError:
             print("Microservizio momentaneamente down, faccio richiesta al database\n")
-            #break
         finally:
             aeroporti=recupero_aeroporti()
             for aeroporto in aeroporti:
