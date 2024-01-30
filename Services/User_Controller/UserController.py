@@ -151,7 +151,6 @@ def inserisci_aeroporto():
                 payload = {'userid': user[0], 'origine': origine, 'budget': budget}
                 headers = {'Content-Type': 'application/json'}
                 response = requests.post(url, json=payload, headers=headers)
-                #print(response.status_code) forse devo controllare lo status_code
                 if response.json()["count"]!=-1:
                     if response.json()["count"]==1: #la invia solo se è il primo cliente ad averla chiesta
                         riuscito=invia_aeroporto(origine)
