@@ -94,6 +94,7 @@ rules:
   - coordination.k8s.io
   resourceNames:
   - ingress-nginx-leader
+  # - ingress-controller-leader
   resources:
   - leases
   verbs:
