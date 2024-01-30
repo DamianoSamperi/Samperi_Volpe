@@ -22,14 +22,14 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 app=Flask(__name__)
 
-while(True):
-    try:
-        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
-        cursor = conn.cursor()
-        break
-    except mysql.connector.Error as e:
-        print(f"Errore durante l'esecuzione della query: {e}")
-        time.sleep(10)
+# while(True):
+#     try:
+#         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
+#         cursor = conn.cursor()
+#         break
+#     except mysql.connector.Error as e:
+#         print(f"Errore durante l'esecuzione della query: {e}")
+#         time.sleep(10)
 
 prometheus_url="http://prometheus-service:9090"
 metriche_personalizzate = ['scraping_time','elaborating_tratte_time','elaborating_aeroporti_time']
@@ -258,7 +258,7 @@ def get_probabilità_violazioni():
         end_test=start
         query="node_memory_MemAvailable_bytes"
         try:
-            # prometheus_url="http://localhost:9090"
+            prometheus_url="http://localhost:9090"
             prom = PrometheusConnect(url=prometheus_url)
             response=prom.custom_query_range(query, start_time=start, end_time=end, step="15s")#30m
             response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="15s") #30m 
@@ -310,11 +310,11 @@ def get_probabilità_violazioni():
 
         stepwise_model.fit(df_train)
         future_forecast = stepwise_model.predict(n_periods=len(metric_data_test),dynamic=False, typ='levels')
-        print("forecast\n",future_forecast)
+        # print("forecast\n",future_forecast)
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-        print("date forecast ",future_forecast)
+        # print("date forecast ",future_forecast)
         df_comparazione=pd.concat([df,future_forecast],axis=1)
-        print("concat\n",df_comparazione)
+        # print("concat\n",df_comparazione)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['value'], mode='lines', name='Reale'))
         fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['Prediction'], mode='lines', name='future_forecast'))
@@ -325,15 +325,26 @@ def get_probabilità_violazioni():
             yaxis_title="Valore"
         )
         fig.show()
-       
-        df_trained=pd.concat([df,df_train])
-        df_trained_shaped = np.array(df_trained)   
-        df_trained_shaped = df_trained_shaped.reshape(-1)
-        print("df shaped ",df_trained_shaped )
-        stepwise_model.fit(df_trained_shaped)
+        # print("df ",df)
+        # print("df train ",df_train)
+        # df.reset_index(drop=True, inplace=True)
+        # df_train.reset_index(drop=True, inplace=True)
+        # df_trained=pd.concat([df,df_train])
+        # df_trained=pd.merge_ordered(left=df_train,right=df)
+        df_trained = df.merge(df_train, left_index=True, right_index=True, how='outer')
+        df_trained = df.combine_first(df_train)
+        # df_trained.drop("value_y",axis=1)  
+        # df_trained.set_index('timestamp', inplace=True)
+        # print("trained ",df_trained)
+        # df_trained_shaped = np.array(df_trained)   
+        # df_trained_shaped = df_trained_shaped.reshape(-1)
+        # print("df shaped ",df_trained_shaped )
+        stepwise_model.fit(df_trained)
+        print("model ",stepwise_model)
         timestamp_index = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
         future_forecast = stepwise_model.predict(n_periods=len(timestamp_index),dynamic=False, typ='levels')
         future_forecast = pd.DataFrame(future_forecast,index = timestamp_index ,columns=['Prediction'])
+        print("future ",future_forecast)
         fig = go.Figure()
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
         fig.update_layout(
