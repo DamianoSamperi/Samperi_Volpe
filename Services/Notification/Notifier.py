@@ -29,7 +29,6 @@ def inviomail(notifiche):
             msg['From'] = "Notifier.dsbd@gmail.com"
             msg['To'] = email
             msg.set_content(body)
-            # mail.sendmail("Notifier.dsbd@gmail.com", email, body)
             mail.send_message(msg)
         except smtplib.SMTPDataError as error:
             print(f"Errore durante l'esecuzione della query: {error}")

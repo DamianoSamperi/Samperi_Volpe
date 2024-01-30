@@ -48,28 +48,22 @@ def leggi_topic_tratte():
     notifiche_tratta = []
     for messages in consumer_tratta:
         # Ottieni il messaggio dal topic Kafka
-        # msg = message.value
         print("ho ricevuto notifiche ",messages.value)
         for message in messages.value:
-            result = requests.post('http://user-controller-service:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'],'adulti': message['adulti'] }) #aggiunti adulti
-        #result = UserController.trova_email_by_tratta(message.origin,message.destination,message.price)
+            result = requests.post('http://user-controller-service:5000/trova_email_by_tratta', json={'ori':message['origin'], 'dest': message['destination'],'pr': message['price'],'adulti': message['adulti'] })
             emails=result.json()
             if emails :
-                print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
+                print(f"esiste almeno un user_id con quelle regole: {emails}")
                 for email in emails:
                     notifiche_tratta.append({"email": email[0],"message":message})
-                # invioNotifier(result,msg)
-        try:
-            # offset=messages.offset
-            # offsets = {'Tratte': offset + 1}  
-            # print("offset messages ",offsets)        
+        try:      
             consumer_tratta.commit(consumer_tratta.end_offsets.__dict__)
         except Exception as e:
             print("Commit failed due to : ", e)
         if notifiche_tratta:    
             invioNotifier(notifiche_tratta)
             notifiche_tratta=[]
-            end_time=time.time() #TO_DO controllare se ti piace
+            end_time=time.time()
             elaborating_tratte_time.set(end_time-start_time)
 
 
@@ -77,20 +71,15 @@ def leggi_topic_aeroporti():
     start_time=time.time()
     notifiche = []
     for messages in consumer_aeroporto:
-        #msg = message.value
         print("ho ricevuto notifiche ",messages.value)
         for message in messages.value:
             result = requests.post('http://user-controller-service:5000/trova_email_by_offerte', json={'ori':message['origin'], 'pr': message['price']})
             emails=result.json()
             if emails :
-                print(f"esiste almeno un user_id con quelle regole: {emails}")  #bisogna inviare al notify lo user_id(o e-mail) e il msg
+                print(f"esiste almeno un user_id con quelle regole: {emails}")
                 for email in emails:
                     notifiche.append({"email": email[0],"message":message})
-                # invioNotifier(result,msg)
         try:
-            # offset=messages.offset
-            # offsets = {'Aeroporti': offset + 1} 
-            # consumer_aeroporto.commit(offsets)
             consumer_aeroporto.commit(consumer_aeroporto.end_offsets.__dict__)
         except errors.CommitFailedError as e:
             print("Commit failed due to : ", e)
