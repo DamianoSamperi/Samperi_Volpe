@@ -40,8 +40,6 @@ def invia_tratta(origine, destinazione, adulti):
     try:
         response = requests.post(url, json=payload, headers=headers)
     except Exception as e:
-        #print("risposta ",response.status_code)
-        #if response.status_code!=200:
         print(f"Errore con la richiesta HTTP: {e}")
         return 0
     print(response.text)
@@ -54,8 +52,6 @@ def invia_aeroporto(aeroporto):
     try:
         response = requests.post(url, json=payload, headers=headers)
     except Exception as e:
-        # Stampa la risposta ricevuta dal servizio
-        #print(response.status_code)
         print(f"Errore con la richiesta HTTP: {e}")
         return 0
     print(response.text)
@@ -106,7 +102,7 @@ def inserisci_tratta():
     origine = data["origine"]
     destinazione = data["destinazione"]
     budget = data["budget"]
-    adulti= data["adulti"] #aggiunti adulti
+    adulti= data["adulti"]
     if type(budget)== int or type(budget)==float: 
         if(adulti>0):
             user=autentica_client(email) 
@@ -188,8 +184,6 @@ def disiscrizione_tratta():
             payload = {'userid': user[0], 'origine': origine, 'destinazione': destinazione, 'adulti': adulti}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
-            #print(response.status_code) forse devo controllare lo status_code
-            #return response.json()
             if response.json()["count"]!=-1:
                 if  response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
                     print("sto eliminando ")
@@ -198,8 +192,6 @@ def disiscrizione_tratta():
                         return "Errore durante la disiscrizione"
             else:
                 return "Utente non registrato a questa tratta" 
-            #if response.json()[0]==0:
-            #    return "nessuna tratta corrispondente trovata"
             return "Disiscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"
 
@@ -217,7 +209,6 @@ def disiscrizione_aeroporto():
             payload = {'userid': user[0], 'origine': origine}
             headers = {'Content-Type': 'application/json'}
             response = requests.post(url, json=payload, headers=headers)
-            #print(response.status_code) forse devo controllare lo status_code
             if response.json()["count"]!=-1:
                 if response.json()["count"]==0: #la invia per eliminarla solo se è 0 il count di persone iscritte
                     print("sto eliminando ")
@@ -225,9 +216,7 @@ def disiscrizione_aeroporto():
                     if result==0:
                         return "Errore durante la disiscrizione" 
             else:
-                return "Utente non registrato a questo aeroporto" 
-            #if response.json()["trovati"]==0:
-            #    return "nessun aeroporto corrispondente trovato"    
+                return "Utente non registrato a questo aeroporto"   
             return "Disiscrizione effettuata"
     return "autenticazione fallita, si prega di registrarsi"
 

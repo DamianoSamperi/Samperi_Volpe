@@ -1,4 +1,4 @@
-# import sqlite3
+
 import time
 from flask import Flask, request
 import json
@@ -8,38 +8,6 @@ import os
 
 app = Flask(__name__)
 
-# try:
-#     conn=sqlite3.connect('rules.db',check_same_thread=False)
-#     cursor=conn.cursor()
-# except sqlite3.Error as e:
-#     print(f"Errore durante la connessione al database: {e}")
-
-#fare creazione delle tabelle a parte
-# try:
-#     cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS tratte (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             user_id INTEGER NOT NULL,
-#             origine TEXT NOT NULL,
-#             destinazione TEXT NOT NULL,
-#             budget INTEGER,
-#             adulti INTEGER
-#         )
-#     ''')
-# except sqlite3.Error as e:
-#     print(f"Errore durante l'esecuzione della query: {e}")
-
-# try:
-#     cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS aeroporti (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             user_id INTEGER NOT NULL,
-#             origine TEXT NOT NULL,
-#             budget INTEGER
-#         )
-#     ''')
-# except sqlite3.Error as e:
-#     print(f"Errore durante l'esecuzione della query: {e}")
 while(True):
     try:
         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='rules')
@@ -148,8 +116,6 @@ def elimina_tratta(user_id,origine,destinazione,adulti):
         cursor.execute(query2,(origine,destinazione,adulti))
         result=cursor.fetchone()
         return result
-        #return [trovati,result]
-        #return json.dumps({"trovati": trovati, "count": result[0]})
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query SELECT: {e}")
 
@@ -158,7 +124,6 @@ def elimina_aeroporto(user_id,origine):
         query1="DELETE FROM aeroporti WHERE user_id= %s AND origine= %s"
         cursor.execute(query1,(user_id,origine))
         trovati=cursor.rowcount #numero di righe eliminate
-        #print(trovati)
         conn.commit()
         if trovati==0:
             return [-1]
@@ -167,16 +132,12 @@ def elimina_aeroporto(user_id,origine):
         cursor.execute(query2,(origine,))
         result=cursor.fetchone()
         return result
-        #return [trovati,result]
-        #return json.dumps({"trovati": trovati, "count": result[0]})
     except mysql.connector.Error as e:
         print(f"Errore durante l'esecuzione della query: {e}")
 
 #la chiamo solo se crasha qualcosa 
 def crash():
     try:
-        #conn1.close()
-        #conn2.close()
         conn.close()
     except mysql.connector.Error as e:
         print(f"Errore durante la chiusura della connessione al database: {e}")

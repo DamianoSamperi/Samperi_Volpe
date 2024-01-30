@@ -1,4 +1,4 @@
-# import sqlite3
+
 import time
 from flask import Flask, request, jsonify
 import json
@@ -8,27 +8,9 @@ import time
 
 app = Flask(__name__)
 
-# try:
-#     conn = sqlite3.connect('users.db',check_same_thread=False)
-#     cursor = conn.cursor()
-# except sqlite3.Error as e:
-#     print(f"Errore durante la connessione al database: {e}")
-
-# try:
-#     cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS users (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             nome TEXT NOT NULL,
-#             cognome TEXT NOT NULL,
-#             email TEXT NOT NULL
-#         )
-#     ''')
-# except sqlite3.Error as e:
-#     print(f"Errore durante l'esecuzione della query: {e}")
 while(True):
     try:
 
-        # conn = mysql.connector.connect(user='user', password='papero', host='mysql', database='users')
         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='users')
         cursor = conn.cursor()
         break
