@@ -294,6 +294,8 @@ def get_probabilità_violazioni():
         # Ordina i dati per il timestamp
         df_train.sort_index(inplace=True)
 
+        #Inizio fase di test commentata
+
         # #controllo una possibile seasonal
         # result = seasonal_decompose(df_train, model='additive', period=int(len(df_train)/2))
         # trend = result.trend.dropna()
