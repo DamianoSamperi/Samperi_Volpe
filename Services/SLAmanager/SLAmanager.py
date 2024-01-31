@@ -272,10 +272,11 @@ def get_probabilità_violazioni():
         metric_data_string_test = response_test[0]['values']
         metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
 
-        metric_name = query
             # Converti i dati delle metriche in un DataFrame pandas
         df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
         df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
+        #prometheus mi torna i valori con fuso orario UTC passo al nostro
+        df['timestamp'] = df['timestamp'] + timedelta(hours=1)
         df.set_index('timestamp', inplace=True)
         # Ordina i dati per il timestamp
         df.sort_index(inplace=True)
@@ -286,17 +287,23 @@ def get_probabilità_violazioni():
         metric_data_test = metric_data_test.reshape(-1, 2)
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
         df_train['timestamp'] = pd.to_datetime(df_train['timestamp'],unit='s')
+        #prometheus mi torna i valori con fuso orario UTC passo al nostro
+        df_train['timestamp'] = df_train['timestamp'] + timedelta(hours=1)
         df_train.set_index('timestamp', inplace=True)
         df_train = df_train.asfreq('15s')#1min
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp
         df_train.sort_index(inplace=True)
+        print("df_train ",df_train)
+        print("df ",df)
         # print("train\n",df_train)
-        result = seasonal_decompose(df_train, model='additive', period=15)
-        trend = result.trend.dropna()
-        fig = go.Figure()
-        fig.add_scatter(y=trend, x=df_train.index)
-        fig.show()
+        # print("lunghezza ",len(df_train))
+        result = seasonal_decompose(df_train, model='additive', period=int(len(df_train)/2))
+        # trend = result.trend.dropna()
+        # fig = go.Figure()
+        # fig.add_scatter(y=trend, x=df_train.index)
+        # fig.show()
+        # Detrendizzazione della serie temporale
 
         stepwise_model = auto_arima(df_train, start_p=1, start_q=1,
                     max_p=3, max_q=5, m=10,
@@ -310,7 +317,6 @@ def get_probabilità_violazioni():
 
         stepwise_model.fit(df_train)
         future_forecast = stepwise_model.predict(n_periods=len(metric_data_test),dynamic=False, typ='levels')
-        # print("forecast\n",future_forecast)
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
         # print("index 1 ",df.index)
         # print("date forecast ",future_forecast)
@@ -326,12 +332,6 @@ def get_probabilità_violazioni():
             yaxis_title="Valore"
         )
         fig.show()
-        # print("df ",df)
-        # print("df train ",df_train)
-        # df.reset_index(drop=True, inplace=True)
-        # df_train.reset_index(drop=True, inplace=True)
-        # df_trained=pd.concat([df,df_train])
-        # df_trained=pd.merge_ordered(left=df_train,right=df)
         df_trained = df.merge(df_train, left_index=True, right_index=True, how='outer')
         df_trained = df.combine_first(df_train)
         # df_trained.drop("value_y",axis=1)  
@@ -342,19 +342,29 @@ def get_probabilità_violazioni():
         # print("df shaped ",df_trained_shaped )
         df_trained = df_trained.asfreq('15s')#1min
         df_trained.dropna()
-        df_train.sort_index(inplace=True)
+        df_trained.sort_index(inplace=True)
         print("df_trained ",df_trained)
+        stepwise_model=auto_arima(df_trained, start_p=1, start_q=1,
+                    max_p=3, max_q=5, m=10,
+                    start_P=0, seasonal=True,
+                    d=1, D=1, trace=True,
+                    error_action='ignore',  
+                    suppress_warnings=True, 
+                    stepwise=True)
         stepwise_model.fit(df_trained)
+        print("df_trained ",df_trained)
         timestamp = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
         lista=[]
         now=int((end-datetime(1970,1,1)).total_seconds())
-        for i in range(0, data["minuti"]*60, 15):
+        # now = math.ceil(now)
+        print("inzio ",end)
+        for i in range(0, data["minuti"]*60+15, 15):
             # Ottieni il timestamp corrente e convertilo in secondi totali
             now = now+15
             # Aggiungi il totale di secondi alla lista
             lista.append([now,0])
-        # list_of_lists = [[date.date(),0] for date in timestamp]
-        print("list ",lista)
+        list_of_lists = [[date.date(),0] for date in timestamp]
+        # print("list ",lista)
         timestamp_index = pd.DataFrame(lista, columns=['timestamp','value'])
         timestamp_index['timestamp'] = pd.to_datetime(timestamp_index['timestamp'],unit='s')
         timestamp_index.set_index('timestamp', inplace=True)
@@ -362,13 +372,15 @@ def get_probabilità_violazioni():
         timestamp_index.dropna(inplace=True)
         # Ordina i dati per il timestamp
         timestamp_index.sort_index(inplace=True)
-        # timestamp_index = pd.DataFrame(index=timestamp)
-        # timestamp_index.index.name = 'timestamp'
-        # print("index ",timestamp_index.index)
-        # print("index rif",df_train.index)
+        # timestamp = pd.date_range(start=end,end=end+timedelta(minutes=data['minuti']),freq='15s')
         future_forecast = stepwise_model.predict(n_periods=len(timestamp),dynamic=False, typ='levels')
-        future_forecast = pd.DataFrame(future_forecast,index = timestamp_index.index ,columns=['Prediction'])
         print("future ",future_forecast)
+        # future_forecast = pd.DataFrame(future_forecast,index = timestamp_index.index ,columns=['Prediction'])
+        future_forecast = pd.DataFrame(future_forecast, columns=['Prediction'])
+        # Impostazione dell'indice
+        future_forecast.index = timestamp_index.index
+        print("future 2 ",future_forecast)
+        #future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
         fig = go.Figure()
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
         fig.update_layout(
