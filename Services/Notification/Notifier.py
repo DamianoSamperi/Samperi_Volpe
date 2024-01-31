@@ -18,11 +18,17 @@ def inviomail(notifiche):
     except smtplib.SMTPAuthenticationError as error:
         print(f"Errore durante l'esecuzione della query: {error}")
         return 'error'
+    email_messaggi = {}
     for tupla in notifiche:
         print("tutte le notifiche",notifiche)
+        email=tupla['email']
+        messaggio=json.dumps(tupla['message'])
+        if email in email_messaggi:
+            email_messaggi[email] += messaggio
+        else:
+            email_messaggi[email] = messaggio    
+    for email, messaggio in email_messaggi.items():
         try:
-            email=tupla['email']
-            messaggio=json.dumps(tupla['message'])
             body = f"Caro {email} ,\n questa e' l'offerta da te richiesta\n {messaggio}"
             msg = EmailMessage()
             msg['Subject'] = 'Offerta Volo'
@@ -32,7 +38,14 @@ def inviomail(notifiche):
             mail.send_message(msg)
         except smtplib.SMTPDataError as error:
             print(f"Errore durante l'esecuzione della query: {error}")
-            return 'error'    
+            return 'error'
+        # body = f"Caro {email} ,\n questa e' l'offerta da te richiesta\n {messaggio}"
+        # msg = EmailMessage()
+        # msg['Subject'] = 'Offerta Volo'
+        # msg['From'] = "Notifier.dsbd@gmail.com"
+        # msg['To'] = email
+        # msg.set_content(body)
+        # mail.send_message(msg)
     mail.close()
     return 'ok'
 
