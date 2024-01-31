@@ -9,27 +9,26 @@ import statsmodels.api as sm
 #from scipy.stats import norm
 #from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.seasonal import seasonal_decompose
-# from pyramid.arima import auto_arima
 from chart_studio import plotly
 import plotly.graph_objs as go
 from pmdarima import auto_arima
 from sklearn.metrics import mean_squared_error
-from statsmodels.tools.eval_measures import rmse
+# from statsmodels.tools.eval_measures import rmse
 import cufflinks as cf
 import pandas as pd
 import matplotlib.pyplot as plt
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
+# from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 app=Flask(__name__)
 
-# while(True):
-#     try:
-#         conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
-#         cursor = conn.cursor()
-#         break
-#     except mysql.connector.Error as e:
-#         print(f"Errore durante l'esecuzione della query: {e}")
-#         time.sleep(10)
+while(True):
+    try:
+        conn = mysql.connector.connect(user='root', password='password', host='mysql', database='metrics')
+        cursor = conn.cursor()
+        break
+    except mysql.connector.Error as e:
+        print(f"Errore durante l'esecuzione della query: {e}")
+        time.sleep(10)
 
 prometheus_url="http://prometheus-service:9090"
 metriche_personalizzate = ['scraping_time','elaborating_tratte_time','elaborating_aeroporti_time']
@@ -258,7 +257,6 @@ def get_probabilità_violazioni():
         end_test=start
         query="node_memory_MemAvailable_bytes"
         try:
-            prometheus_url="http://localhost:9090"
             prom = PrometheusConnect(url=prometheus_url)
             response=prom.custom_query_range(query, start_time=start, end_time=end, step="15s")#30m
             response_test=prom.custom_query_range(query, start_time=start_test, end_time=end_test, step="15s") #30m 
@@ -296,49 +294,43 @@ def get_probabilità_violazioni():
         # Ordina i dati per il timestamp
         df_train.sort_index(inplace=True)
 
-        #controllo una possibile seasonal
-        result = seasonal_decompose(df_train, model='additive', period=int(len(df_train)/2))
-        trend = result.trend.dropna()
-        fig = go.Figure()
-        fig.add_scatter(y=trend, x=df_train.index)
-        fig.show()
+        # #controllo una possibile seasonal
+        # result = seasonal_decompose(df_train, model='additive', period=int(len(df_train)/2))
+        # trend = result.trend.dropna()
+        # fig = go.Figure()
+        # fig.add_scatter(y=trend, x=df_train.index)
+        # fig.show()
 
-        #Modello utilizzato per il test
-        stepwise_model = auto_arima(df_train, start_p=0, start_q=0,
-                    max_p=5, max_q=5,m=10, 
-                    start_P=0, seasonal=True,
-                    d=1, D=1, trace=True,
-                    error_action='ignore',  
-                    suppress_warnings=True, 
-                    stepwise=True,
-                    trend='t')
+        # #Modello utilizzato per il test
+        # stepwise_model = auto_arima(df_train, start_p=0, start_q=0,
+        #             max_p=5, max_q=5,m=10, 
+        #             start_P=0, seasonal=True,
+        #             d=1, D=1, trace=True,
+        #             error_action='ignore',  
+        #             suppress_warnings=True, 
+        #             stepwise=True,
+        #             trend='n')
 
-        # modello in base ai valori di test
-        stepwise_model.fit(df_train)
-        # predico un futuro coincidente a i valori reali di prova di df
-        future_forecast = stepwise_model.predict(n_periods=len(metric_data),dynamic=False, typ='levels')
-        future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-        #Comparo i valori reali con quelli predetti, li mostro e correggo la previsione
-        df_comparazione=pd.concat([df,future_forecast],axis=1)
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['value'], mode='lines', name='Reale'))
-        fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['Prediction'], mode='lines', name='future_forecast'))
-        fig.update_layout(
-            title="Reale+predizione",
-            xaxis_title="Tempo",
-            yaxis_title="Valore"
-        )
-        fig.show()
+        # # modello in base ai valori di test
+        # stepwise_model.fit(df_train)
+        # # predico un futuro coincidente a i valori reali di prova di df
+        # future_forecast = stepwise_model.predict(n_periods=len(metric_data),dynamic=False, typ='levels')
+        # future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        # #Comparo i valori reali con quelli predetti, li mostro e correggo la previsione
+        # df_comparazione=pd.concat([df,future_forecast],axis=1)
+        # fig = go.Figure()
+        # fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['value'], mode='lines', name='Reale'))
+        # fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['Prediction'], mode='lines', name='future_forecast'))
+        # fig.update_layout(
+        #     title="Reale+predizione",
+        #     xaxis_title="Tempo",
+        #     yaxis_title="Valore"
+        # )
+        # fig.show()
 
         #Per il modello reale creo un set di valori più ampio dato dalla concatenazione dei mie data frame
         df_trained = df.merge(df_train, left_index=True, right_index=True, how='outer')
         df_trained = df.combine_first(df_train)
-        # df_trained.drop("value_y",axis=1)  
-        # df_trained.set_index('timestamp', inplace=True)
-        # print("trained ",df_trained)
-        # df_trained_shaped = np.array(df_trained)   
-        # df_trained_shaped = df_trained_shaped.reshape(-1)
-        # print("df shaped ",df_trained_shaped )
         df_trained = df_trained.asfreq('15s')#1min
         df_trained.dropna()
         df_trained.sort_index(inplace=True)
@@ -350,7 +342,7 @@ def get_probabilità_violazioni():
                     error_action='ignore',  
                     suppress_warnings=True, 
                     stepwise=True,
-                    trend='t')
+                    trend='n')
         stepwise_model.fit(df_trained)
         #Creo un DataIndex di valori nel formato di prometheus per i prossimi X minuti
         lista=[]
