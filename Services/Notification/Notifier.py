@@ -19,8 +19,8 @@ def inviomail(notifiche):
         print(f"Errore durante l'esecuzione della query: {error}")
         return 'error'
     email_messaggi = {}
+    print("tutte le notifiche",notifiche)
     for tupla in notifiche:
-        print("tutte le notifiche",notifiche)
         email=tupla['email']
         messaggio=json.dumps(tupla['message'])
         if email in email_messaggi:

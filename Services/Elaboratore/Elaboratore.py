@@ -40,7 +40,7 @@ while True:
 
 def invioNotifier(notifiche):
     response = requests.post('http://notifier-service:5003/recuperomail', json={'notifiche':notifiche})
-    if response != 'ok':
+    if response.text != 'ok':
         print("errore nell'invio mail")
 
 #istanzio il consumer una sola volta
