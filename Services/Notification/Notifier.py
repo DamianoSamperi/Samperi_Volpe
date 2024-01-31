@@ -24,7 +24,7 @@ def inviomail(notifiche):
         email=tupla['email']
         messaggio=json.dumps(tupla['message'])
         if email in email_messaggi:
-            email_messaggi[email] += messaggio
+            email_messaggi[email] += messaggio+"\n"
         else:
             email_messaggi[email] = messaggio    
     for email, messaggio in email_messaggi.items():

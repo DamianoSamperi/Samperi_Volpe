@@ -272,7 +272,9 @@ def get_probabilità_violazioni():
         metric_data_string_test = response_test[0]['values']
         metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
 
-            # Converti i dati delle metriche in un DataFrame pandas
+        #Data frame utilizzati per scopo di test, li concateno per il modello finale
+
+        # Converti i dati delle metriche in un DataFrame pandas
         df = pd.DataFrame(metric_data, columns=['timestamp', 'value'])
         df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
         #prometheus mi torna i valori con fuso orario UTC passo al nostro
@@ -282,7 +284,6 @@ def get_probabilità_violazioni():
         df.sort_index(inplace=True)
         df = df.asfreq('15s')#1min
         df.dropna(inplace=True)
-        # print("test \n",metric_data_test)
         metric_data_test = np.array(metric_data_test)
         metric_data_test = metric_data_test.reshape(-1, 2)
         df_train = pd.DataFrame(metric_data_test, columns=['timestamp', 'value'])
@@ -294,44 +295,42 @@ def get_probabilità_violazioni():
         df_train.dropna(inplace=True)
         # Ordina i dati per il timestamp
         df_train.sort_index(inplace=True)
-        print("df_train ",df_train)
-        print("df ",df)
-        # print("train\n",df_train)
-        # print("lunghezza ",len(df_train))
-        result = seasonal_decompose(df_train, model='additive', period=int(len(df_train)/2))
-        # trend = result.trend.dropna()
-        # fig = go.Figure()
-        # fig.add_scatter(y=trend, x=df_train.index)
-        # fig.show()
-        # Detrendizzazione della serie temporale
 
-        stepwise_model = auto_arima(df_train, start_p=1, start_q=1,
-                    max_p=3, max_q=5, m=10,
+        #controllo una possibile seasonal
+        result = seasonal_decompose(df_train, model='additive', period=int(len(df_train)/2))
+        trend = result.trend.dropna()
+        fig = go.Figure()
+        fig.add_scatter(y=trend, x=df_train.index)
+        fig.show()
+
+        #Modello utilizzato per il test
+        stepwise_model = auto_arima(df_train, start_p=0, start_q=0,
+                    max_p=5, max_q=5,m=10, 
                     start_P=0, seasonal=True,
                     d=1, D=1, trace=True,
                     error_action='ignore',  
                     suppress_warnings=True, 
-                    stepwise=True)
-                    # trend=trend)
+                    stepwise=True,
+                    trend='t')
 
-
+        # modello in base ai valori di test
         stepwise_model.fit(df_train)
-        future_forecast = stepwise_model.predict(n_periods=len(metric_data_test),dynamic=False, typ='levels')
+        # predico un futuro coincidente a i valori reali di prova di df
+        future_forecast = stepwise_model.predict(n_periods=len(metric_data),dynamic=False, typ='levels')
         future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
-        # print("index 1 ",df.index)
-        # print("date forecast ",future_forecast)
+        #Comparo i valori reali con quelli predetti, li mostro e correggo la previsione
         df_comparazione=pd.concat([df,future_forecast],axis=1)
-        # print("concat\n",df_comparazione)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['value'], mode='lines', name='Reale'))
         fig.add_trace(go.Scatter(x=df_comparazione.index, y=df_comparazione['Prediction'], mode='lines', name='future_forecast'))
-
         fig.update_layout(
             title="Reale+predizione",
             xaxis_title="Tempo",
             yaxis_title="Valore"
         )
         fig.show()
+
+        #Per il modello reale creo un set di valori più ampio dato dalla concatenazione dei mie data frame
         df_trained = df.merge(df_train, left_index=True, right_index=True, how='outer')
         df_trained = df.combine_first(df_train)
         # df_trained.drop("value_y",axis=1)  
@@ -343,44 +342,36 @@ def get_probabilità_violazioni():
         df_trained = df_trained.asfreq('15s')#1min
         df_trained.dropna()
         df_trained.sort_index(inplace=True)
-        print("df_trained ",df_trained)
-        stepwise_model=auto_arima(df_trained, start_p=1, start_q=1,
-                    max_p=3, max_q=5, m=10,
+        #Creo il vero modello sempre con auto arima ma settando start e end a valori decisi in base ai test
+        stepwise_model = auto_arima(df_trained, start_p=1, start_q=1,
+                    max_p=4, max_q=3, m=10,
                     start_P=0, seasonal=True,
                     d=1, D=1, trace=True,
                     error_action='ignore',  
                     suppress_warnings=True, 
-                    stepwise=True)
+                    stepwise=True,
+                    trend='t')
         stepwise_model.fit(df_trained)
-        print("df_trained ",df_trained)
-        timestamp = pd.date_range(start=end, end=end+timedelta(minutes=data["minuti"]), freq='15s')
+        #Creo un DataIndex di valori nel formato di prometheus per i prossimi X minuti
         lista=[]
         now=int((end-datetime(1970,1,1)).total_seconds())
-        # now = math.ceil(now)
-        print("inzio ",end)
         for i in range(0, data["minuti"]*60+15, 15):
-            # Ottieni il timestamp corrente e convertilo in secondi totali
             now = now+15
-            # Aggiungi il totale di secondi alla lista
             lista.append([now,0])
-        list_of_lists = [[date.date(),0] for date in timestamp]
-        # print("list ",lista)
+        #Creo un data frame che usero come index della nuova previsione    
         timestamp_index = pd.DataFrame(lista, columns=['timestamp','value'])
         timestamp_index['timestamp'] = pd.to_datetime(timestamp_index['timestamp'],unit='s')
         timestamp_index.set_index('timestamp', inplace=True)
         timestamp_index = timestamp_index.asfreq('15s')#1min
         timestamp_index.dropna(inplace=True)
-        # Ordina i dati per il timestamp
         timestamp_index.sort_index(inplace=True)
-        # timestamp = pd.date_range(start=end,end=end+timedelta(minutes=data['minuti']),freq='15s')
-        future_forecast = stepwise_model.predict(n_periods=len(timestamp),dynamic=False, typ='levels')
+        future_forecast = stepwise_model.predict(n_periods=len(timestamp_index),dynamic=False, typ='levels')
         print("future ",future_forecast)
-        # future_forecast = pd.DataFrame(future_forecast,index = timestamp_index.index ,columns=['Prediction'])
         future_forecast = pd.DataFrame(future_forecast, columns=['Prediction'])
         # Impostazione dell'indice
         future_forecast.index = timestamp_index.index
         print("future 2 ",future_forecast)
-        #future_forecast = pd.DataFrame(future_forecast,index = df.index,columns=['Prediction'])
+        #Mostro la predizione dei prossimi minuti
         fig = go.Figure()
         fig.add_scatter(y=future_forecast["Prediction"], x=future_forecast.index)
         fig.update_layout(
@@ -389,6 +380,7 @@ def get_probabilità_violazioni():
             yaxis_title="Predizione"
         )
         fig.show()
+        #Calcolo la probabilità di violazione
         violations=0
         for value in future_forecast["Prediction"]:
             if value > 884879400: #soglia metrica memoria disponibile presa in considerazione
