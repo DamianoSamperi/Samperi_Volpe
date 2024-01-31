@@ -31,7 +31,7 @@ while(True):
         time.sleep(10)
 
 prometheus_url="http://prometheus-service:9090"
-metriche_personalizzate = ['scraping_time','elaborating_tratte_time','elaborating_aeroporti_time']
+metriche_personalizzate = ['scraping_time','elaborating_tratte_time','elaborating_aeroporti_time','node_memory_MemAvailable_bytes']
 
 def contains(data,lista):
     return data in lista
@@ -84,7 +84,7 @@ def elimina_metrica():
                 return e
             return "metrica eliminata"
         else:
-            return "impossibile eliminare metrica personalizzata"
+            return "impossibile eliminare metrica personalizzata o utilizzata per la previsione"
 
 #permette di aggiungere una metrica dal SLA set    
 @app.route('/aggiungi_metrica', methods=['POST'])
