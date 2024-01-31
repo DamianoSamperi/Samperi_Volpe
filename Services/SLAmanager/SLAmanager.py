@@ -269,7 +269,7 @@ def get_probabilità_violazioni():
         metric_data = [[sublist[0], float(sublist[1])] for sublist in metric_data_string]
         metric_data_string_test = response_test[0]['values']
         metric_data_test = [[sublist[0], float(sublist[1])] for sublist in metric_data_string_test]
-
+        metric_name=query
         #Data frame utilizzati per scopo di test, li concateno per il modello finale
 
         # Converti i dati delle metriche in un DataFrame pandas
@@ -375,9 +375,16 @@ def get_probabilità_violazioni():
         )
         fig.show()
         #Calcolo la probabilità di violazione
+        try:
+            query="SELECT soglia FROM metriche WHERE nome= %s"
+            cursor.execute(query, (metric_name,)) 
+            threshold = cursor.fetchone()
+        except mysql.connector.errors as e:
+            print(f"Errore durante l'esecuzione della query: {e}")
+            return e
         violations=0
         for value in future_forecast["Prediction"]:
-            if value > 884879400: #soglia metrica memoria disponibile presa in considerazione
+            if value > threshold[0]: #soglia metrica memoria disponibile presa in considerazione
                 violations=violations+1
         probability_of_violation = violations / len(future_forecast["Prediction"])
         return f"probabilità violazione nei prossimi {data['minuti']} minuti = {probability_of_violation}%"
