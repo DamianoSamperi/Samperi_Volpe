@@ -23,7 +23,14 @@ metadata:
   # namespace: monitoring
 data:
   config.yml: |-
+  
+
     global:
+      smtp_from: 'Notifier.dsbd@gmail.com'
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_auth_username: 'Notifier.dsbd@gmail.com'
+      smtp_auth_password: 'fbjh rrsf pyow ssee'
+      smtp_require_tls: true
     templates:
     - '/etc/alertmanager/*.tmpl'
     route:
@@ -38,33 +45,9 @@ data:
       - to: prova_notifier@hotmail.com
         send_resolved: false
         from: Notifier.dsbd@gmail.com
-        smarthost: 'smtp:587'
-        require_tls: false
-  # route:
-  #   receiver: alert-emailer
-  #   group_by: ['alertname', 'priority']
-  #   group_wait: 10s
-  #   repeat_interval: 30m
-  #   routes:
-  #     - receiver: slack_demo
-  #     # Send severity=slack alerts to slack.
-  #       match:
-  #         severity: slack
-  #       group_wait: 10s
-  #       repeat_interval: 1m
-
-  # receivers:
-  # - name: alert-emailer
-  #   email_configs:
-  #   - to: prova_notifier@hotmail.com
-  #     send_resolved: false
-  #     from: Notifier.dsbd@gmail.com
-  #     smarthost: 'smtp:587'
-  #     require_tls: false
-  # - name: slack_demo
-  #   slack_configs:
-  #   - api_url: https://hooks.slack.com/services/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sz4Qk
-  #     channel: '#devopscube-demo'
+        smarthost: 'smtp.gmail.com:587'
+        require_tls: true
+ 
 ---
 apiVersion: apps/v1
 kind: Deployment
