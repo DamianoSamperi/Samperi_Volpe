@@ -16,8 +16,8 @@ data:
         labels:
           severity: page
         annotations:
-          summary: "Instance {{ $labels.instance }} down"
-          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."
+          summary: "Instance  down"
+          description: "avvisa se down per più di 6 ore."
 
   prometheus.yml: |-
     global:
